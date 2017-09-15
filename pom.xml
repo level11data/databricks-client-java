@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.level11data</groupId>
-	<artifactId>databricks-sdk</artifactId>
+	<artifactId>databricks-client</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
