@@ -1,3 +1,17 @@
+# Mac OSX hidden files
+.DS_Store
+
+# Vim swap files
+.*.sw?
+
+#IntelliJ Project User Specific Settings
+.idea/workspace.xml
+.idea/tasks.xml
+
+#IntelliJ Project Generated on Import (Maven)
+.idea/libraries/*.xml
+databricks-client.iml
+
 # Compiled class file
 *.class
 
@@ -20,3 +34,7 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# build artifacts
+target/
+
