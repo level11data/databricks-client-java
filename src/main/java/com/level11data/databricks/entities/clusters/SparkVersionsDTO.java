@@ -3,6 +3,9 @@ package com.level11data.databricks.entities.clusters;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
@@ -10,19 +13,21 @@ import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SparkVersions {
+public class SparkVersionsDTO {
 
     @JsonProperty("versions")
-    public List<SparkVersion> Versions;
+    public List<SparkVersionDTO> Versions;
 
     @JsonProperty("default_version_key")
     public String DefaultVersionKey;
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Versions : " + this.Versions + '\n');
-        stringBuilder.append("DefaultVersionKey : " + this.DefaultVersionKey + '\n');
-        return stringBuilder.toString();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            return ow.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "Could Not Marshal Object to JSON";
+        }
     }
 }

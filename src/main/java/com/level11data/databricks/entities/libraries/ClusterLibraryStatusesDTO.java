@@ -8,12 +8,13 @@ import javax.ws.rs.core.MediaType;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PythonPyPiLibrary {
+public class ClusterLibraryStatusesDTO {
+    @JsonProperty("cluster_id")
+    public String ClusterId;
 
-    @JsonProperty("package")
-    public String Package;
+    @JsonProperty("library_statuses")
+    public LibraryFullStatusDTO[] LibraryStatuses;
 
-    @JsonProperty("repo")
-    public String Repo;
+
 
 }

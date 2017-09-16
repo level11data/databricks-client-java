@@ -2,17 +2,17 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
-import com.level11data.databricks.entities.libraries.ClusterLibraryRequest;
-import com.level11data.databricks.entities.libraries.Library;
-import com.level11data.databricks.entities.libraries.MavenLibrary;
-import com.level11data.databricks.entities.libraries.PythonPyPiLibrary;
+import com.level11data.databricks.entities.libraries.ClusterLibraryRequestDTO;
+import com.level11data.databricks.entities.libraries.LibraryDTO;
+import com.level11data.databricks.entities.libraries.MavenLibraryDTO;
+import com.level11data.databricks.entities.libraries.PythonPyPiLibraryDTO;
 
 import java.util.List;
 
 public class ClusterLibraryRequestBuilder {
     private LibrariesClient _client;
     private String _clusterId;
-    private List<Library> _libraries;
+    private List<LibraryDTO> _libraries;
 
     public ClusterLibraryRequestBuilder(LibrariesClient client, String clusterId) {
         _client = client;
@@ -20,27 +20,27 @@ public class ClusterLibraryRequestBuilder {
     }
 
     public ClusterLibraryRequestBuilder withJarLibrary(String uri) {
-        Library jarLibrary = new Library();
-        jarLibrary.Jar = uri;
-        _libraries.add(jarLibrary);
+        LibraryDTO jarLibraryDTO = new LibraryDTO();
+        jarLibraryDTO.Jar = uri;
+        _libraries.add(jarLibraryDTO);
         return this;
     }
 
     public ClusterLibraryRequestBuilder withEggLibrary(String uri) {
-        Library eggLibrary = new Library();
-        eggLibrary.Egg = uri;
-        _libraries.add(eggLibrary);
+        LibraryDTO eggLibraryDTO = new LibraryDTO();
+        eggLibraryDTO.Egg = uri;
+        _libraries.add(eggLibraryDTO);
         return this;
     }
 
     public ClusterLibraryRequestBuilder withPyPiLibrary(String pythonPackage, String repo) {
-        PythonPyPiLibrary pyPiLibrary = new PythonPyPiLibrary();
+        PythonPyPiLibraryDTO pyPiLibrary = new PythonPyPiLibraryDTO();
         pyPiLibrary.Package = pythonPackage;
         pyPiLibrary.Repo = repo;
 
-        Library library = new Library();
-        library.PyPi = pyPiLibrary;
-        _libraries.add(library);
+        LibraryDTO libraryDTO = new LibraryDTO();
+        libraryDTO.PyPi = pyPiLibrary;
+        _libraries.add(libraryDTO);
         return this;
     }
 
@@ -51,15 +51,15 @@ public class ClusterLibraryRequestBuilder {
     public ClusterLibraryRequestBuilder withMavenLibrary(String coordinates,
                                                          String repo,
                                                          String[] exclusions) {
-        MavenLibrary mavenLibrary = new MavenLibrary();
-        mavenLibrary.Coordinates = coordinates;
-        mavenLibrary.Repo = repo;
-        mavenLibrary.Exclusions = exclusions;
+        MavenLibraryDTO mavenLibraryDTO = new MavenLibraryDTO();
+        mavenLibraryDTO.Coordinates = coordinates;
+        mavenLibraryDTO.Repo = repo;
+        mavenLibraryDTO.Exclusions = exclusions;
 
-        Library library = new Library();
-        library.Maven = mavenLibrary;
+        LibraryDTO libraryDTO = new LibraryDTO();
+        libraryDTO.Maven = mavenLibraryDTO;
 
-        _libraries.add(library);
+        _libraries.add(libraryDTO);
         return this;
     }
 
@@ -78,16 +78,16 @@ public class ClusterLibraryRequestBuilder {
     }
 
     public void installLibraries() throws HttpException {
-        ClusterLibraryRequest request = new ClusterLibraryRequest();
+        ClusterLibraryRequestDTO request = new ClusterLibraryRequestDTO();
         request.ClusterId = _clusterId;
-        request.Libraries = _libraries.toArray(new Library[_libraries.size()]);
+        request.Libraries = _libraries.toArray(new LibraryDTO[_libraries.size()]);
         _client.installLibraries(request);
     }
 
     public void uninstallLibraries() throws HttpException {
-        ClusterLibraryRequest request = new ClusterLibraryRequest();
+        ClusterLibraryRequestDTO request = new ClusterLibraryRequestDTO();
         request.ClusterId = _clusterId;
-        request.Libraries = _libraries.toArray(new Library[_libraries.size()]);
+        request.Libraries = _libraries.toArray(new LibraryDTO[_libraries.size()]);
         _client.uninstallLibraries(request);
     }
 

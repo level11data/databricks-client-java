@@ -1,7 +1,7 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.AwsAttributes.AwsAvailability;
-import com.level11data.databricks.entities.clusters.AwsAttributes.EbsVolumeType;
+import com.level11data.databricks.cluster.AwsAttribute.*;
+import com.level11data.databricks.entities.clusters.AwsAttributesDTO;
 
 public class AwsAttributes {
     public final Integer FirstOnDemand;
@@ -31,14 +31,28 @@ public class AwsAttributes {
         EbsVolumeSize = ebsVolumeSize;
     }
 
-    public AwsAttributes(com.level11data.databricks.entities.clusters.AwsAttributes awsAttributesInfo) {
-        FirstOnDemand = awsAttributesInfo.FirstOnDemand;
-        Availability = awsAttributesInfo.Availability;
-        ZoneId = awsAttributesInfo.ZoneId;
-        InstanceProfileARN = awsAttributesInfo.InstanceProfileARN;
-        SpotBidPricePercent = awsAttributesInfo.SpotBidPricePercent;
-        EbsVolumeType = awsAttributesInfo.EbsVolumeType;
-        EbsVolumeCount = awsAttributesInfo.EbsVolumeCount;
-        EbsVolumeSize = awsAttributesInfo.EbsVolumeSize;
+    public AwsAttributes(AwsAttributesDTO awsAttributesDTOInfo) {
+        FirstOnDemand = awsAttributesDTOInfo.FirstOnDemand;
+
+        String awsAvailability = awsAttributesDTOInfo.Availability;
+        if(awsAvailability != null) {
+            Availability = AwsAvailability.valueOf(awsAvailability);
+        } else {
+            Availability = null;
+        }
+
+        ZoneId = awsAttributesDTOInfo.ZoneId;
+        InstanceProfileARN = awsAttributesDTOInfo.InstanceProfileARN;
+        SpotBidPricePercent = awsAttributesDTOInfo.SpotBidPricePercent;
+
+        String ebsVolumeType = awsAttributesDTOInfo.EbsVolumeType;
+        if(ebsVolumeType != null) {
+            EbsVolumeType = com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType.valueOf(ebsVolumeType);
+        } else {
+            EbsVolumeType = null;
+        }
+
+        EbsVolumeCount = awsAttributesDTOInfo.EbsVolumeCount;
+        EbsVolumeSize = awsAttributesDTOInfo.EbsVolumeSize;
     }
 }

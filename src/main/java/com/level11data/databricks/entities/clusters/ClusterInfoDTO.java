@@ -13,11 +13,7 @@ import java.util.Map;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ClusterInfo {
-    public enum ClusterState {
-        PENDING, RUNNING, RESTARTING, RESIZING, TERMINATING, TERMINATED, ERROR, UNKNOWN
-    }
-
+public class ClusterInfoDTO {
     //These properties are only returned; they cannot be set
     @JsonProperty("cluster_id")
     public String ClusterId;
@@ -26,27 +22,23 @@ public class ClusterInfo {
     public String CreatorUserName;
 
     @JsonProperty("driver")
-    public SparkNode Driver;
+    public SparkNodeDTO Driver;
 
-    //TODO This isn't in the documentation
     @JsonProperty("spark_context_id")
     public Float SparkContextId;
 
-    //TODO This doesn't seem to ever be returned (via list); and why is this called "executors" if "workers" is used for sizing?
     @JsonProperty("executors")
-    public SparkNode[] Executors;
+    public SparkNodeDTO[] Executors;
 
     @JsonProperty("jdbc_port")
     public Integer JdbcPort;
 
     @JsonProperty("state")
-    public ClusterState State;
+    public String State;
 
     @JsonProperty("state_message")
     public String StateMessage;
 
-    //This should probably be an enum if I knew the values (JOB_LAUNCHER, THIRD_PARTY)
-    //TODO The list of possible values is not in the documentation
     @JsonProperty("cluster_created_by")
     public String ClusterCreatedBy;
 
@@ -72,18 +64,17 @@ public class ClusterInfo {
     public Map<String, String> DefaultTags;
 
     @JsonProperty("cluster_log_status")
-    public LogSyncStatus ClusterLogStatus;
+    public LogSyncStatusDTO ClusterLogStatus;
 
     @JsonProperty("termination_reason")
-    public TerminationReason TerminationReason;
-
+    public TerminationReasonDTO TerminationReason;
 
     //These properites can be set
     @JsonProperty("num_workers")
     public Integer NumWorkers;
 
     @JsonProperty("autoscale")
-    public AutoScale AutoScale;
+    public AutoScaleDTO AutoScale;
 
     @JsonProperty("cluster_name")
     public String ClusterName;
@@ -98,7 +89,7 @@ public class ClusterInfo {
     public String DriverNodeTypeId;
 
     @JsonProperty("aws_attributes")
-    public AwsAttributes AwsAttributes;
+    public AwsAttributesDTO AwsAttributes;
 
     @JsonProperty("autotermination_minutes")
     public Integer AutoTerminationMinutes;
@@ -116,12 +107,10 @@ public class ClusterInfo {
     public Map<String, String> CustomTags;
 
     @JsonProperty("cluster_log_conf")
-    public ClusterLogConf ClusterLogConf;
+    public ClusterLogConfDTO ClusterLogConf;
 
     @JsonProperty("spark_env_vars")
     public Map<String, String> SparkEnvironmentVariables;
-
-
 
     @Override
     public String toString() {

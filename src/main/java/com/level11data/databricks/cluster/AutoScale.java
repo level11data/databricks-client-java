@@ -1,5 +1,7 @@
 package com.level11data.databricks.cluster;
 
+import com.level11data.databricks.entities.clusters.AutoScaleDTO;
+
 public class AutoScale {
     public final Integer MinWorkers;
     public final Integer MaxWorkers;
@@ -9,8 +11,8 @@ public class AutoScale {
         MaxWorkers = maxWorkers;
     }
 
-    public AutoScale(com.level11data.databricks.entities.clusters.AutoScale autoScaleInfo) {
-        MinWorkers = autoScaleInfo.MinWorkers;
-        MaxWorkers = autoScaleInfo.MaxWorkers;
+    public AutoScale(AutoScaleDTO autoScaleDTOInfo) {
+        MinWorkers = autoScaleDTOInfo.MinWorkers;
+        MaxWorkers = autoScaleDTOInfo.MaxWorkers;
     }
 }

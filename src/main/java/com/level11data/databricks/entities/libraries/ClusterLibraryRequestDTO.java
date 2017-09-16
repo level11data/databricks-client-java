@@ -8,15 +8,12 @@ import javax.ws.rs.core.MediaType;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MavenLibrary {
+public class ClusterLibraryRequestDTO {
 
-    @JsonProperty("coordinates")
-    public String Coordinates;
+    @JsonProperty("cluster_id")
+    public String ClusterId;
 
-    @JsonProperty("repo")
-    public String Repo;
-
-    @JsonProperty("exclusions")
-    public String[] Exclusions;
+    @JsonProperty("libraries")
+    public LibraryDTO[] Libraries;
 
 }

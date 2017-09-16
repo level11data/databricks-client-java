@@ -9,10 +9,10 @@ import com.level11data.databricks.cluster.ClusterIter;
 import com.level11data.databricks.cluster.ClusterBuilder;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.clusters.ClusterInfo;
-import com.level11data.databricks.entities.clusters.NodeType;
-import com.level11data.databricks.entities.clusters.SparkVersion;
-import com.level11data.databricks.library.ClusterLibraryRequestBuilder;
+import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.entities.clusters.NodeTypeDTO;
+import com.level11data.databricks.entities.clusters.SparkVersionDTO;
+import com.level11data.databricks.entities.clusters.SparkVersionsDTO;
 
 import java.util.*;
 
@@ -21,6 +21,7 @@ public class DatabricksSession {
     private DatabricksClientConfiguration _databricksClientConfig;
     private ClustersClient _clustersClient;
     private LibrariesClient _librariesClient;
+    private SparkVersionsDTO _sparkVersions;
 
     public DatabricksSession(DatabricksClientConfiguration databricksConfig) {
         _databricksClientConfig = databricksConfig;
@@ -49,14 +50,21 @@ public class DatabricksSession {
     }
 
     public String getDefaultSparkVersion() throws HttpException  {
-        return getOrCreateClustersClient().getSparkVersions().DefaultVersionKey;
+        if(_sparkVersions == null) {
+            _sparkVersions = getOrCreateClustersClient().getSparkVersions();
+        }
+        return _sparkVersions.DefaultVersionKey;
     }
 
     public Map<String,String> getSparkVersions() throws HttpException  {
-        List<SparkVersion> versionList = getOrCreateClustersClient().getSparkVersions().Versions;
+        if(_sparkVersions == null) {
+            _sparkVersions = getOrCreateClustersClient().getSparkVersions();
+        }
+
+        List<SparkVersionDTO> versionList = _sparkVersions.Versions;
         HashMap<String,String> versionMap = new HashMap<String,String>();
 
-        for(SparkVersion sv : versionList) {
+        for(SparkVersionDTO sv : versionList) {
             versionMap.put(sv.Key, sv.Name);
         }
         return versionMap;
@@ -67,13 +75,13 @@ public class DatabricksSession {
     }
 
     public List<com.level11data.databricks.cluster.NodeType> getNodeTypes() throws HttpException  {
-        List<com.level11data.databricks.entities.clusters.NodeType> nodeTypesInfoList
+        List<NodeTypeDTO> nodeTypesInfoListDTO
                 = getOrCreateClustersClient().getNodeTypes().NodeTypes;
 
         ArrayList<com.level11data.databricks.cluster.NodeType> nodeTypesList
                 = new ArrayList<com.level11data.databricks.cluster.NodeType>();
 
-        for(NodeType nt : nodeTypesInfoList) {
+        for(NodeTypeDTO nt : nodeTypesInfoListDTO) {
             nodeTypesList.add(new com.level11data.databricks.cluster.NodeType(nt));
         }
         return nodeTypesList;
@@ -90,10 +98,10 @@ public class DatabricksSession {
     /*
     public List<Cluster> listClusters() throws ClusterConfigException, HttpException {
         ClustersClient client = getOrCreateClustersClient();
-        ClusterInfo[] clusterInfos = client.listClusters().Clusters;
+        ClusterInfoDTO[] clusterInfos = client.listClusters().ClustersDTO;
 
         ArrayList<Cluster> clusters = new ArrayList<Cluster>();
-        for(ClusterInfo clusterInfo : clusterInfos) {
+        for(ClusterInfoDTO clusterInfo : clusterInfos) {
             clusters.add(new Cluster(client, clusterInfo));
         }
         return clusters;
@@ -102,14 +110,14 @@ public class DatabricksSession {
 
     public Iterator<Cluster> listClusters() throws HttpException {
         ClustersClient client = getOrCreateClustersClient();
-        ClusterInfo[] clusterInfos = client.listClusters().Clusters;
-        return new ClusterIter(client, clusterInfos);
+        ClusterInfoDTO[] clusterInfoDTOs = client.listClusters().Clusters;
+        return new ClusterIter(client, clusterInfoDTOs);
     }
 
     public Cluster getCluster(String id) throws ClusterConfigException, HttpException {
         ClustersClient client = getOrCreateClustersClient();
-        ClusterInfo clusterInfo = client.getCluster(id);
-        return new Cluster(client, clusterInfo);
+        ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
+        return new Cluster(client, clusterInfoDTO);
     }
 
     public void startCluster(String id) throws HttpException {

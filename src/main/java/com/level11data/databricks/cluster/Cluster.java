@@ -3,7 +3,6 @@ package com.level11data.databricks.cluster;
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.entities.clusters.*;
-import com.level11data.databricks.entities.clusters.TerminationReason;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.Map;
 
 public class Cluster {
     private ClustersClient _client;
-    private ClusterInfo _clusterInfo;
+    private ClusterInfoDTO _clusterInfoDTO;
     private Boolean _isAutoScaling = false;
     private Boolean _clusterInfoRequested = false;
 
@@ -48,14 +47,14 @@ public class Cluster {
      *   3. Cluster.resize()
      *
      * @param client Databricks ClusterClient
-     * @param info Databricks ClusterInfo POJO
+     * @param info Databricks ClusterInfoDTO POJO
      * @throws ClusterConfigException
      */
-    public Cluster(ClustersClient client, ClusterInfo info) throws ClusterConfigException, HttpException {
+    public Cluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
         _client = client;
-        _clusterInfo = info;
+        _clusterInfoDTO = info;
 
-        //Validate that required fields are populated in the ClusterInfo
+        //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(info);
 
         Id = info.ClusterId;
@@ -91,185 +90,185 @@ public class Cluster {
         DefaultTags = getDefaultTags();
     }
 
-    private void validateClusterInfo(ClusterInfo info) throws ClusterConfigException {
+    private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
         if(info.ClusterId == null) {
-            throw new ClusterConfigException("ClusterInfo Must Have ClusterId");
+            throw new ClusterConfigException("ClusterInfoDTO Must Have ClusterId");
         }
 
         if(info.ClusterName == null) {
-            throw new ClusterConfigException("ClusterInfo Must Have Name");
+            throw new ClusterConfigException("ClusterInfoDTO Must Have Name");
         }
 
         if(info.NumWorkers == null && info.AutoScale == null)  {
-            throw new ClusterConfigException("ClusterInfo Must Have either NumWorkers OR AutoScale");
+            throw new ClusterConfigException("ClusterInfoDTO Must Have either NumWorkers OR AutoScaleDTO");
         }
     }
 
-    private ClusterInfo getOrRequestClusterInfo(ClusterInfo info) throws HttpException {
+    private ClusterInfoDTO getOrRequestClusterInfo(ClusterInfoDTO info) throws HttpException {
         if(!_clusterInfoRequested) {
-            _clusterInfo = _client.getCluster(Id);
+            _clusterInfoDTO = _client.getCluster(Id);
             _clusterInfoRequested = true;
-            return _clusterInfo;
+            return _clusterInfoDTO;
         } else {
             return info;
         }
     }
 
     private String getSparkVersion() throws HttpException {
-        if(_clusterInfo.SparkVersion == null) {
-            return getOrRequestClusterInfo(_clusterInfo).SparkVersion;
+        if(_clusterInfoDTO.SparkVersion == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).SparkVersion;
         } else {
-            return _clusterInfo.SparkVersion;
+            return _clusterInfoDTO.SparkVersion;
         }
     }
 
     private String getNodeTypeId() throws HttpException {
-        if(_clusterInfo.NodeTypeId == null) {
-            return getOrRequestClusterInfo(_clusterInfo).NodeTypeId;
+        if(_clusterInfoDTO.NodeTypeId == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).NodeTypeId;
         } else {
-            return _clusterInfo.NodeTypeId;
+            return _clusterInfoDTO.NodeTypeId;
         }
     }
 
     private String getDriverNodeTypeId() throws HttpException {
-        if(_clusterInfo.DriverNodeTypeId == null) {
-            return getOrRequestClusterInfo(_clusterInfo).DriverNodeTypeId;
+        if(_clusterInfoDTO.DriverNodeTypeId == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).DriverNodeTypeId;
         } else {
-            return _clusterInfo.DriverNodeTypeId;
+            return _clusterInfoDTO.DriverNodeTypeId;
         }
     }
 
     private AwsAttributes getAwsAttributes() throws HttpException {
-        if(_clusterInfo.AwsAttributes == null) {
-            return new AwsAttributes(getOrRequestClusterInfo(_clusterInfo).AwsAttributes);
+        if(_clusterInfoDTO.AwsAttributes == null) {
+            return new AwsAttributes(getOrRequestClusterInfo(_clusterInfoDTO).AwsAttributes);
         } else {
-            return new AwsAttributes(_clusterInfo.AwsAttributes);
+            return new AwsAttributes(_clusterInfoDTO.AwsAttributes);
         }
     }
 
     private Integer getAutoTerminationMinutes() throws HttpException  {
-        if(_clusterInfo.AutoTerminationMinutes == null) {
-            return getOrRequestClusterInfo(_clusterInfo).AutoTerminationMinutes;
+        if(_clusterInfoDTO.AutoTerminationMinutes == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).AutoTerminationMinutes;
         } else {
-            return _clusterInfo.AutoTerminationMinutes;
+            return _clusterInfoDTO.AutoTerminationMinutes;
         }
     }
 
     private Boolean getElasticDiskEnabled() throws HttpException {
-        return getOrRequestClusterInfo(_clusterInfo).EnableElasticDisk;
+        return getOrRequestClusterInfo(_clusterInfoDTO).EnableElasticDisk;
     }
 
     private Map<String, String> getSparkConf() throws HttpException {
-        if(_clusterInfo.SparkConf == null) {
-            return getOrRequestClusterInfo(_clusterInfo).SparkConf;
+        if(_clusterInfoDTO.SparkConf == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).SparkConf;
         } else {
-            return _clusterInfo.SparkConf;
+            return _clusterInfoDTO.SparkConf;
         }
     }
 
     private String[] getSshPublicKeys() throws HttpException {
-        if(_clusterInfo.SshPublicKeys == null) {
-            return getOrRequestClusterInfo(_clusterInfo).SshPublicKeys;
+        if(_clusterInfoDTO.SshPublicKeys == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).SshPublicKeys;
         } else {
-            return _clusterInfo.SshPublicKeys;
+            return _clusterInfoDTO.SshPublicKeys;
         }
     }
 
     private Map<String, String> getCustomTags() throws HttpException {
-        if(_clusterInfo.CustomTags == null) {
-            return getOrRequestClusterInfo(_clusterInfo).CustomTags;
+        if(_clusterInfoDTO.CustomTags == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).CustomTags;
         } else {
-            return _clusterInfo.CustomTags;
+            return _clusterInfoDTO.CustomTags;
         }
     }
 
     private ClusterLogConf getLogConf() throws HttpException {
-        if(_clusterInfo.ClusterLogConf == null && _clusterInfoRequested) {
+        if(_clusterInfoDTO.ClusterLogConf == null && _clusterInfoRequested) {
             return null;
-        } else if(_clusterInfo.ClusterLogConf == null && !_clusterInfoRequested) {
-            if(getOrRequestClusterInfo(_clusterInfo).ClusterLogConf == null) {
+        } else if(_clusterInfoDTO.ClusterLogConf == null && !_clusterInfoRequested) {
+            if(getOrRequestClusterInfo(_clusterInfoDTO).ClusterLogConf == null) {
                 return null;
             } else {
-                return new ClusterLogConf(getOrRequestClusterInfo(_clusterInfo).ClusterLogConf);
+                return new ClusterLogConf(getOrRequestClusterInfo(_clusterInfoDTO).ClusterLogConf);
             }
         } else {
-            return new ClusterLogConf(_clusterInfo.ClusterLogConf);
+            return new ClusterLogConf(_clusterInfoDTO.ClusterLogConf);
         }
     }
 
     private Map<String, String> getSparkEnvironmentVariables() throws HttpException {
-        if(_clusterInfo.SparkEnvironmentVariables == null) {
-            return getOrRequestClusterInfo(_clusterInfo).SparkEnvironmentVariables;
+        if(_clusterInfoDTO.SparkEnvironmentVariables == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).SparkEnvironmentVariables;
         } else {
-            return _clusterInfo.SparkEnvironmentVariables;
+            return _clusterInfoDTO.SparkEnvironmentVariables;
         }
     }
 
     private String getCreatorUserName() throws HttpException {
-        if(_clusterInfo.CreatorUserName == null) {
-            return getOrRequestClusterInfo(_clusterInfo).CreatorUserName;
+        if(_clusterInfoDTO.CreatorUserName == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).CreatorUserName;
         } else {
-            return _clusterInfo.CreatorUserName;
+            return _clusterInfoDTO.CreatorUserName;
         }
     }
 
     private String getCreatedBy() throws HttpException {
-        if(_clusterInfo.ClusterCreatedBy == null) {
-            return getOrRequestClusterInfo(_clusterInfo).ClusterCreatedBy;
+        if(_clusterInfoDTO.ClusterCreatedBy == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).ClusterCreatedBy;
         } else {
-            return _clusterInfo.ClusterCreatedBy;
+            return _clusterInfoDTO.ClusterCreatedBy;
         }
     }
 
     private SparkNode getDriver() throws HttpException {
-        if(_clusterInfo.Driver == null && _clusterInfoRequested) {
+        if(_clusterInfoDTO.Driver == null && _clusterInfoRequested) {
             return null;
-        } else if(_clusterInfo.Driver == null && !_clusterInfoRequested) {
-            if(getOrRequestClusterInfo(_clusterInfo).Driver == null) {
+        } else if(_clusterInfoDTO.Driver == null && !_clusterInfoRequested) {
+            if(getOrRequestClusterInfo(_clusterInfoDTO).Driver == null) {
                 return null;
             } else {
-                return new SparkNode(getOrRequestClusterInfo(_clusterInfo).Driver);
+                return new SparkNode(getOrRequestClusterInfo(_clusterInfoDTO).Driver);
             }
         } else {
-            return new SparkNode(_clusterInfo.Driver);
+            return new SparkNode(_clusterInfoDTO.Driver);
         }
     }
 
     private Float getSparkContextId() throws HttpException {
-        if(_clusterInfo.SparkContextId == null) {
-            return getOrRequestClusterInfo(_clusterInfo).SparkContextId;
+        if(_clusterInfoDTO.SparkContextId == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).SparkContextId;
         } else {
-            return _clusterInfo.SparkContextId;
+            return _clusterInfoDTO.SparkContextId;
         }
     }
 
     private Integer getJdbcPort() throws HttpException {
-        if(_clusterInfo.JdbcPort == null) {
-            return getOrRequestClusterInfo(_clusterInfo).JdbcPort;
+        if(_clusterInfoDTO.JdbcPort == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).JdbcPort;
         } else {
-            return _clusterInfo.JdbcPort;
+            return _clusterInfoDTO.JdbcPort;
         }
     }
 
     private BigInteger getStartTime() throws HttpException  {
-        if(_clusterInfo.StartTime == null) {
-            return getOrRequestClusterInfo(_clusterInfo).StartTime;
+        if(_clusterInfoDTO.StartTime == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).StartTime;
         } else {
-            return _clusterInfo.StartTime;
+            return _clusterInfoDTO.StartTime;
         }
     }
 
     private Map<String, String> getDefaultTags() throws HttpException {
-        if(_clusterInfo.DefaultTags == null) {
-            return getOrRequestClusterInfo(_clusterInfo).DefaultTags;
+        if(_clusterInfoDTO.DefaultTags == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).DefaultTags;
         } else {
-            return _clusterInfo.DefaultTags;
+            return _clusterInfoDTO.DefaultTags;
         }
     }
 
-    public ClusterInfo.ClusterState getState() throws HttpException {
+    public ClusterState getState() throws HttpException {
         //Always make client request for this
-        return _client.getCluster(Id).State;
+        return ClusterState.valueOf(_client.getCluster(Id).State);
     }
 
     public String getStateMessage() throws HttpException {
@@ -277,16 +276,18 @@ public class Cluster {
         return _client.getCluster(Id).StateMessage;
     }
 
-    public SparkNode[] getExecutors() throws HttpException {
+    public ArrayList<SparkNode> getExecutors() throws HttpException {
         //Always make client request for this
-        com.level11data.databricks.entities.clusters.SparkNode[] nodeInfos =  _client.getCluster(Id).Executors;
+        SparkNodeDTO[] nodeInfos =  _client.getCluster(Id).Executors;
 
         ArrayList<SparkNode> nodeList = new ArrayList<SparkNode>();
 
-        for(com.level11data.databricks.entities.clusters.SparkNode nodeInfo : nodeInfos) {
-            nodeList.add(new SparkNode(nodeInfo));
+        if(nodeInfos != null) {
+            for(SparkNodeDTO nodeInfo : nodeInfos) {
+                nodeList.add(new SparkNode(nodeInfo));
+            }
         }
-        return nodeList.toArray(new SparkNode[nodeList.size()]);
+        return nodeList;
     }
 
     public BigInteger getTerminatedTime() throws HttpException  {
@@ -319,7 +320,7 @@ public class Cluster {
         return new LogSyncStatus(_client.getCluster(Id).ClusterLogStatus);
     }
 
-    public TerminationReason getTerminationReason() throws HttpException {
+    public TerminationReasonDTO getTerminationReason() throws HttpException {
         //Always make client request for this
         return _client.getCluster(Id).TerminationReason;
     }
@@ -342,7 +343,7 @@ public class Cluster {
         }
         _client.resize(Id, numWorkers);
 
-        ClusterInfo resizedClusterConfig = _clusterInfo;
+        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
         resizedClusterConfig.NumWorkers = numWorkers;
         return new Cluster(_client, resizedClusterConfig);
     }
@@ -353,7 +354,7 @@ public class Cluster {
         }
         _client.resize(Id, minWorkers, maxWorkers);
 
-        ClusterInfo resizedClusterConfig = _clusterInfo;
+        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
         resizedClusterConfig.AutoScale.MinWorkers = minWorkers;
         resizedClusterConfig.AutoScale.MaxWorkers = maxWorkers;
         return new Cluster(_client, resizedClusterConfig);

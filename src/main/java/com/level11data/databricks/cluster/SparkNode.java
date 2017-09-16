@@ -1,5 +1,7 @@
 package com.level11data.databricks.cluster;
 
+import com.level11data.databricks.entities.clusters.SparkNodeDTO;
+
 import java.math.BigInteger;
 
 public class SparkNode {
@@ -11,13 +13,13 @@ public class SparkNode {
     public final SparkNodeAwsAttributes NodeAwsAttributes;
     public final String HostPrivateIP;
 
-    public SparkNode(com.level11data.databricks.entities.clusters.SparkNode sparkNodeInfo) {
-        PrivateIP = sparkNodeInfo.PrivateIP;
-        PublicDNS = sparkNodeInfo.PublicDNS;
-        NodeId = sparkNodeInfo.NodeId;
-        InstanceId = sparkNodeInfo.InstanceId;
-        StartTimestamp = sparkNodeInfo.StartTimestamp;
-        NodeAwsAttributes = new SparkNodeAwsAttributes(sparkNodeInfo.NodeAwsAttributes);
-        HostPrivateIP = sparkNodeInfo.HostPrivateIP;
+    public SparkNode(SparkNodeDTO sparkNodeDTOInfo) {
+        PrivateIP = sparkNodeDTOInfo.PrivateIP;
+        PublicDNS = sparkNodeDTOInfo.PublicDNS;
+        NodeId = sparkNodeDTOInfo.NodeId;
+        InstanceId = sparkNodeDTOInfo.InstanceId;
+        StartTimestamp = sparkNodeDTOInfo.StartTimestamp;
+        NodeAwsAttributes = new SparkNodeAwsAttributes(sparkNodeDTOInfo.NodeAwsAttributes);
+        HostPrivateIP = sparkNodeDTOInfo.HostPrivateIP;
     }
 }

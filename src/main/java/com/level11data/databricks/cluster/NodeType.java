@@ -1,5 +1,7 @@
 package com.level11data.databricks.cluster;
 
+import com.level11data.databricks.entities.clusters.NodeTypeDTO;
+
 public class NodeType {
     public final String Id;
     public final Integer MemoryMB;
@@ -8,12 +10,12 @@ public class NodeType {
     public final String InstanceTypeId;
     public final Boolean IsDeprecated;
 
-    public NodeType(com.level11data.databricks.entities.clusters.NodeType nodeTypeInfo) {
-        Id = nodeTypeInfo.Id;
-        MemoryMB = nodeTypeInfo.MemoryMB;
-        NumCores = nodeTypeInfo.NumCores;
-        Description = nodeTypeInfo.Description;
-        InstanceTypeId = nodeTypeInfo.InstanceTypeId;
-        IsDeprecated = nodeTypeInfo.IsDeprecated;
+    public NodeType(NodeTypeDTO nodeTypeDTOInfo) {
+        Id = nodeTypeDTOInfo.Id;
+        MemoryMB = nodeTypeDTOInfo.MemoryMB;
+        NumCores = nodeTypeDTOInfo.NumCores;
+        Description = nodeTypeDTOInfo.Description;
+        InstanceTypeId = nodeTypeDTOInfo.InstanceTypeId;
+        IsDeprecated = nodeTypeDTOInfo.IsDeprecated;
     }
 }

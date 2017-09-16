@@ -4,12 +4,13 @@ import java.util.Map;
 
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.entities.clusters.*;
-import com.level11data.databricks.entities.clusters.AwsAttributes;
-import com.level11data.databricks.entities.clusters.AutoScale;
-import com.level11data.databricks.entities.clusters.S3StorageInfo;
-import com.level11data.databricks.entities.clusters.DbfsStorageInfo;
-import com.level11data.databricks.entities.clusters.ClusterLogConf;
+import com.level11data.databricks.entities.clusters.AwsAttributesDTO;
+import com.level11data.databricks.entities.clusters.AutoScaleDTO;
+import com.level11data.databricks.entities.clusters.S3StorageInfoDTO;
+import com.level11data.databricks.entities.clusters.DbfsStorageInfoDTO;
+import com.level11data.databricks.entities.clusters.ClusterLogConfDTO;
 
 public class ClusterBuilder {
     private ClustersClient _client;
@@ -21,11 +22,11 @@ public class ClusterBuilder {
     private String _nodeType;
     private String _driverNodeType;
     private Integer _awsFirstOnDemand;
-    private AwsAttributes.AwsAvailability _awsAvailability;
+    private AwsAvailability _awsAvailability;
     private String _awsZone;
     private String _awsInstanceProfileArn;
     private Integer _awsSpotBidPricePercent;
-    private AwsAttributes.EbsVolumeType _awsEbsVolumeType;
+    private EbsVolumeType _awsEbsVolumeType;
     private Integer _awsEbsVolumeCount;
     private Integer _awsEbsVolumeSize;
     private Integer _autoTerminationMinutes;
@@ -76,7 +77,7 @@ public class ClusterBuilder {
         return this;
     }
 
-    public ClusterBuilder withAwsAvailability(AwsAttributes.AwsAvailability availability) {
+    public ClusterBuilder withAwsAvailability(AwsAvailability availability) {
         _awsAvailability = availability;
         return this;
     }
@@ -96,7 +97,7 @@ public class ClusterBuilder {
         return this;
     }
 
-    public ClusterBuilder withAwsEbsVolume(AwsAttributes.EbsVolumeType type,
+    public ClusterBuilder withAwsEbsVolume(EbsVolumeType type,
                                            Integer count,
                                            Integer size) {
         _awsEbsVolumeType = type;
@@ -183,16 +184,16 @@ public class ClusterBuilder {
     public Cluster create() throws ClusterConfigException, HttpException {
         validateLogConf();
 
-        ClusterInfo clusterInfo = new ClusterInfo();
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
 
         if(_autoscaleMinWorkers != null && _autoscaleMaxWorkers != null) {
-            AutoScale autoScale = new AutoScale();
-            autoScale.MinWorkers = _autoscaleMinWorkers;
-            autoScale.MaxWorkers = _autoscaleMaxWorkers;
-            clusterInfo.AutoScale = autoScale;
+            AutoScaleDTO autoScaleDTO = new AutoScaleDTO();
+            autoScaleDTO.MinWorkers = _autoscaleMinWorkers;
+            autoScaleDTO.MaxWorkers = _autoscaleMaxWorkers;
+            clusterInfoDTO.AutoScale = autoScaleDTO;
         }
 
-        clusterInfo.AutoTerminationMinutes = _autoTerminationMinutes;
+        clusterInfoDTO.AutoTerminationMinutes = _autoTerminationMinutes;
 
         if(_awsAvailability != null ||
            _awsEbsVolumeCount != null ||
@@ -202,28 +203,28 @@ public class ClusterBuilder {
            _awsInstanceProfileArn != null ||
            _awsSpotBidPricePercent != null ||
            _awsZone != null) {
-            AwsAttributes awsAttr = new AwsAttributes();
-            awsAttr.Availability = _awsAvailability;
+            AwsAttributesDTO awsAttr = new AwsAttributesDTO();
+            awsAttr.Availability = _awsAvailability.toString();
             awsAttr.EbsVolumeCount = _awsEbsVolumeCount;
             awsAttr.EbsVolumeSize = _awsEbsVolumeSize;
-            awsAttr.EbsVolumeType = _awsEbsVolumeType;
+            awsAttr.EbsVolumeType = _awsEbsVolumeType.toString();
             awsAttr.FirstOnDemand = _awsFirstOnDemand;
             awsAttr.InstanceProfileARN = _awsInstanceProfileArn;
             awsAttr.SpotBidPricePercent = _awsSpotBidPricePercent;
             awsAttr.ZoneId = _awsZone;
-            clusterInfo.AwsAttributes = awsAttr;
+            clusterInfoDTO.AwsAttributes = awsAttr;
         }
 
         if(_logConfDbfsDestination != null || _logConfS3Destination != null) {
-            ClusterLogConf logConf = new ClusterLogConf();
+            ClusterLogConfDTO logConf = new ClusterLogConfDTO();
 
             if(_logConfDbfsDestination != null){
 
-                DbfsStorageInfo dbfsLogConf = new DbfsStorageInfo();
+                DbfsStorageInfoDTO dbfsLogConf = new DbfsStorageInfoDTO();
                 dbfsLogConf.Destination = _logConfDbfsDestination;
                 logConf.DBFS = dbfsLogConf;
             } else {
-                S3StorageInfo s3LogConf = new S3StorageInfo();
+                S3StorageInfoDTO s3LogConf = new S3StorageInfoDTO();
                 s3LogConf.CannedAcl = _logConfS3CannedAcl;
                 s3LogConf.Destination = _logConfS3Destination;
                 s3LogConf.EnableEncryption = _logConfS3EnableEncryption;
@@ -233,23 +234,23 @@ public class ClusterBuilder {
                 s3LogConf.Region = _logConfS3Region;
                 logConf.S3 = s3LogConf;
             }
-            clusterInfo.ClusterLogConf = logConf;
+            clusterInfoDTO.ClusterLogConf = logConf;
         }
 
-        clusterInfo.ClusterName = _clusterName;
-        clusterInfo.CustomTags = _customTags;
-        clusterInfo.DriverNodeTypeId = _driverNodeType;
-        clusterInfo.EnableElasticDisk = _enableElasticDisk;
-        clusterInfo.NodeTypeId = _nodeType;
-        clusterInfo.NumWorkers = _numWorkers;
-        clusterInfo.SparkConf = _sparkConf;
-        clusterInfo.SparkEnvironmentVariables = _sparkEnvironmentVariables;
-        clusterInfo.SparkVersion = _sparkVersion;
-        clusterInfo.SshPublicKeys = _sshPublicKeys;
+        clusterInfoDTO.ClusterName = _clusterName;
+        clusterInfoDTO.CustomTags = _customTags;
+        clusterInfoDTO.DriverNodeTypeId = _driverNodeType;
+        clusterInfoDTO.EnableElasticDisk = _enableElasticDisk;
+        clusterInfoDTO.NodeTypeId = _nodeType;
+        clusterInfoDTO.NumWorkers = _numWorkers;
+        clusterInfoDTO.SparkConf = _sparkConf;
+        clusterInfoDTO.SparkEnvironmentVariables = _sparkEnvironmentVariables;
+        clusterInfoDTO.SparkVersion = _sparkVersion;
+        clusterInfoDTO.SshPublicKeys = _sshPublicKeys;
 
         //create cluster via client
-        clusterInfo.ClusterId = _client.create(clusterInfo);
+        clusterInfoDTO.ClusterId = _client.create(clusterInfoDTO);
 
-        return new Cluster(_client, clusterInfo);
+        return new Cluster(_client, clusterInfoDTO);
     }
 }

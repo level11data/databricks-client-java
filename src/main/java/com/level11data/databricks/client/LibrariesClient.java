@@ -1,9 +1,9 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.libraries.AllClusterLibraryStatuses;
-import com.level11data.databricks.entities.libraries.ClusterLibraryStatuses;
-import com.level11data.databricks.entities.libraries.ClusterLibraryRequest;
+import com.level11data.databricks.entities.libraries.AllClusterLibraryStatusesDTO;
+import com.level11data.databricks.entities.libraries.ClusterLibraryStatusesDTO;
+import com.level11data.databricks.entities.libraries.ClusterLibraryRequestDTO;
 import org.glassfish.jersey.client.ClientConfig;
 
 import javax.ws.rs.client.Client;
@@ -31,7 +31,7 @@ public class LibrariesClient extends DatabricksClient {
         return ClientBuilder.newClient(ClientConfig());
     }
 
-    public AllClusterLibraryStatuses getAllClusterStatuses() throws HttpException  {
+    public AllClusterLibraryStatusesDTO getAllClusterStatuses() throws HttpException  {
         Response response = _target.path("all-cluster-statuses")
                 .register(_auth)
                 .request()
@@ -39,10 +39,10 @@ public class LibrariesClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(AllClusterLibraryStatuses.class);
+        return response.readEntity(AllClusterLibraryStatusesDTO.class);
     }
 
-    public ClusterLibraryStatuses getClusterStatus(String clusterId) throws HttpException {
+    public ClusterLibraryStatusesDTO getClusterStatus(String clusterId) throws HttpException {
         Response response = _target.path("cluster-status")
                 .register(_auth)
                 .queryParam("cluster_id", clusterId)
@@ -51,10 +51,10 @@ public class LibrariesClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(ClusterLibraryStatuses.class);
+        return response.readEntity(ClusterLibraryStatusesDTO.class);
     }
 
-    public void installLibraries(ClusterLibraryRequest clusterLibrariesRequest) throws HttpException {
+    public void installLibraries(ClusterLibraryRequestDTO clusterLibrariesRequest) throws HttpException {
         Response response = _target.path("install")
                 .register(_auth)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -63,7 +63,7 @@ public class LibrariesClient extends DatabricksClient {
         checkResponse(response);
     }
 
-    public void uninstallLibraries(ClusterLibraryRequest clusterLibrariesRequest) throws HttpException {
+    public void uninstallLibraries(ClusterLibraryRequestDTO clusterLibrariesRequest) throws HttpException {
         Response response = _target.path("uninstall")
                 .register(_auth)
                 .request(MediaType.APPLICATION_JSON_TYPE)

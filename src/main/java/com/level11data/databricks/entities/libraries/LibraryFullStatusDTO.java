@@ -8,13 +8,13 @@ import javax.ws.rs.core.MediaType;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LibraryFullStatus {
+public class LibraryFullStatusDTO {
     public enum LibraryInstallStatus {
         PENDING, RESOLVING, INSTALLING, INSTALLED, FAILED, UNINSTALL_ON_RESTART
     }
 
     @JsonProperty("library")
-    public Library Library;
+    public LibraryDTO Library;
 
     @JsonProperty("status")
     public LibraryInstallStatus Status;

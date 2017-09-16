@@ -27,7 +27,7 @@ public class ClustersClient extends DatabricksClient {
         return ClientBuilder.newClient(ClientConfig());
     }
 
-    public SparkVersions getSparkVersions() throws HttpException  {
+    public SparkVersionsDTO getSparkVersions() throws HttpException  {
         Response response = _target.path("spark-versions")
                 .register(_auth)
                 .request()
@@ -35,11 +35,11 @@ public class ClustersClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(SparkVersions.class);
+        return response.readEntity(SparkVersionsDTO.class);
     }
 
     //TODO Default Node Type is still "Memory Optimized"
-    public NodeTypes getNodeTypes() throws HttpException  {
+    public NodeTypesDTO getNodeTypes() throws HttpException  {
         Response response = _target.path("list-node-types")
                 .register(_auth)
                 .request()
@@ -47,10 +47,10 @@ public class ClustersClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(NodeTypes.class);
+        return response.readEntity(NodeTypesDTO.class);
     }
 
-    public Zones getZones() throws HttpException {
+    public ZonesDTO getZones() throws HttpException {
         Response response = _target.path("list-zones")
                 .register(_auth)
                 .request()
@@ -58,10 +58,10 @@ public class ClustersClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(Zones.class);
+        return response.readEntity(ZonesDTO.class);
     }
 
-    public Clusters listClusters() throws HttpException  {
+    public ClustersDTO listClusters() throws HttpException  {
         Response response = _target.path("list")
                 .register(_auth)
                 .request()
@@ -69,10 +69,10 @@ public class ClustersClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(Clusters.class);
+        return response.readEntity(ClustersDTO.class);
     }
 
-    public ClusterInfo getCluster(String clusterId) throws HttpException {
+    public ClusterInfoDTO getCluster(String clusterId) throws HttpException {
         //TODO should be DEBUG logging statement
         System.out.println("getCluster HTTP request for id "+clusterId);
         Response response = _target.path("get")
@@ -83,11 +83,11 @@ public class ClustersClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(ClusterInfo.class);
+        return response.readEntity(ClusterInfoDTO.class);
     }
 
     public void start(String clusterId) throws HttpException {
-        ClusterInfo cluster = new ClusterInfo();
+        ClusterInfoDTO cluster = new ClusterInfoDTO();
         cluster.ClusterId = clusterId;
 
         Response response = _target.path("start")
@@ -100,7 +100,7 @@ public class ClustersClient extends DatabricksClient {
     }
 
     public void reStart(String clusterId) throws HttpException {
-        ClusterInfo cluster = new ClusterInfo();
+        ClusterInfoDTO cluster = new ClusterInfoDTO();
         cluster.ClusterId = clusterId;
 
         Response response = _target.path("restart")
@@ -113,7 +113,7 @@ public class ClustersClient extends DatabricksClient {
     }
 
     public void delete(String clusterId) throws HttpException {
-        ClusterInfo cluster = new ClusterInfo();
+        ClusterInfoDTO cluster = new ClusterInfoDTO();
         cluster.ClusterId = clusterId;
 
         Response response = _target.path("delete")
@@ -126,7 +126,7 @@ public class ClustersClient extends DatabricksClient {
     }
 
     public void resize(String clusterId, Integer numWorkers) throws HttpException {
-        ClusterInfo cluster = new ClusterInfo();
+        ClusterInfoDTO cluster = new ClusterInfoDTO();
         cluster.ClusterId = clusterId;
         cluster.NumWorkers = numWorkers;
 
@@ -140,14 +140,14 @@ public class ClustersClient extends DatabricksClient {
     }
 
     public void resize(String clusterId, Integer minWorkers, Integer maxWorkers) throws HttpException {
-        ClusterInfo cluster = new ClusterInfo();
+        ClusterInfoDTO cluster = new ClusterInfoDTO();
         cluster.ClusterId = clusterId;
 
-        AutoScale autoScaleSettings = new AutoScale();
-        autoScaleSettings.MinWorkers = minWorkers;
-        autoScaleSettings.MaxWorkers = maxWorkers;
+        AutoScaleDTO autoScaleDTOSettings = new AutoScaleDTO();
+        autoScaleDTOSettings.MinWorkers = minWorkers;
+        autoScaleDTOSettings.MaxWorkers = maxWorkers;
 
-        cluster.AutoScale = autoScaleSettings;
+        cluster.AutoScale = autoScaleDTOSettings;
 
         Response response = _target.path("resize")
                 .register(_auth)
@@ -158,14 +158,14 @@ public class ClustersClient extends DatabricksClient {
         checkResponse(response, "Cluster " + clusterId + " is not in a RUNNING state");
     }
 
-    public String create(ClusterInfo clusterInfo) throws HttpException {
+    public String create(ClusterInfoDTO clusterInfoDTO) throws HttpException {
         Response response = _target.path("create")
                 .register(_auth)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterInfo));
+                .post(Entity.json(clusterInfoDTO));
 
         checkResponse(response);
-        return response.readEntity(CreateClusterResponse.class).ClusterId;
+        return response.readEntity(CreateClusterResponseDTO.class).ClusterId;
     }
 
     private void checkResponse(Response response, String message400) throws HttpException {
