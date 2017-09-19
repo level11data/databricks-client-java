@@ -1,7 +1,5 @@
 package com.level11data.databricks.client;
 
-
-import com.level11data.databricks.client.*;
 import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.clusters.*;
