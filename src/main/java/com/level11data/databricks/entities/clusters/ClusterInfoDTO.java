@@ -80,7 +80,7 @@ public class ClusterInfoDTO {
     public String ClusterName;
 
     @JsonProperty("spark_version")
-    public String SparkVersion;
+    public String SparkVersionKey;
 
     @JsonProperty("node_type_id")
     public String NodeTypeId;

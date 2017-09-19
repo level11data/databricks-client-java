@@ -1,19 +1,14 @@
 package com.level11data.databricks.client;
 
-import com.level11data.databricks.config.DatabricksClientConfiguration;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
-
 import javax.ws.rs.core.Response;
 
 public class DatabricksClient {
-    protected HttpAuthenticationFeature _auth;
+    public DatabricksSession Session;
 
-    public DatabricksClient(DatabricksClientConfiguration databricksConfig) {
-        _auth = HttpAuthenticationFeature.basicBuilder()
-                .credentials(databricksConfig.getClientUsername(), databricksConfig.getClientPassword())
-                .build();
+    public DatabricksClient(DatabricksSession session) {
+        Session = session;
     }
 
     protected ClientConfig ClientConfig() {

@@ -245,7 +245,7 @@ public class ClusterBuilder {
         clusterInfoDTO.NumWorkers = _numWorkers;
         clusterInfoDTO.SparkConf = _sparkConf;
         clusterInfoDTO.SparkEnvironmentVariables = _sparkEnvironmentVariables;
-        clusterInfoDTO.SparkVersion = _sparkVersion;
+        clusterInfoDTO.SparkVersionKey = _sparkVersion;
         clusterInfoDTO.SshPublicKeys = _sshPublicKeys;
 
         //create cluster via client

@@ -1,6 +1,5 @@
 package com.level11data.databricks.client;
 
-import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.clusters.*;
 import org.glassfish.jersey.client.ClientConfig;
 import javax.ws.rs.client.Client;
@@ -13,9 +12,9 @@ import javax.ws.rs.core.Response;
 public class ClustersClient extends DatabricksClient {
     private WebTarget _target;
 
-    public ClustersClient(DatabricksClientConfiguration databricksConfig) {
-        super(databricksConfig);
-        _target = createClient().target(databricksConfig.getClientUrl())
+    public ClustersClient(DatabricksSession session) {
+        super(session);
+        _target = createClient().target(session.Url)
                 .path("api").path("2.0").path("clusters");
     }
 
@@ -29,7 +28,7 @@ public class ClustersClient extends DatabricksClient {
 
     public SparkVersionsDTO getSparkVersions() throws HttpException  {
         Response response = _target.path("spark-versions")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
@@ -38,10 +37,9 @@ public class ClustersClient extends DatabricksClient {
         return response.readEntity(SparkVersionsDTO.class);
     }
 
-    //TODO Default Node Type is still "Memory Optimized"
     public NodeTypesDTO getNodeTypes() throws HttpException  {
         Response response = _target.path("list-node-types")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
@@ -52,7 +50,7 @@ public class ClustersClient extends DatabricksClient {
 
     public ZonesDTO getZones() throws HttpException {
         Response response = _target.path("list-zones")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
@@ -63,7 +61,7 @@ public class ClustersClient extends DatabricksClient {
 
     public ClustersDTO listClusters() throws HttpException  {
         Response response = _target.path("list")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
@@ -76,7 +74,7 @@ public class ClustersClient extends DatabricksClient {
         //TODO should be DEBUG logging statement
         System.out.println("getCluster HTTP request for id "+clusterId);
         Response response = _target.path("get")
-                .register(_auth)
+                .register(Session.Authentication)
                 .queryParam("cluster_id", clusterId)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
@@ -91,7 +89,7 @@ public class ClustersClient extends DatabricksClient {
         cluster.ClusterId = clusterId;
 
         Response response = _target.path("start")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(cluster));
 
@@ -104,7 +102,7 @@ public class ClustersClient extends DatabricksClient {
         cluster.ClusterId = clusterId;
 
         Response response = _target.path("restart")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(cluster));
 
@@ -117,7 +115,7 @@ public class ClustersClient extends DatabricksClient {
         cluster.ClusterId = clusterId;
 
         Response response = _target.path("delete")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(cluster));
 
@@ -131,7 +129,7 @@ public class ClustersClient extends DatabricksClient {
         cluster.NumWorkers = numWorkers;
 
         Response response = _target.path("resize")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(cluster));
 
@@ -150,7 +148,7 @@ public class ClustersClient extends DatabricksClient {
         cluster.AutoScale = autoScaleDTOSettings;
 
         Response response = _target.path("resize")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(cluster));
 
@@ -160,7 +158,7 @@ public class ClustersClient extends DatabricksClient {
 
     public String create(ClusterInfoDTO clusterInfoDTO) throws HttpException {
         Response response = _target.path("create")
-                .register(_auth)
+                .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(clusterInfoDTO));
 

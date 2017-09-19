@@ -1,11 +1,9 @@
 package com.level11data.databricks.client;
 
 
-import com.level11data.databricks.DatabricksSession;
 import com.level11data.databricks.cluster.Cluster;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -69,11 +67,11 @@ public class ClustersClientTest {
 
         //TODO Change the Default Node Type from "Memory Optimized"
         Assert.assertEquals("Simple Fixed Size Cluster Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.NodeType);
+                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         //TODO Change the Default Node Type from "Memory Optimized"
         Assert.assertEquals("Simple Fixed Size Cluster Driver Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.DriverNodeType);
+                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         cluster.restart();
 
@@ -158,11 +156,11 @@ public class ClustersClientTest {
 
         //TODO Change the Default Node Type from "Memory Optimized"
         Assert.assertEquals("Simple Autoscaling Cluster Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.NodeType);
+                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         //TODO Change the Default Node Type from "Memory Optimized"
         Assert.assertEquals("Simple Autoscaling Cluster Driver Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.DriverNodeType);
+                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         cluster.restart();
 
