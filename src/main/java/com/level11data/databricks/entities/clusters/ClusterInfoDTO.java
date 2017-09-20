@@ -43,7 +43,7 @@ public class ClusterInfoDTO {
     public String ClusterCreatedBy;
 
     @JsonProperty("start_time")
-    public BigInteger StartTime;
+    public Long StartTime;
 
     @JsonProperty("terminated_time")
     public BigInteger TerminatedTime;

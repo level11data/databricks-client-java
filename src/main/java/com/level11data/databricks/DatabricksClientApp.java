@@ -28,10 +28,6 @@ public class DatabricksClientApp {
             DatabricksClientConfiguration databricksConfig = new DatabricksClientConfiguration(resourceStream);
             DatabricksSession databricks = new DatabricksSession(databricksConfig);
 
-            //Cluster activeCluster =  databricks.getCluster("0915-135955-saws3");
-            //System.out.println("Executors: " + activeCluster.getExecutors().size());
-
-
             System.out.println("Username: " + databricksConfig.getClientUsername());
             System.out.println("URL: " + databricksConfig.getClientUrl());
 
@@ -46,6 +42,11 @@ public class DatabricksClientApp {
             System.out.println("Spark Version Objects");
             System.out.println("Spark Version Default "+databricks.getDefaultSparkVersion());
             System.out.println("Spark Version Default "+databricks.getSparkVersionByKey("1.6.2-ubuntu15.10-hadoop1"));
+
+            Cluster activeCluster =  databricks.getCluster("0915-135955-saws3");
+            System.out.println("Executors: " + activeCluster.getExecutors().size());
+
+            System.out.println("Start Time: "+ activeCluster.StartTime);
 
 
             //System.out.println(databricks.getSparkVersionByKey("1.6.2-ubuntu15.10-hadoop1"));

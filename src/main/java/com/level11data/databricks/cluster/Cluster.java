@@ -5,10 +5,7 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.entities.clusters.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Cluster {
     private ClustersClient _client;
@@ -36,7 +33,7 @@ public class Cluster {
     public final SparkNode Driver;
     public final Float SparkContextId;  //TODO is this really a float or a long?
     public final Integer JdbcPort;
-    public final BigInteger StartTime;  //TODO should this be long?  DateTime??
+    public final Date StartTime;
     public final Map<String, String> DefaultTags;
 
     /**
@@ -268,12 +265,14 @@ public class Cluster {
         }
     }
 
-    private BigInteger initStartTime() throws HttpException  {
+    private Date initStartTime() throws HttpException  {
+        Long startTime;
         if(_clusterInfoDTO.StartTime == null) {
-            return getOrRequestClusterInfo(_clusterInfoDTO).StartTime;
+            startTime = getOrRequestClusterInfo(_clusterInfoDTO).StartTime;
         } else {
-            return _clusterInfoDTO.StartTime;
+            startTime = _clusterInfoDTO.StartTime;
         }
+        return new Date(startTime.longValue());
     }
 
     private Map<String, String> initDefaultTags() throws HttpException {
