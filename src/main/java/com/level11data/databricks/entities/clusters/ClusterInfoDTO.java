@@ -25,7 +25,7 @@ public class ClusterInfoDTO {
     public SparkNodeDTO Driver;
 
     @JsonProperty("spark_context_id")
-    public Float SparkContextId;
+    public Long SparkContextId;
 
     @JsonProperty("executors")
     public SparkNodeDTO[] Executors;

@@ -31,7 +31,7 @@ public class Cluster {
     //This should probably be an enum but the values aren't documented (JOB_LAUNCHER, THIRD_PARTY)
     public final String CreatedBy;  //TODO Change to Enum
     public final SparkNode Driver;
-    public final Float SparkContextId;  //TODO is this really a float or a long?
+    public final Long SparkContextId;
     public final Integer JdbcPort;
     public final Date StartTime;
     public final Map<String, String> DefaultTags;
@@ -249,7 +249,7 @@ public class Cluster {
         }
     }
 
-    private Float initSparkContextId() throws HttpException {
+    private Long initSparkContextId() throws HttpException {
         if(_clusterInfoDTO.SparkContextId == null) {
             return getOrRequestClusterInfo(_clusterInfoDTO).SparkContextId;
         } else {
