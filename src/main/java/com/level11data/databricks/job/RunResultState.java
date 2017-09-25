@@ -1,7 +1,5 @@
 package com.level11data.databricks.job;
 
-/**
- * Created by jason on 9/20/17.
- */
 public enum RunResultState {
+    SUCCESS, FAILED, TIMEDOUT, CANCELED
 }

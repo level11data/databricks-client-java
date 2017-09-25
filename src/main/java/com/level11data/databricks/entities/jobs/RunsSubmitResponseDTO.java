@@ -5,17 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CronScheduleDTO {
-    @JsonProperty("quartz_cron_expression")
-    public String QuartzCronExpression;
+public class RunsSubmitResponseDTO {
 
-    @JsonProperty("timezone_id")
-    public String TimezoneId;
+    @JsonProperty("run_id")
+    public long RunId;
 
     @Override
     public String toString() {

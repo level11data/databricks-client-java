@@ -13,15 +13,34 @@ import javax.ws.rs.core.MediaType;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ClusterSpecDTO {
+public class RunsSubmitRequestDTO {
+
     @JsonProperty("existing_cluster_id")
     public String ExistingClusterId;
 
     @JsonProperty("new_cluster")
     public ClusterInfoDTO NewCluster;
 
+    @JsonProperty("notebook_task")
+    public NotebookTaskDTO NotebookTask;
+
+    @JsonProperty("spark_jar_task")
+    public SparkJarTaskDTO SparkJarTask;
+
+    @JsonProperty("spark_python_task")
+    public PythonTaskDTO SparkPythonTask;
+
+    @JsonProperty("spark_submit_task")
+    public SparkSubmitTaskDTO SparkSubmitTask;
+
+    @JsonProperty("run_name")
+    public String RunName;
+
     @JsonProperty("libraries")
     public LibraryDTO[] Libraries;
+
+    @JsonProperty("timeout_seconds")
+    public int TimeoutSeconds;
 
     @Override
     public String toString() {
