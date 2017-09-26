@@ -35,7 +35,8 @@ public class DatabricksClientApp {
             System.out.println("URL: " + databricksConfig.getClientUrl());
 
             ClustersClient cClient = new ClustersClient(databricks);
-            System.out.println(cClient.getSparkVersions().toString());
+            //System.out.println(cClient.getSparkVersions().toString());
+            System.out.println(cClient.getNodeTypes().toString());
 
             //JobsClient jClient = new JobsClient(databricks);
             //System.out.println(jClient.listJobs().toString());

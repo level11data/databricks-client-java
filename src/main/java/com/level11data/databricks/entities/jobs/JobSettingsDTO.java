@@ -1,6 +1,7 @@
 package com.level11data.databricks.entities.jobs;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JobSettingsDTO {
     @JsonProperty("existing_cluster_id")
     public String ExistingClusterId;
@@ -42,10 +44,10 @@ public class JobSettingsDTO {
     public JobEmailNotificationsDTO EmailNotifications;
 
     @JsonProperty("max_retries")
-    public int MaxRetries;
+    public Integer MaxRetries;
 
     @JsonProperty("min_retry_interval_millis")
-    public int MinRetryIntervalMillis;
+    public Integer MinRetryIntervalMillis;
 
     @JsonProperty("retry_on_timeout")
     public boolean RetryOnTimeout;
@@ -54,10 +56,10 @@ public class JobSettingsDTO {
     public CronScheduleDTO Schedule;
 
     @JsonProperty("max_concurrent_runs")
-    public int MaxConcurrentRuns;
+    public Integer MaxConcurrentRuns;
 
     @JsonProperty("timeout_seconds")
-    public int TimeoutSeconds;
+    public Integer TimeoutSeconds;
 
     @Override
     public String toString() {

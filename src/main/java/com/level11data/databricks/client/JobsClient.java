@@ -55,7 +55,7 @@ public class JobsClient extends DatabricksClient {
         return response.readEntity(JobDTO.class);
     }
 
-    public long create(JobSettingsDTO jobSettingsDTO) throws HttpException {
+    public long createJob(JobSettingsDTO jobSettingsDTO) throws HttpException {
         Response response = _target.path("create")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -65,7 +65,7 @@ public class JobsClient extends DatabricksClient {
         return response.readEntity(CreateJobResponseDTO.class).JobId;
     }
 
-    public void delete(long jobId) throws HttpException {
+    public void deleteJob(long jobId) throws HttpException {
         JobDTO job = new JobDTO();
         job.JobId = jobId;
 
@@ -75,14 +75,14 @@ public class JobsClient extends DatabricksClient {
                 .post(Entity.json(job));
     }
 
-    public void reset(ResetJobRequestDTO resetJobRequestDTO) throws HttpException {
+    public void resetJob(ResetJobRequestDTO resetJobRequestDTO) throws HttpException {
         Response response = _target.path("reset")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(resetJobRequestDTO));
     }
 
-    public RunNowResponseDTO runNow(RunNowRequestDTO runNowRequestDTO) throws HttpException {
+    public RunNowResponseDTO runJobNow(RunNowRequestDTO runNowRequestDTO) throws HttpException {
         Response response = _target.path("run-now")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
