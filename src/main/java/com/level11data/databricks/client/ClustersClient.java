@@ -1,6 +1,12 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.entities.clusters.*;
+import com.level11data.databricks.entities.commands.CommandRequestDTO;
+import com.level11data.databricks.entities.commands.ExecuteCommandRequestDTO;
+import com.level11data.databricks.entities.commands.CommandResponseDTO;
+import com.level11data.databricks.entities.commands.CommandStatusDTO;
+import com.level11data.databricks.entities.contexts.CreateContextRequestDTO;
+import com.level11data.databricks.entities.contexts.CreateContextResponseDTO;
 import org.glassfish.jersey.client.ClientConfig;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -174,5 +180,4 @@ public class ClustersClient extends DatabricksClient {
             super.checkResponse(response);
         }
     }
-
 }

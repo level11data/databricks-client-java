@@ -17,8 +17,8 @@ public class DatabricksClient {
 
     protected void checkResponse(Response response) throws HttpException {
         //This will print the entire response body; useful for debugging code
-        //String body = response.readEntity(String.class);
-        //System.out.println(body);
+        //String debugBody = response.readEntity(String.class);
+        //System.out.println(debugBody);
 
         // check response status code
         if (response.getStatus() == 400) {
@@ -29,7 +29,8 @@ public class DatabricksClient {
         } else if(response.getStatus() == 403) {
             throw new HttpException("HTTP 403 Forbidden: Not Authorized");
         } else if (response.getStatus() != 200) {
-            throw new HttpException("HTTP "+ response.getStatus() + ":");
+            String body = response.readEntity(String.class);
+            throw new HttpException("HTTP "+ response.getStatus() + ":" + body);
         }
     }
 
