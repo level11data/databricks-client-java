@@ -1,6 +1,7 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.cluster.*;
+import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.clusters.*;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -43,12 +44,12 @@ public class DatabricksSession {
         return _librariesClient;
     }
 
-    public ClusterBuilder createCluster(String name, Integer numWorkers)  {
-        return new ClusterBuilder(getOrCreateClustersClient(), name, numWorkers);
+    public InteractiveClusterBuilder createCluster(String name, Integer numWorkers)  {
+        return new InteractiveClusterBuilder(getOrCreateClustersClient(), name, numWorkers);
     }
 
-    public ClusterBuilder createCluster(String name, Integer minWorkers, Integer maxWorkers) {
-        return new ClusterBuilder(getOrCreateClustersClient(), name, minWorkers, maxWorkers);
+    public InteractiveClusterBuilder createCluster(String name, Integer minWorkers, Integer maxWorkers) {
+        return new InteractiveClusterBuilder(getOrCreateClustersClient(), name, minWorkers, maxWorkers);
     }
 
     private void refreshSparkVersionsDTO() throws HttpException {
@@ -165,16 +166,16 @@ public class DatabricksSession {
         return getOrCreateClustersClient().getZones().Zones;
     }
 
-    public Iterator<Cluster> listClusters() throws HttpException {
+    public Iterator<InteractiveCluster> listClusters() throws HttpException {
         ClustersClient client = getOrCreateClustersClient();
         ClusterInfoDTO[] clusterInfoDTOs = client.listClusters().Clusters;
         return new ClusterIter(client, clusterInfoDTOs);
     }
 
-    public Cluster getCluster(String id) throws ClusterConfigException, HttpException {
+    public InteractiveCluster getCluster(String id) throws ClusterConfigException, HttpException {
         ClustersClient client = getOrCreateClustersClient();
         ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
-        return new Cluster(client, clusterInfoDTO);
+        return new InteractiveCluster(client, clusterInfoDTO);
     }
 
     public void startCluster(String id) throws HttpException {

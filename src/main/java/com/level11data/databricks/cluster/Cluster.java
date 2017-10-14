@@ -3,24 +3,18 @@ package com.level11data.databricks.cluster;
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.entities.clusters.*;
-
 import java.math.BigInteger;
 import java.util.*;
 
-public class Cluster {
-    private ClustersClient _client;
-    private ClusterInfoDTO _clusterInfoDTO;
-    private Boolean _isAutoScaling = false;
+public abstract class Cluster {
     private Boolean _clusterInfoRequested = false;
+    private ClusterInfoDTO _clusterInfoDTO;
+    private ClustersClient _client;
 
     public final String Id;
-    public final String Name;
-    public final Integer NumWorkers;
-    public final AutoScale AutoScale;
     public final SparkVersion SparkVersion;
     public final NodeType DefaultNodeType;
     public final AwsAttributes AwsAttributes;
-    public final Integer AutoTerminationMinutes;
     public final Boolean ElasticDiskEnabled;
     public final Map<String, String> SparkConf;
     public final List<String> SshPublicKeys;
@@ -36,19 +30,7 @@ public class Cluster {
     public final Date StartTime;
     public final Map<String, String> DefaultTags;
 
-    /**
-     * Represents a Databricks Cluster.
-     *
-     * Is instantiated by
-     *   1. ClusterBuilder.create()
-     *   2. DatabricksSession.getCluster() by Cluster Id
-     *   3. Cluster.resize()
-     *
-     * @param client Databricks ClusterClient
-     * @param info Databricks ClusterInfoDTO POJO
-     * @throws ClusterConfigException
-     */
-    public Cluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
+    protected Cluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
         _client = client;
         _clusterInfoDTO = info;
 
@@ -56,22 +38,12 @@ public class Cluster {
         validateClusterInfo(info);
 
         Id = info.ClusterId;
-        Name = info.ClusterName;
-        NumWorkers = info.NumWorkers;
-
-        if(info.AutoScale != null){
-            _isAutoScaling = true;
-            AutoScale = new AutoScale(info.AutoScale);
-        } else {
-            AutoScale = null;
-        }
 
         //Set fields that do not change throughout the lifespan of a cluster configuration
-        // these fields may not have been set if object was instantiated from ClusterBuilder.create()
+        // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
         SparkVersion = initSparkVersion();
         DefaultNodeType = initNodeType();
         AwsAttributes = initAwsAttributes();
-        AutoTerminationMinutes = initAutoTerminationMinutes();
         ElasticDiskEnabled = initElasticDiskEnabled();
         SparkConf = initSparkConf();
         SshPublicKeys = initSshPublicKeys();
@@ -91,17 +63,9 @@ public class Cluster {
         if(info.ClusterId == null) {
             throw new ClusterConfigException("ClusterInfoDTO Must Have ClusterId");
         }
-
-        if(info.ClusterName == null) {
-            throw new ClusterConfigException("ClusterInfoDTO Must Have Name");
-        }
-
-        if(info.NumWorkers == null && info.AutoScale == null)  {
-            throw new ClusterConfigException("ClusterInfoDTO Must Have either NumWorkers OR AutoScaleDTO");
-        }
     }
 
-    private ClusterInfoDTO getOrRequestClusterInfo(ClusterInfoDTO info) throws HttpException {
+    protected ClusterInfoDTO getOrRequestClusterInfo(ClusterInfoDTO info) throws HttpException {
         if(!_clusterInfoRequested) {
             _clusterInfoDTO = _client.getCluster(Id);
             _clusterInfoRequested = true;
@@ -140,14 +104,6 @@ public class Cluster {
             return new AwsAttributes(getOrRequestClusterInfo(_clusterInfoDTO).AwsAttributes);
         } else {
             return new AwsAttributes(_clusterInfoDTO.AwsAttributes);
-        }
-    }
-
-    private Integer initAutoTerminationMinutes() throws HttpException  {
-        if(_clusterInfoDTO.AutoTerminationMinutes == null) {
-            return getOrRequestClusterInfo(_clusterInfoDTO).AutoTerminationMinutes;
-        } else {
-            return _clusterInfoDTO.AutoTerminationMinutes;
         }
     }
 
@@ -342,38 +298,4 @@ public class Cluster {
         return _client.getCluster(Id).TerminationReason;
     }
 
-    public void start() throws HttpException {
-        _client.start(Id);
-    }
-
-    public void restart() throws HttpException {
-        _client.reStart(Id);
-    }
-
-    public void terminate() throws HttpException {
-        _client.delete(Id);
-    }
-
-    public Cluster resize(Integer numWorkers) throws ClusterConfigException, HttpException {
-        if(_isAutoScaling) {
-            throw new ClusterConfigException("Must Include New Min and Max Worker Values when Resizing an Autoscaling Cluster");
-        }
-        _client.resize(Id, numWorkers);
-
-        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
-        resizedClusterConfig.NumWorkers = numWorkers;
-        return new Cluster(_client, resizedClusterConfig);
-    }
-
-    public Cluster resize(Integer minWorkers, Integer maxWorkers) throws ClusterConfigException, HttpException {
-        if(!_isAutoScaling) {
-            throw new ClusterConfigException("Must Only Include a Single Value When Resizing a Fixed Size Cluster");
-        }
-        _client.resize(Id, minWorkers, maxWorkers);
-
-        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
-        resizedClusterConfig.AutoScale.MinWorkers = minWorkers;
-        resizedClusterConfig.AutoScale.MaxWorkers = maxWorkers;
-        return new Cluster(_client, resizedClusterConfig);
-    }
 }

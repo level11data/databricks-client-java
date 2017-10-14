@@ -5,7 +5,7 @@ import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.CommandsClient;
 import com.level11data.databricks.client.ContextsClient;
 import com.level11data.databricks.client.DatabricksSession;
-import com.level11data.databricks.cluster.Cluster;
+import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.commands.CommandRequestDTO;
@@ -37,19 +37,19 @@ public class DatabricksJobServerApp {
 
             ClustersClient cClient = new ClustersClient(databricks);
 
-            Cluster interactiveCluster;
+            InteractiveCluster interactiveCluster;
 
-
-            interactiveCluster = databricks.createCluster("My JobServer Cluster", 1)
+            interactiveCluster = databricks.createCluster("My JobServer InteractiveCluster", 1)
                     .withAutoTerminationMinutes(25)
                     .withNodeType("i3.xlarge")
                     .withSparkVersion("3.3.x-scala2.11")
                     .create();
 
+
             while(interactiveCluster.getState() == ClusterState.PENDING) {
                 //wait until cluster is properly started
                 // should not take more than 100 seconds from a cold start
-                System.out.println("Cluster is starting...");
+                System.out.println("InteractiveCluster is starting...");
                 Thread.sleep(10000); //wait 10 seconds
             }
 

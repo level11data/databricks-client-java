@@ -100,7 +100,7 @@ public class ClustersClient extends DatabricksClient {
                 .post(Entity.json(cluster));
 
         // check response status code
-        checkResponse(response, "Cluster " + clusterId + " is already started");
+        checkResponse(response, "InteractiveCluster " + clusterId + " is already started");
     }
 
     public void reStart(String clusterId) throws HttpException {
@@ -113,7 +113,7 @@ public class ClustersClient extends DatabricksClient {
                 .post(Entity.json(cluster));
 
         // check response status code
-        checkResponse(response, "Cluster " + clusterId + " is not in a RUNNING state");
+        checkResponse(response, "InteractiveCluster " + clusterId + " is not in a RUNNING state");
     }
 
     public void delete(String clusterId) throws HttpException {
@@ -126,7 +126,7 @@ public class ClustersClient extends DatabricksClient {
                 .post(Entity.json(cluster));
 
         // check response status code
-        checkResponse(response, "Cluster " + clusterId + " is already TERMINATED or TERMINATING");
+        checkResponse(response, "InteractiveCluster " + clusterId + " is already TERMINATED or TERMINATING");
     }
 
     public void resize(String clusterId, Integer numWorkers) throws HttpException {
@@ -140,7 +140,7 @@ public class ClustersClient extends DatabricksClient {
                 .post(Entity.json(cluster));
 
         // check response status code
-        checkResponse(response, "Cluster " + clusterId + " is not in a RUNNING state");
+        checkResponse(response, "InteractiveCluster " + clusterId + " is not in a RUNNING state");
     }
 
     public void resize(String clusterId, Integer minWorkers, Integer maxWorkers) throws HttpException {
@@ -159,7 +159,7 @@ public class ClustersClient extends DatabricksClient {
                 .post(Entity.json(cluster));
 
         // check response status code
-        checkResponse(response, "Cluster " + clusterId + " is not in a RUNNING state");
+        checkResponse(response, "InteractiveCluster " + clusterId + " is not in a RUNNING state");
     }
 
     public String create(ClusterInfoDTO clusterInfoDTO) throws HttpException {

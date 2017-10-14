@@ -6,7 +6,7 @@ import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
 
 import java.util.Iterator;
 
-public class ClusterIter implements Iterator<Cluster> {
+public class ClusterIter implements Iterator<InteractiveCluster> {
     private ClustersClient _client;
     private ClusterInfoDTO[] _clusterInfoDTOs;
     private int _clusterInfoIndex = 0;
@@ -20,9 +20,9 @@ public class ClusterIter implements Iterator<Cluster> {
         return _clusterInfoIndex < _clusterInfoDTOs.length;
     }
 
-    public Cluster next() throws RuntimeException {
+    public InteractiveCluster next() throws RuntimeException {
         try {
-            Cluster cluster = new Cluster(_client, _clusterInfoDTOs[_clusterInfoIndex]);
+            InteractiveCluster cluster = new InteractiveCluster(_client, _clusterInfoDTOs[_clusterInfoIndex]);
             _clusterInfoIndex++;
             return cluster;
         } catch (HttpException e) {
@@ -32,9 +32,9 @@ public class ClusterIter implements Iterator<Cluster> {
         }
     }
 
-    public Cluster first() throws RuntimeException {
+    public InteractiveCluster first() throws RuntimeException {
         try {
-            return new Cluster(_client, _clusterInfoDTOs[0]);
+            return new InteractiveCluster(_client, _clusterInfoDTOs[0]);
         } catch (HttpException e) {
             throw(new RuntimeException(e));
         } catch (ClusterConfigException e) {

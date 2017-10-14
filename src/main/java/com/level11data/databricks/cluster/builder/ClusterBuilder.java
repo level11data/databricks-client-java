@@ -1,23 +1,14 @@
-package com.level11data.databricks.cluster;
+package com.level11data.databricks.cluster.builder;
 
+import com.level11data.databricks.cluster.AwsAttribute.*;
+import com.level11data.databricks.cluster.ClusterConfigException;
+import com.level11data.databricks.entities.clusters.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
-import com.level11data.databricks.client.ClustersClient;
-import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.cluster.AwsAttribute.*;
-import com.level11data.databricks.entities.clusters.*;
-import com.level11data.databricks.entities.clusters.AwsAttributesDTO;
-import com.level11data.databricks.entities.clusters.AutoScaleDTO;
-import com.level11data.databricks.entities.clusters.S3StorageInfoDTO;
-import com.level11data.databricks.entities.clusters.DbfsStorageInfoDTO;
-import com.level11data.databricks.entities.clusters.ClusterLogConfDTO;
-
-public class ClusterBuilder {
-    private ClustersClient _client;
-    private String _clusterName;
-    private Integer _numWorkers;
-    private Integer _autoscaleMinWorkers;
-    private Integer _autoscaleMaxWorkers;
+abstract public class ClusterBuilder {
     private String _sparkVersion;
     private String _nodeType;
     private String _driverNodeType;
@@ -29,11 +20,10 @@ public class ClusterBuilder {
     private EbsVolumeType _awsEbsVolumeType;
     private Integer _awsEbsVolumeCount;
     private Integer _awsEbsVolumeSize;
-    private Integer _autoTerminationMinutes;
     private Boolean _enableElasticDisk = false;
-    private Map<String, String> _sparkConf;
-    private String[] _sshPublicKeys;
-    private Map<String, String> _customTags;
+    private Map<String, String> _sparkConf = new HashMap<String, String>();
+    private ArrayList<String> _sshPublicKeys = new ArrayList<String>();
+    private Map<String, String> _customTags = new HashMap<String, String>();;
     private String _logConfDbfsDestination;
     private String _logConfS3Destination;
     private String _logConfS3Region;
@@ -42,62 +32,49 @@ public class ClusterBuilder {
     private String _logConfS3EncryptionType;
     private String _logConfS3KmsKey;
     private String _logConfS3CannedAcl;
-    private Map<String, String> _sparkEnvironmentVariables;
+    private Map<String, String> _sparkEnvironmentVariables = new HashMap<String, String>();;
 
-    public ClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
-        _client = client;
-        _clusterName = clusterName;
-        _numWorkers = numWorkers;
-    }
-
-    public ClusterBuilder(ClustersClient client, String clusterName, Integer minWorkers, Integer maxWorkers) {
-        _client = client;
-        _clusterName = clusterName;
-        _autoscaleMinWorkers = minWorkers;
-        _autoscaleMaxWorkers = maxWorkers;
-    }
-
-    public ClusterBuilder withSparkVersion(String sparkVersion) {
+    protected ClusterBuilder withSparkVersion(String sparkVersion) {
         _sparkVersion = sparkVersion;
         return this;
     }
 
-    public ClusterBuilder withNodeType(String nodeTypeId) {
+    protected ClusterBuilder withNodeType(String nodeTypeId) {
         _nodeType = nodeTypeId;
         return this;
     }
 
-    public ClusterBuilder withDriverNodeType(String nodeTypeId) {
+    protected ClusterBuilder withDriverNodeType(String nodeTypeId) {
         _driverNodeType = nodeTypeId;
         return this;
     }
 
-    public ClusterBuilder withAwsFirstOnDemand(Integer onDemandInstances) {
+    protected ClusterBuilder withAwsFirstOnDemand(Integer onDemandInstances) {
         _awsFirstOnDemand = onDemandInstances;
         return this;
     }
 
-    public ClusterBuilder withAwsAvailability(AwsAvailability availability) {
+    protected ClusterBuilder withAwsAvailability(AwsAvailability availability) {
         _awsAvailability = availability;
         return this;
     }
 
-    public ClusterBuilder withAwsZone(String zoneId) {
+    protected ClusterBuilder withAwsZone(String zoneId) {
         _awsZone = zoneId;
         return this;
     }
 
-    public ClusterBuilder withAwsInstanceProfileArn(String instanceProfileArn) {
+    protected ClusterBuilder withAwsInstanceProfileArn(String instanceProfileArn) {
         _awsInstanceProfileArn = instanceProfileArn;
         return this;
     }
 
-    public ClusterBuilder withAwsSpotBidPricePercent(Integer spotBidPricePercent) {
+    protected ClusterBuilder withAwsSpotBidPricePercent(Integer spotBidPricePercent) {
         _awsSpotBidPricePercent = spotBidPricePercent;
         return this;
     }
 
-    public ClusterBuilder withAwsEbsVolume(EbsVolumeType type,
+    protected ClusterBuilder withAwsEbsVolume(EbsVolumeType type,
                                            Integer count,
                                            Integer size) {
         _awsEbsVolumeType = type;
@@ -106,48 +83,43 @@ public class ClusterBuilder {
         return this;
     }
 
-    public ClusterBuilder withAutoTerminationMinutes(Integer minutes) {
-        _autoTerminationMinutes = minutes;
-        return this;
-    }
-
-    public ClusterBuilder withElasticDisk() {
+    protected ClusterBuilder withElasticDisk() {
         _enableElasticDisk = true;
         return this;
     }
 
-    public ClusterBuilder withSparkConf(String key, String value){
+    protected ClusterBuilder withSparkConf(String key, String value){
         _sparkConf.put(key, value);
         return this;
     }
 
-    public ClusterBuilder withSshPublicKey(String publicKey){
-        //TODO Create List and add value
+    protected ClusterBuilder withSshPublicKey(String publicKey){
+        _sshPublicKeys.add(publicKey);
         return this;
     }
 
-    public ClusterBuilder withCustomTag(String key, String value) {
+    protected ClusterBuilder withCustomTag(String key, String value) {
         _customTags.put(key, value);
         return this;
     }
 
-    public ClusterBuilder withDbfsLogConf(String destination) {
+    protected ClusterBuilder withDbfsLogConf(String destination) {
         _logConfDbfsDestination = destination;
         return this;
     }
 
-    public ClusterBuilder withS3LogConf(String destination,
-                                        String region,
-                                        String endpoint) {
+    protected ClusterBuilder withS3LogConf(String destination,
+                                                   String region,
+                                                   String endpoint) {
         _logConfS3Destination = destination;
         _logConfS3Region = region;
         _logConfS3Endpoint = endpoint;
         return this;
     }
 
-    public ClusterBuilder withS3LogConfEncryption(String encryptionType,
-                                        String kmsKey,
-                                        String cannedAcl) {
+    protected ClusterBuilder withS3LogConfEncryption(String encryptionType,
+                                                             String kmsKey,
+                                                             String cannedAcl) {
         _logConfS3EnableEncryption = true;
         _logConfS3EncryptionType = encryptionType;
         _logConfS3KmsKey = kmsKey;
@@ -155,12 +127,12 @@ public class ClusterBuilder {
         return this;
     }
 
-    public ClusterBuilder withSparkEnvironmentVariable(String key, String value) {
+    protected ClusterBuilder withSparkEnvironmentVariable(String key, String value) {
         _sparkEnvironmentVariables.put(key, value);
         return this;
     }
 
-    private void validateLogConf() throws ClusterConfigException {
+    protected void validateLogConf() throws ClusterConfigException {
         //check that either s3 or dbfs log conf is set (but not both)
         //It is permissible for no log configuration to be set
         if(_logConfDbfsDestination != null && _logConfS3Destination !=null){
@@ -181,28 +153,15 @@ public class ClusterBuilder {
         }
     }
 
-    public Cluster create() throws ClusterConfigException, HttpException {
-        validateLogConf();
-
-        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
-
-        if(_autoscaleMinWorkers != null && _autoscaleMaxWorkers != null) {
-            AutoScaleDTO autoScaleDTO = new AutoScaleDTO();
-            autoScaleDTO.MinWorkers = _autoscaleMinWorkers;
-            autoScaleDTO.MaxWorkers = _autoscaleMaxWorkers;
-            clusterInfoDTO.AutoScale = autoScaleDTO;
-        }
-
-        clusterInfoDTO.AutoTerminationMinutes = _autoTerminationMinutes;
-
+    protected ClusterInfoDTO applySettings(ClusterInfoDTO clusterInfoDTO) {
         if(_awsAvailability != null ||
-           _awsEbsVolumeCount != null ||
-           _awsEbsVolumeSize != null ||
-           _awsEbsVolumeType != null ||
-           _awsFirstOnDemand != null ||
-           _awsInstanceProfileArn != null ||
-           _awsSpotBidPricePercent != null ||
-           _awsZone != null) {
+                _awsEbsVolumeCount != null ||
+                _awsEbsVolumeSize != null ||
+                _awsEbsVolumeType != null ||
+                _awsFirstOnDemand != null ||
+                _awsInstanceProfileArn != null ||
+                _awsSpotBidPricePercent != null ||
+                _awsZone != null) {
             AwsAttributesDTO awsAttr = new AwsAttributesDTO();
             awsAttr.Availability = _awsAvailability.toString();
             awsAttr.EbsVolumeCount = _awsEbsVolumeCount;
@@ -237,20 +196,17 @@ public class ClusterBuilder {
             clusterInfoDTO.ClusterLogConf = logConf;
         }
 
-        clusterInfoDTO.ClusterName = _clusterName;
         clusterInfoDTO.CustomTags = _customTags;
         clusterInfoDTO.DriverNodeTypeId = _driverNodeType;
         clusterInfoDTO.EnableElasticDisk = _enableElasticDisk;
         clusterInfoDTO.NodeTypeId = _nodeType;
-        clusterInfoDTO.NumWorkers = _numWorkers;
         clusterInfoDTO.SparkConf = _sparkConf;
         clusterInfoDTO.SparkEnvironmentVariables = _sparkEnvironmentVariables;
         clusterInfoDTO.SparkVersionKey = _sparkVersion;
-        clusterInfoDTO.SshPublicKeys = _sshPublicKeys;
-
-        //create cluster via client
-        clusterInfoDTO.ClusterId = _client.create(clusterInfoDTO);
-
-        return new Cluster(_client, clusterInfoDTO);
+        if(_sshPublicKeys.size() > 0) {
+            clusterInfoDTO.SshPublicKeys = _sshPublicKeys.toArray(new String[_sshPublicKeys.size()]);
+        }
+        return clusterInfoDTO;
     }
+
 }

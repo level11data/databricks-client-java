@@ -2,15 +2,9 @@ package com.level11data.databricks;
 
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.DatabricksSession;
-import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.cluster.Cluster;
-import com.level11data.databricks.cluster.SparkVersion;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.jobs.JobDTO;
-import com.level11data.databricks.entities.jobs.JobsDTO;
 
 import java.io.InputStream;
-import java.util.List;
 
 
 public class DatabricksClientApp {

@@ -1,0 +1,107 @@
+package com.level11data.databricks.cluster;
+
+import com.level11data.databricks.client.ClustersClient;
+import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.entities.clusters.*;
+
+import java.math.BigInteger;
+import java.util.*;
+
+public class InteractiveCluster extends Cluster{
+    private ClustersClient _client;
+    private ClusterInfoDTO _clusterInfoDTO;
+    private Boolean _isAutoScaling = false;
+
+    public final String Name;
+    public final Integer NumWorkers;
+    public final AutoScale AutoScale;
+    public final Integer AutoTerminationMinutes;
+
+    /**
+     * Represents a Databricks InteractiveCluster.
+     *
+     * Is instantiated by
+     *   1. InteractiveClusterBuilder.create()
+     *   2. DatabricksSession.getCluster() by Id
+     *   3. InteractiveCluster.resize()
+     *
+     * @param client Databricks ClusterClient
+     * @param info Databricks ClusterInfoDTO POJO
+     * @throws ClusterConfigException
+     */
+    public InteractiveCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
+        super(client, info);
+        _client = client;
+        _clusterInfoDTO = info;
+
+        //Validate that required fields are populated in the ClusterInfoDTO
+        validateClusterInfo(info);
+
+        Name = info.ClusterName;
+        NumWorkers = info.NumWorkers;
+
+        if(info.AutoScale != null){
+            _isAutoScaling = true;
+            AutoScale = new AutoScale(info.AutoScale);
+        } else {
+            AutoScale = null;
+        }
+
+        //Set fields that do not change throughout the lifespan of a cluster configuration
+        // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
+        AutoTerminationMinutes = initAutoTerminationMinutes();
+    }
+
+    private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
+        if(info.ClusterName == null) {
+            throw new ClusterConfigException("ClusterInfoDTO Must Have Name");
+        }
+
+        if(info.NumWorkers == null && info.AutoScale == null)  {
+            throw new ClusterConfigException("ClusterInfoDTO Must Have either NumWorkers OR AutoScaleDTO");
+        }
+    }
+
+    private Integer initAutoTerminationMinutes() throws HttpException  {
+        if(_clusterInfoDTO.AutoTerminationMinutes == null) {
+            return getOrRequestClusterInfo(_clusterInfoDTO).AutoTerminationMinutes;
+        } else {
+            return _clusterInfoDTO.AutoTerminationMinutes;
+        }
+    }
+
+    public void start() throws HttpException {
+        _client.start(Id);
+    }
+
+    public void restart() throws HttpException {
+        _client.reStart(Id);
+    }
+
+    public void terminate() throws HttpException {
+        _client.delete(Id);
+    }
+
+    public InteractiveCluster resize(Integer numWorkers) throws ClusterConfigException, HttpException {
+        if(_isAutoScaling) {
+            throw new ClusterConfigException("Must Include New Min and Max Worker Values when Resizing an Autoscaling InteractiveCluster");
+        }
+        _client.resize(Id, numWorkers);
+
+        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
+        resizedClusterConfig.NumWorkers = numWorkers;
+        return new InteractiveCluster(_client, resizedClusterConfig);
+    }
+
+    public InteractiveCluster resize(Integer minWorkers, Integer maxWorkers) throws ClusterConfigException, HttpException {
+        if(!_isAutoScaling) {
+            throw new ClusterConfigException("Must Only Include a Single Value When Resizing a Fixed Size InteractiveCluster");
+        }
+        _client.resize(Id, minWorkers, maxWorkers);
+
+        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
+        resizedClusterConfig.AutoScale.MinWorkers = minWorkers;
+        resizedClusterConfig.AutoScale.MaxWorkers = maxWorkers;
+        return new InteractiveCluster(_client, resizedClusterConfig);
+    }
+}
