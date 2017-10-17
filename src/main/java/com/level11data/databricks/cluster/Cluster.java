@@ -2,6 +2,7 @@ package com.level11data.databricks.cluster;
 
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.cluster.builder.ServiceType;
 import com.level11data.databricks.entities.clusters.*;
 import java.math.BigInteger;
 import java.util.*;
@@ -22,8 +23,7 @@ public abstract class Cluster {
     public final ClusterLogConf ClusterLogConf;
     public final Map<String, String> SparkEnvironmentVariables;
     public final String CreatorUserName;
-    //This should probably be an enum but the values aren't documented (JOB_LAUNCHER, THIRD_PARTY)
-    public final String CreatedBy;  //TODO Change to Enum
+    public final ServiceType CreatedBy;
     public final SparkNode Driver;
     public final Long SparkContextId;
     public final Integer JdbcPort;
@@ -181,11 +181,11 @@ public abstract class Cluster {
         }
     }
 
-    private String initCreatedBy() throws HttpException {
+    private ServiceType initCreatedBy() throws HttpException {
         if(_clusterInfoDTO.ClusterCreatedBy == null) {
-            return getOrRequestClusterInfo(_clusterInfoDTO).ClusterCreatedBy;
+            return ServiceType.valueOf(getOrRequestClusterInfo(_clusterInfoDTO).ClusterCreatedBy);
         } else {
-            return _clusterInfoDTO.ClusterCreatedBy;
+            return ServiceType.valueOf(_clusterInfoDTO.ClusterCreatedBy);
         }
     }
 

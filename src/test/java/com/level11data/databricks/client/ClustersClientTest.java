@@ -98,7 +98,6 @@ public class ClustersClientTest {
         Assert.assertEquals("Simple Fixed Size InteractiveCluster did NOT enter a RUNNING state after resize",
                 ClusterState.RUNNING, cluster.getState());
 
-        //TODO Have the API match the Docs and return "executors" in the payload
         Assert.assertEquals("Simple Fixed Size InteractiveCluster was NOT resized with expected number of executors",
                 numberOfExecutors, cluster.getExecutors().size());
 
