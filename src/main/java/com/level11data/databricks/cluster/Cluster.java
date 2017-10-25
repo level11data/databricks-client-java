@@ -2,7 +2,6 @@ package com.level11data.databricks.cluster;
 
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.cluster.builder.ServiceType;
 import com.level11data.databricks.entities.clusters.*;
 import java.math.BigInteger;
 import java.util.*;

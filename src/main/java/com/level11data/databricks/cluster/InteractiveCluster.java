@@ -2,7 +2,10 @@ package com.level11data.databricks.cluster;
 
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.entities.clusters.*;
+import com.level11data.databricks.job.builder.InteractiveNotebookJobBuilder;
+import com.level11data.databricks.workspace.Notebook;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -11,6 +14,7 @@ public class InteractiveCluster extends Cluster{
     private ClustersClient _client;
     private ClusterInfoDTO _clusterInfoDTO;
     private Boolean _isAutoScaling = false;
+    private JobsClient _jobsClient;
 
     public final String Name;
     public final Integer NumWorkers;
@@ -103,5 +107,20 @@ public class InteractiveCluster extends Cluster{
         resizedClusterConfig.AutoScale.MinWorkers = minWorkers;
         resizedClusterConfig.AutoScale.MaxWorkers = maxWorkers;
         return new InteractiveCluster(_client, resizedClusterConfig);
+    }
+
+    private JobsClient getOrCreateJobsClient() {
+        if(_jobsClient == null) {
+            _jobsClient = new JobsClient(_client.Session);
+        }
+        return _jobsClient;
+    }
+
+    public InteractiveNotebookJobBuilder createJob(Notebook notebook) {
+      return new InteractiveNotebookJobBuilder(getOrCreateJobsClient(), this, notebook);
+    }
+
+    public InteractiveNotebookJobBuilder createJob(Notebook notebook, Map<String,String> baseParameters) {
+        return new InteractiveNotebookJobBuilder(getOrCreateJobsClient(), this, notebook, baseParameters);
     }
 }

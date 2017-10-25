@@ -1,5 +1,6 @@
 package com.level11data.databricks.entities.jobs;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -72,4 +73,22 @@ public class RunDTO {
             return "Could Not Marshal Object to JSON";
         }
     }
+
+    @JsonIgnore
+    public boolean isInteractive() { return ClusterSpec.ExistingClusterId != null; }
+
+    @JsonIgnore
+    public boolean isAutomated() { return ClusterSpec.NewCluster != null; }
+
+    @JsonIgnore
+    public boolean isNotebookJob() { return Task.NotebookTask != null; }
+
+    @JsonIgnore
+    public boolean isJarJob() { return Task.SparkJarTask != null; }
+
+    @JsonIgnore
+    public boolean isEggJob() { return Task.SparkPythonTask != null; }
+
+    @JsonIgnore
+    public boolean isSparkSubmitJob() {return Task.SparkSubmitTask != null; }
 }

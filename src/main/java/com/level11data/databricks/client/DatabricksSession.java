@@ -4,6 +4,11 @@ import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.clusters.*;
+import com.level11data.databricks.entities.jobs.JobDTO;
+import com.level11data.databricks.job.InteractiveNotebookJob;
+import com.level11data.databricks.job.Job;
+import com.level11data.databricks.job.JobValidation;
+import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import java.net.URI;
 import java.util.*;
@@ -14,6 +19,7 @@ public class DatabricksSession {
 
     private final DatabricksClientConfiguration _databricksClientConfig;
     private ClustersClient _clustersClient;
+    private JobsClient _jobsClient;
     private LibrariesClient _librariesClient;
     private SparkVersionsDTO _sparkVersionsDTO;
     private NodeTypesDTO _nodeTypesDTO;
@@ -42,6 +48,13 @@ public class DatabricksSession {
             _librariesClient =  new LibrariesClient(this);
         }
         return _librariesClient;
+    }
+
+    private JobsClient getOrCreateJobsClient() {
+        if(_jobsClient == null) {
+            _jobsClient = new JobsClient(this);
+        }
+        return _jobsClient;
     }
 
     public InteractiveClusterBuilder createCluster(String name, Integer numWorkers)  {
@@ -178,25 +191,18 @@ public class DatabricksSession {
         return new InteractiveCluster(client, clusterInfoDTO);
     }
 
-    public void startCluster(String id) throws HttpException {
-        getOrCreateClustersClient().start(id);
+    public Job getJob(long jobId) throws HttpException, ClusterConfigException, Exception {
+        JobsClient client = getOrCreateJobsClient();
+        JobDTO jobDTO = client.getJob(jobId);
+
+        if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
+            Job job = new InteractiveNotebookJob(_jobsClient, jobDTO);
+            return job;
+        } else {
+            throw new Exception("Unsupported Job Type");  //TODO keep this?
+        }
     }
 
-    public void restartCluster(String id) throws HttpException {
-        getOrCreateClustersClient().reStart(id);
-    }
-
-    public void deleteCluster(String id) throws HttpException {
-        getOrCreateClustersClient().delete(id);
-    }
-
-    public void resizeCluster(String id, Integer numWorkers) throws HttpException {
-        getOrCreateClustersClient().resize(id, numWorkers);
-    }
-
-    public void resizeCluster(String id, Integer minWorkers, Integer maxWorkers) throws HttpException {
-        getOrCreateClustersClient().resize(id, minWorkers, maxWorkers);
-    }
 
 
 }
