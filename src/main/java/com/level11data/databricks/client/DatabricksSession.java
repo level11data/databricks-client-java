@@ -5,10 +5,8 @@ import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.clusters.*;
 import com.level11data.databricks.entities.jobs.JobDTO;
-import com.level11data.databricks.job.InteractiveNotebookJob;
-import com.level11data.databricks.job.Job;
-import com.level11data.databricks.job.JobValidation;
-import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.entities.jobs.RunDTO;
+import com.level11data.databricks.job.*;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import java.net.URI;
 import java.util.*;
@@ -196,8 +194,20 @@ public class DatabricksSession {
         JobDTO jobDTO = client.getJob(jobId);
 
         if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
-            Job job = new InteractiveNotebookJob(_jobsClient, jobDTO);
+            Job job = new InteractiveNotebookJob(client, jobDTO);
             return job;
+        } else {
+            throw new Exception("Unsupported Job Type");  //TODO keep this?
+        }
+    }
+
+    public JobRun getRun(long runId) throws HttpException, Exception {
+        JobsClient client = getOrCreateJobsClient();
+        RunDTO runDTO = client.getRun(runId);
+
+        if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
+            JobRun run = new InteractiveNotebookJobRun(client, runDTO);
+            return run;
         } else {
             throw new Exception("Unsupported Job Type");  //TODO keep this?
         }

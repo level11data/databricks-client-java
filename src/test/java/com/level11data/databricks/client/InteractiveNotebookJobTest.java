@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.InputStream;
 
-public class InteractiveJobTest {
+public class InteractiveNotebookJobTest {
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -19,7 +19,7 @@ public class InteractiveJobTest {
     DatabricksSession _databricks;
     DatabricksClientConfiguration _databricksConfig;
 
-    public InteractiveJobTest() throws Exception {
+    public InteractiveNotebookJobTest() throws Exception {
         loadConfigFromResource();
     }
 
@@ -49,6 +49,7 @@ public class InteractiveJobTest {
         }
 
         //create job
+        //TODO Implement Workspace API to import notebook from resources
         String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook";
         Notebook notebook = new Notebook(notebookPath);
 
@@ -59,11 +60,15 @@ public class InteractiveJobTest {
         Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
                 _databricksConfig.getClientUsername(), job.getCreatorUserName());
 
+        Assert.assertEquals("Job Parameters is not zero", 0, job.BaseParameters.size());
+
         //run job
         InteractiveNotebookJobRun jobRun = job.run();
 
         Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
-                _databricksConfig.getClientUsername(), job.getCreatorUserName());
+                _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
+
+        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
         //cleanup
         job.delete();
