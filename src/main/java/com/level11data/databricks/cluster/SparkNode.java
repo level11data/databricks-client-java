@@ -20,7 +20,8 @@ public class SparkNode {
         NodeId = sparkNodeDTOInfo.NodeId;
         InstanceId = sparkNodeDTOInfo.InstanceId;
         StartTimestamp = sparkNodeDTOInfo.StartTimestamp;
-        NodeAwsAttributes = new SparkNodeAwsAttributes(sparkNodeDTOInfo.NodeAwsAttributes);
+        NodeAwsAttributes = sparkNodeDTOInfo.NodeAwsAttributes == null ? null
+                : new SparkNodeAwsAttributes(sparkNodeDTOInfo.NodeAwsAttributes);
         HostPrivateIP = sparkNodeDTOInfo.HostPrivateIP;
         NodeType = nodeType;
     }

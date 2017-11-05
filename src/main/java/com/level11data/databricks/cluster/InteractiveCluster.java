@@ -7,7 +7,6 @@ import com.level11data.databricks.entities.clusters.*;
 import com.level11data.databricks.job.builder.InteractiveNotebookJobBuilder;
 import com.level11data.databricks.workspace.Notebook;
 
-import java.math.BigInteger;
 import java.util.*;
 
 public class InteractiveCluster extends Cluster{
@@ -36,7 +35,7 @@ public class InteractiveCluster extends Cluster{
     public InteractiveCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
         super(client, info);
         _client = client;
-        _clusterInfoDTO = info;
+        _clusterInfoDTO = getClusterInfo();
 
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(info);
@@ -68,7 +67,7 @@ public class InteractiveCluster extends Cluster{
 
     private Integer initAutoTerminationMinutes() throws HttpException  {
         if(_clusterInfoDTO.AutoTerminationMinutes == null) {
-            return getOrRequestClusterInfo(_clusterInfoDTO).AutoTerminationMinutes;
+            return _clusterInfoDTO.AutoTerminationMinutes;
         } else {
             return _clusterInfoDTO.AutoTerminationMinutes;
         }

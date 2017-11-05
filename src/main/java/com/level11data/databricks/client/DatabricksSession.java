@@ -108,17 +108,12 @@ public class DatabricksSession {
     }
 
     public SparkVersion getSparkVersionByKey(String key) throws HttpException, ClusterConfigException {
-        //System.out.println("getSparkVersionByKey("+key+")");
         List<SparkVersion> sparkVersions = getSparkVersions();
         for (SparkVersion sv : sparkVersions) {
-            //System.out.println("getSparkVersionByKey("+key+") Evaluate Key: "+sv.Key);
             if(sv.Key.equals(key)) {
-                //System.out.println("getSparkVersionByKey("+key+") in IF");
                 return sv;
             }
         }
-        //System.out.println("getSparkVersionByKey("+key+") past FOR");
-        //No SparkVersion found
         throw new ClusterConfigException("No SparkVersion Found For Key "+key);
     }
 

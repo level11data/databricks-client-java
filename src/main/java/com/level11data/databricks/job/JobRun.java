@@ -11,8 +11,7 @@ abstract public class JobRun {
     private Long _setupDuration;
     private Long _executionDuration;
     private Long _cleanupDuration;
-
-    protected JobsClient _client;
+    private JobsClient _client;
 
     public final long JobId;
     public final long RunId;
@@ -22,8 +21,7 @@ abstract public class JobRun {
     //public final CronScheduleDTO Schedule;
     public final TriggerType Trigger;
     public final Date StartTime;
-
-    //public final ClusterSpec ClusterSpec;  TODO Add ClusterSpec parent to Cluster
+    //public final List<Library> ClusterSpecLibraries; //TODO add libraries
 
     protected JobRun(JobsClient client, RunDTO runDTO) {
         _client = client;

@@ -3,30 +3,39 @@ package com.level11data.databricks.job;
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.cluster.AutomatedCluster;
 import com.level11data.databricks.cluster.ClusterConfigException;
-import com.level11data.databricks.cluster.InteractiveCluster;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.entities.jobs.RunDTO;
 
-abstract public class InteractiveJobRun extends JobRun {
-    private InteractiveCluster _cluster;
+public abstract class AutomatedJobRun extends JobRun {
+    private AutomatedCluster _cluster;
     private JobsClient _client;
     private boolean _clusterCreated = false;
 
-    protected InteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException{
+    //TODO evaluate if _client should be private in super (I think so)
+
+
+    public final ClusterSpec NewClusterSpec;
+
+    protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         _client = client;
 
         validateJobRun(runDTO);
+        NewClusterSpec = new ClusterSpec(runDTO.ClusterSpec.NewCluster);
     }
 
-    public InteractiveCluster getCluster() throws HttpException, ClusterConfigException, JobRunException {
+    public AutomatedCluster getCluster() throws HttpException, ClusterConfigException, JobRunException {
         if (_cluster == null) {
             RunDTO run = _client.getRun(this.RunId);
             validateJobRun(run);
-            ClustersClient clusterClient = new ClustersClient(_client.Session);
-            ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);
-            _cluster = new InteractiveCluster(clusterClient, clusterInfo);
+            if(_clusterCreated) {
+                ClustersClient clusterClient = new ClustersClient(_client.Session);
+                ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);
+                _cluster = new AutomatedCluster(clusterClient, clusterInfo);
+            }
         }
         return _cluster;
     }
@@ -40,11 +49,14 @@ abstract public class InteractiveJobRun extends JobRun {
             return;
         } else {
             _clusterCreated = true;
-            if(runDTO.ClusterSpec.ExistingClusterId == null) {
-                throw new JobRunException("JobRun is not associated with an interactive cluster");
+            if(runDTO.ClusterSpec.NewCluster == null) {
+                throw new JobRunException("JobRun is not associated with an automated cluster");
             } else {
                 return;
             }
         }
     }
+
+
+
 }
