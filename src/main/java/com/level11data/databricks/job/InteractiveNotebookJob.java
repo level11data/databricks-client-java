@@ -17,6 +17,15 @@ public class InteractiveNotebookJob extends InteractiveJob {
     public final Notebook Notebook;
     public final Map<String,String> BaseParameters;
 
+    /**
+     * Create a Notebook Job on an Interactive Cluster with NO parameters
+     *
+     * @param client
+     * @param cluster
+     * @param jobId
+     * @param jobSettingsDTO
+     * @param notebook
+     */
     public InteractiveNotebookJob(JobsClient client,
                                      InteractiveCluster cluster,
                                      long jobId,
@@ -27,6 +36,16 @@ public class InteractiveNotebookJob extends InteractiveJob {
         BaseParameters = Collections.unmodifiableMap(new HashMap<String, String>());
     }
 
+    /**
+     * Create a Notebook Job on an Interactive Cluster WITH parameters
+     *
+     * @param client
+     * @param cluster
+     * @param jobId
+     * @param jobSettingsDTO
+     * @param notebook
+     * @param baseParameters
+     */
     public InteractiveNotebookJob(JobsClient client,
                                   InteractiveCluster cluster,
                                   long jobId,
@@ -38,6 +57,15 @@ public class InteractiveNotebookJob extends InteractiveJob {
         BaseParameters = Collections.unmodifiableMap(baseParameters);
     }
 
+    /**
+     * Create a Notebook Job on an Interactive Cluster using a Job DTO object.
+     *
+     * @param client
+     * @param jobDTO
+     * @throws JobConfigException
+     * @throws ClusterConfigException
+     * @throws HttpException
+     */
     public InteractiveNotebookJob(JobsClient client, JobDTO jobDTO)
             throws JobConfigException, ClusterConfigException, HttpException {
         super(client, client.Session.getCluster(jobDTO.Settings.ExistingClusterId), jobDTO.JobId, jobDTO.Settings);

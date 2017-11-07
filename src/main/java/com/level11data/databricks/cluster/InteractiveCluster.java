@@ -11,7 +11,6 @@ import java.util.*;
 
 public class InteractiveCluster extends Cluster{
     private ClustersClient _client;
-    private ClusterInfoDTO _clusterInfoDTO;
     private Boolean _isAutoScaling = false;
     private JobsClient _jobsClient;
 
@@ -35,7 +34,6 @@ public class InteractiveCluster extends Cluster{
     public InteractiveCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
         super(client, info);
         _client = client;
-        _clusterInfoDTO = getClusterInfo();
 
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(info);
@@ -66,11 +64,7 @@ public class InteractiveCluster extends Cluster{
     }
 
     private Integer initAutoTerminationMinutes() throws HttpException  {
-        if(_clusterInfoDTO.AutoTerminationMinutes == null) {
-            return _clusterInfoDTO.AutoTerminationMinutes;
-        } else {
-            return _clusterInfoDTO.AutoTerminationMinutes;
-        }
+        return getClusterInfo().AutoTerminationMinutes;
     }
 
     public void start() throws HttpException {
@@ -91,7 +85,7 @@ public class InteractiveCluster extends Cluster{
         }
         _client.resize(Id, numWorkers);
 
-        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
+        ClusterInfoDTO resizedClusterConfig = getClusterInfo();
         resizedClusterConfig.NumWorkers = numWorkers;
         return new InteractiveCluster(_client, resizedClusterConfig);
     }
@@ -102,7 +96,7 @@ public class InteractiveCluster extends Cluster{
         }
         _client.resize(Id, minWorkers, maxWorkers);
 
-        ClusterInfoDTO resizedClusterConfig = _clusterInfoDTO;
+        ClusterInfoDTO resizedClusterConfig = getClusterInfo();
         resizedClusterConfig.AutoScale.MinWorkers = minWorkers;
         resizedClusterConfig.AutoScale.MaxWorkers = maxWorkers;
         return new InteractiveCluster(_client, resizedClusterConfig);

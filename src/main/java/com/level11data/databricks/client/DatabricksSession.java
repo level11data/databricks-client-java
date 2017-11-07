@@ -7,6 +7,8 @@ import com.level11data.databricks.entities.clusters.*;
 import com.level11data.databricks.entities.jobs.JobDTO;
 import com.level11data.databricks.entities.jobs.RunDTO;
 import com.level11data.databricks.job.*;
+import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
+import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import java.net.URI;
 import java.util.*;
@@ -184,6 +186,7 @@ public class DatabricksSession {
         return new InteractiveCluster(client, clusterInfoDTO);
     }
 
+    //TODO make return type generic
     public Job getJob(long jobId) throws HttpException, ClusterConfigException, Exception {
         JobsClient client = getOrCreateJobsClient();
         JobDTO jobDTO = client.getJob(jobId);
@@ -196,6 +199,7 @@ public class DatabricksSession {
         }
     }
 
+    //TODO make return type generic
     public JobRun getRun(long runId) throws HttpException, Exception {
         JobsClient client = getOrCreateJobsClient();
         RunDTO runDTO = client.getRun(runId);
@@ -208,6 +212,9 @@ public class DatabricksSession {
         }
     }
 
-
+    public AutomatedNotebookJobBuilder createJob(Notebook notebook) {
+        JobsClient client = getOrCreateJobsClient();
+        return new AutomatedNotebookJobBuilder(client, notebook);
+    }
 
 }

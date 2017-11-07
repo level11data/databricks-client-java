@@ -5,10 +5,7 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
 
 public class AutomatedCluster extends Cluster {
-    //private ClustersClient _client;
-    //private ClusterInfoDTO _clusterInfoDTO;
     //private Boolean _isAutoScaling = false;
-    //private JobsClient _jobsClient;
 
     public final String Name;
     public final Integer NumWorkers;

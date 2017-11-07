@@ -8,12 +8,10 @@ import java.util.*;
 
 public abstract class Cluster extends BaseCluster {
     private ClustersClient _client;
-    private ClusterInfoDTO _clusterInfoDTO;
 
     public final String Id;
     public final SparkVersion SparkVersion;
     public final NodeType DefaultNodeType;
-    public final Map<String, String> DefaultTags;
     public final String CreatorUserName;
     public final ServiceType CreatedBy;
     public final SparkNode Driver;
@@ -25,7 +23,6 @@ public abstract class Cluster extends BaseCluster {
         super(client, info);
 
         _client = client;
-        _clusterInfoDTO = getClusterInfo();
 
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
@@ -38,54 +35,45 @@ public abstract class Cluster extends BaseCluster {
         SparkContextId = initSparkContextId();
         JdbcPort = initJdbcPort();
         StartTime = initStartTime();
-        DefaultTags = Collections.unmodifiableMap(initDefaultTags());
     }
 
     private SparkVersion initSparkVersion() throws HttpException, ClusterConfigException {
-        return _client.Session.getSparkVersionByKey(_clusterInfoDTO.SparkVersionKey);
+        return _client.Session.getSparkVersionByKey(getClusterInfo().SparkVersionKey);
     }
 
     private NodeType initNodeType() throws HttpException, ClusterConfigException {
-        return _client.Session.getNodeTypeById(_clusterInfoDTO.NodeTypeId);
+        return _client.Session.getNodeTypeById(getClusterInfo().NodeTypeId);
     }
 
     private String initCreatorUserName() throws HttpException {
-        return _clusterInfoDTO.CreatorUserName;
+        return getClusterInfo().CreatorUserName;
     }
 
     private ServiceType initCreatedBy() throws HttpException {
-        return ServiceType.valueOf(_clusterInfoDTO.ClusterCreatedBy);
+        return ServiceType.valueOf(getClusterInfo().ClusterCreatedBy);
     }
 
     private SparkNode initDriver() throws HttpException, ClusterConfigException {
-        NodeType driverNodeType = _client.Session.getNodeTypeById(_clusterInfoDTO.DriverNodeTypeId);
-        if(_clusterInfoDTO.Driver == null) {
+        NodeType driverNodeType = _client.Session.getNodeTypeById(getClusterInfo().DriverNodeTypeId);
+        if(getClusterInfo().Driver == null) {
             return null;
         } else {
-            return new SparkNode(_clusterInfoDTO.Driver, driverNodeType);
+            return new SparkNode(getClusterInfo().Driver, driverNodeType);
         }
     }
 
     private Long initSparkContextId() throws HttpException {
-        return _clusterInfoDTO.SparkContextId;
+        return getClusterInfo().SparkContextId;
     }
 
     private Integer initJdbcPort() throws HttpException {
-        return _clusterInfoDTO.JdbcPort;
+        return getClusterInfo().JdbcPort;
     }
 
     private Date initStartTime() throws HttpException  {
         Long startTime;
-        startTime = _clusterInfoDTO.StartTime;
+        startTime = getClusterInfo().StartTime;
         return new Date(startTime.longValue());
-    }
-
-    private Map<String, String> initDefaultTags() throws HttpException {
-        if(_clusterInfoDTO.DefaultTags == null) {
-            return getClusterInfo().DefaultTags;
-        } else {
-            return _clusterInfoDTO.DefaultTags;
-        }
     }
 
     public ClusterState getState() throws HttpException {
@@ -102,7 +90,7 @@ public abstract class Cluster extends BaseCluster {
         //Always make client request for this
         SparkNodeDTO[] nodeInfos =  _client.getCluster(Id).Executors;
 
-        ArrayList<SparkNode> nodeList = new ArrayList<SparkNode>();
+        ArrayList<SparkNode> nodeList = new ArrayList<>();
 
         if(nodeInfos != null) {
             for(SparkNodeDTO nodeInfo : nodeInfos) {

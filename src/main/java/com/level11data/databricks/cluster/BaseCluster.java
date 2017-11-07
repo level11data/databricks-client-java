@@ -11,6 +11,7 @@ public abstract class BaseCluster {
     private Boolean _clusterInfoRequested = false;
     private ClusterInfoDTO _clusterInfoDTO;
     private ClustersClient _client;
+    private String _clusterId;
 
     public final AwsAttributes AwsAttributes;
     public final Boolean ElasticDiskEnabled;
@@ -23,10 +24,16 @@ public abstract class BaseCluster {
 
     protected BaseCluster(ClusterInfoDTO clusterInfoDTO) {
         _clusterInfoDTO = clusterInfoDTO;
+        _clusterId = clusterInfoDTO.ClusterId;
 
         AwsAttributes = clusterInfoDTO.AwsAttributes == null ? null : new AwsAttributes(clusterInfoDTO.AwsAttributes);
         ElasticDiskEnabled = clusterInfoDTO.EnableElasticDisk;
-        SparkConf = Collections.unmodifiableMap(clusterInfoDTO.SparkConf);
+
+        HashMap<String,String> sparkConfMap = new HashMap<>();
+        if(clusterInfoDTO.SparkConf != null) {
+            sparkConfMap.putAll(clusterInfoDTO.SparkConf);
+        }
+        SparkConf = Collections.unmodifiableMap(sparkConfMap);
 
         ArrayList<String> sshKeyList = new ArrayList<>();
         if(clusterInfoDTO.SshPublicKeys != null) {
@@ -35,21 +42,36 @@ public abstract class BaseCluster {
             }
         }
         SshPublicKeys = Collections.unmodifiableList(sshKeyList);
-        DefaultTags = Collections.unmodifiableMap(clusterInfoDTO.DefaultTags);
-        CustomTags = Collections.unmodifiableMap(clusterInfoDTO.CustomTags);
+
+        HashMap<String,String> defaultTagsMap = new HashMap<>();
+        if(clusterInfoDTO.DefaultTags != null) {
+            defaultTagsMap.putAll(clusterInfoDTO.DefaultTags);
+        }
+        DefaultTags = Collections.unmodifiableMap(defaultTagsMap);
+
+        HashMap<String,String> customTagsMap = new HashMap<>();
+        if(clusterInfoDTO.CustomTags != null) {
+            customTagsMap.putAll(clusterInfoDTO.CustomTags);
+        }
+        CustomTags = Collections.unmodifiableMap(customTagsMap);
 
         ClusterLogConf = clusterInfoDTO.ClusterLogConf == null
                 ? null : new ClusterLogConf(clusterInfoDTO.ClusterLogConf);
 
-        SparkEnvironmentVariables = Collections.unmodifiableMap(clusterInfoDTO.SparkEnvironmentVariables);
+        HashMap<String,String> sparkEnvVarMap = new HashMap<>();
+        if(clusterInfoDTO.SparkEnvironmentVariables != null) {
+            sparkEnvVarMap.putAll(clusterInfoDTO.SparkEnvironmentVariables);
+        }
+        SparkEnvironmentVariables = Collections.unmodifiableMap(sparkEnvVarMap);
     }
 
     protected BaseCluster(ClustersClient client, ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException, HttpException {
-        _client = client;
-        _clusterInfoDTO = clusterInfoDTO;
-
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(clusterInfoDTO);
+
+        _client = client;
+        _clusterInfoDTO = clusterInfoDTO;
+        _clusterId = clusterInfoDTO.ClusterId;
 
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
@@ -74,7 +96,7 @@ public abstract class BaseCluster {
             return _clusterInfoDTO;
         } else {
             if(!_clusterInfoRequested) {
-                _clusterInfoDTO = _client.getCluster(getClusterInfo().ClusterId);
+                _clusterInfoDTO = _client.getCluster(_clusterId);
                 _clusterInfoRequested = true;
                 return _clusterInfoDTO;
             } else {
@@ -84,10 +106,10 @@ public abstract class BaseCluster {
     }
 
     private AwsAttributes initAwsAttributes() throws HttpException {
-        if(_clusterInfoDTO.AwsAttributes == null) {
-            return new AwsAttributes(getClusterInfo().AwsAttributes);
+        if(getClusterInfo().AwsAttributes == null) {
+            return null;
         } else {
-            return new AwsAttributes(_clusterInfoDTO.AwsAttributes);
+            return new AwsAttributes(getClusterInfo().AwsAttributes);
         }
     }
 
@@ -96,71 +118,54 @@ public abstract class BaseCluster {
     }
 
     private Map<String, String> initSparkConf() throws HttpException {
-        if(_clusterInfoDTO.SparkConf == null) {
-            return getClusterInfo().SparkConf == null
-                    ? new HashMap<>() : getClusterInfo().SparkConf;
+        if(getClusterInfo().SparkConf == null) {
+            return new HashMap<String,String>();
         } else {
-            return _clusterInfoDTO.SparkConf == null ? new HashMap<>() : _clusterInfoDTO.SparkConf;
+            return getClusterInfo().SparkConf;
         }
     }
 
     private List<String> initSshPublicKeys() throws HttpException {
-        List<String> sshPublicKeysList = new ArrayList<>();
-        String[] sshPublicKeysDTO;
-        if(_clusterInfoDTO.SshPublicKeys == null) {
-            sshPublicKeysDTO = getClusterInfo().SshPublicKeys;
+        if(getClusterInfo().SshPublicKeys == null) {
+            return new ArrayList<>();
         } else {
-            sshPublicKeysDTO =  _clusterInfoDTO.SshPublicKeys;
-        }
-
-        if(sshPublicKeysDTO != null) {
-            for (String ssh : sshPublicKeysDTO) {
+            List<String> sshPublicKeysList = new ArrayList<>();
+            for (String ssh : getClusterInfo().SshPublicKeys) {
                 sshPublicKeysList.add(ssh);
             }
+            return sshPublicKeysList;
         }
-        return sshPublicKeysList;
     }
 
     private Map<String, String> initCustomTags() throws HttpException {
-        if(_clusterInfoDTO.CustomTags == null) {
-            Map<String, String> customTagsDTO = getClusterInfo().CustomTags;
-            return customTagsDTO == null ? new HashMap<>() : customTagsDTO;
+        if(getClusterInfo().CustomTags == null) {
+            return new HashMap<>();
         } else {
-            Map<String, String> customTagsDTO =_clusterInfoDTO.CustomTags;
-            return customTagsDTO == null ? new HashMap<>() : customTagsDTO;
+            return getClusterInfo().CustomTags;
         }
     }
 
     private ClusterLogConf initLogConf() throws HttpException {
-        if(_clusterInfoDTO.ClusterLogConf == null && _clusterInfoRequested) {
+        if(getClusterInfo().ClusterLogConf == null) {
             return null;
-        } else if(_clusterInfoDTO.ClusterLogConf == null && !_clusterInfoRequested) {
-            if(getClusterInfo().ClusterLogConf == null) {
-                return null;
-            } else {
-                return new ClusterLogConf(getClusterInfo().ClusterLogConf);
-            }
         } else {
-            return new ClusterLogConf(_clusterInfoDTO.ClusterLogConf);
+            return new ClusterLogConf(getClusterInfo().ClusterLogConf);
         }
     }
 
     private Map<String, String> initSparkEnvironmentVariables() throws HttpException {
-        Map<String, String> sparkEvnVarDTO;
-
-        if(_clusterInfoDTO.SparkEnvironmentVariables == null) {
-            sparkEvnVarDTO =  getClusterInfo().SparkEnvironmentVariables;
+        if(getClusterInfo().SparkEnvironmentVariables == null) {
+            return new HashMap<>();
         } else {
-            sparkEvnVarDTO =  _clusterInfoDTO.SparkEnvironmentVariables;
+            return getClusterInfo().SparkEnvironmentVariables;
         }
-        return sparkEvnVarDTO == null ? new HashMap<>() : sparkEvnVarDTO;
     }
 
     private Map<String, String> initDefaultTags() throws HttpException {
-        if(_clusterInfoDTO.DefaultTags == null) {
-            return getClusterInfo().DefaultTags;
+        if(getClusterInfo().DefaultTags == null) {
+            return new HashMap<>();
         } else {
-            return _clusterInfoDTO.DefaultTags;
+            return getClusterInfo().DefaultTags;
         }
     }
 

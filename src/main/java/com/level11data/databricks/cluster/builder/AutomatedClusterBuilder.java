@@ -3,15 +3,15 @@ package com.level11data.databricks.cluster.builder;
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
-import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.job.builder.AutomatedJobBuilder;
+import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 
 public class AutomatedClusterBuilder extends ClusterBuilder {
     private AutomatedJobBuilder _jobBuilder;
     private int _numWorkers;
 
-    public AutomatedClusterBuilder(AutomatedJobBuilder jobBuilder, int numWorkers) {
+    public AutomatedClusterBuilder(AutomatedNotebookJobBuilder jobBuilder, int numWorkers) {
         _jobBuilder = jobBuilder;
         _numWorkers = numWorkers;
     }
@@ -115,16 +115,12 @@ public class AutomatedClusterBuilder extends ClusterBuilder {
         return (AutomatedClusterBuilder)super.withSparkEnvironmentVariable(key, value);
     }
 
-    public AutomatedJobBuilder create() throws ClusterConfigException {
+    public <T extends AutomatedJobBuilder> T addToJob(Class<T> type) throws ClusterConfigException {
         validateLogConf();
-
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
         clusterInfoDTO = applySettings(clusterInfoDTO);
-
-        ClusterSpec clusterSpec = new ClusterSpec(clusterInfoDTO);
-        _jobBuilder.withClusterSpec(clusterSpec);
-        return _jobBuilder;
+        _jobBuilder.withClusterInfo(clusterInfoDTO);
+        return type.cast(_jobBuilder);
     }
-
 
 }
