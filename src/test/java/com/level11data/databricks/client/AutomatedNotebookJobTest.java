@@ -111,9 +111,6 @@ public class AutomatedNotebookJobTest {
 
         AutomatedNotebookJobRun jobRunWithParamOverride = job.run(parameterOverride);
 
-        System.out.println("Job Run With Parameter Overrides");
-        System.out.println(jobRunWithParamOverride.OverridingParameters.toString());
-
         Assert.assertEquals("Override Parameter 1 was not set", "Override One",
                 jobRunWithParamOverride.OverridingParameters.get("parameter1"));
 

@@ -18,7 +18,7 @@ public class InteractiveNotebookJob extends InteractiveJob {
     public final Map<String,String> BaseParameters;
 
     /**
-     * Create a Notebook Job on an Interactive Cluster with NO parameters
+     * Create a Notebook Job on an Interactive Cluster
      *
      * @param client
      * @param cluster
@@ -33,30 +33,13 @@ public class InteractiveNotebookJob extends InteractiveJob {
                                      Notebook notebook) {
         super(client, cluster, jobId, jobSettingsDTO);
         Notebook = notebook;
-        BaseParameters = Collections.unmodifiableMap(new HashMap<String, String>());
+        if(jobSettingsDTO.NotebookTask.BaseParameters == null) {
+            BaseParameters = Collections.unmodifiableMap(new HashMap<String, String>());
+        } else {
+            BaseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
+        }
     }
-
-    /**
-     * Create a Notebook Job on an Interactive Cluster WITH parameters
-     *
-     * @param client
-     * @param cluster
-     * @param jobId
-     * @param jobSettingsDTO
-     * @param notebook
-     * @param baseParameters
-     */
-    public InteractiveNotebookJob(JobsClient client,
-                                  InteractiveCluster cluster,
-                                  long jobId,
-                                  JobSettingsDTO jobSettingsDTO,
-                                  Notebook notebook,
-                                  Map<String,String> baseParameters) {
-        super(client, cluster, jobId, jobSettingsDTO);
-        Notebook = notebook;
-        BaseParameters = Collections.unmodifiableMap(baseParameters);
-    }
-
+    
     /**
      * Create a Notebook Job on an Interactive Cluster using a Job DTO object.
      *

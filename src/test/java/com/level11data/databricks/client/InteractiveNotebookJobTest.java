@@ -3,6 +3,7 @@ package com.level11data.databricks.client;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
+import com.level11data.databricks.job.AutomatedNotebookJobRun;
 import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.InteractiveNotebookJobRun;
 import com.level11data.databricks.workspace.Notebook;
@@ -10,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.HashMap;
 
 public class InteractiveNotebookJobTest {
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
@@ -33,7 +35,7 @@ public class InteractiveNotebookJobTest {
     }
 
     @Test
-    public void testCreateSimpleInteractiveNotebookJob() throws Exception {
+    public void testSimpleInteractiveNotebookJob() throws Exception {
         long now = System.currentTimeMillis();
         String clusterName = "test simple interactive notebook job " + now;
         int numberOfExecutors = 1;
@@ -54,7 +56,7 @@ public class InteractiveNotebookJobTest {
         Notebook notebook = new Notebook(notebookPath);
 
         InteractiveNotebookJob job = cluster.createJob(notebook)
-                .withName("testCreateSimpleInteractiveNotebookJob")
+                .withName("testSimpleInteractiveNotebookJob "+now)
                 .create();
 
         Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
@@ -74,5 +76,72 @@ public class InteractiveNotebookJobTest {
         job.delete();
         cluster.terminate();
     }
+
+    @Test
+    public void testSimpleInteractiveNotebookJobWithParams() throws Exception {
+        long now = System.currentTimeMillis();
+        String clusterName = "test simple interactive notebook job with params" + now;
+        int numberOfExecutors = 1;
+
+        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
+                .withAutoTerminationMinutes(20)
+                .create();
+
+        while(cluster.getState() == ClusterState.PENDING) {
+            //wait until cluster is properly started
+            // should not take more than 100 seconds from a cold start
+            Thread.sleep(10000); //wait 10 seconds
+        }
+
+        //create job
+        //TODO Implement Workspace API to import notebook from resources
+        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook";
+        Notebook notebook = new Notebook(notebookPath);
+
+        HashMap<String,String> parameters = new HashMap<String,String>();
+        parameters.put("parameter1", "Hello");
+        parameters.put("parameter2", "World");
+
+        InteractiveNotebookJob job = cluster.createJob(notebook, parameters)
+                .withName("testSimpleInteractiveNotebookJobWithParams "+now)
+                .create();
+
+        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
+                _databricksConfig.getClientUsername(), job.getCreatorUserName());
+
+        Assert.assertEquals("Job Parameters is not 2", 2, job.BaseParameters.size());
+
+        //run job
+        InteractiveNotebookJobRun jobRun = job.run();
+
+        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
+                _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
+
+        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
+
+        Assert.assertEquals("Parameter 1 was not set", "Hello",
+                jobRun.BaseParameters.get("parameter1"));
+
+        Assert.assertEquals("Parameter 2 was not set", "World",
+                jobRun.BaseParameters.get("parameter2"));
+
+        HashMap<String,String> parameterOverride = new HashMap<String,String>();
+        parameterOverride.put("parameter1", "Override One");
+        parameterOverride.put("parameter2", "Override Two");
+
+        InteractiveNotebookJobRun jobRunWithParamOverride = job.run(parameterOverride);
+
+        Assert.assertEquals("Override Parameter 1 was not set", "Override One",
+                jobRunWithParamOverride.OverridingParameters.get("parameter1"));
+
+        Assert.assertEquals("Override Parameter 2 was not set", "Override Two",
+                jobRunWithParamOverride.OverridingParameters.get("parameter2"));
+
+        //cleanup
+        job.delete();
+        cluster.terminate();
+    }
+
+
 
 }
