@@ -1,10 +1,10 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.HttpException;
-import com.level11data.databricks.JobsClient;
-import com.level11data.databricks.entities.jobs.JobDTO;
-import com.level11data.databricks.entities.jobs.JobEmailNotificationsDTO;
-import com.level11data.databricks.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.client.entities.jobs.JobDTO;
+import com.level11data.databricks.client.entities.jobs.JobEmailNotificationsDTO;
+import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 
 import java.util.Date;
 

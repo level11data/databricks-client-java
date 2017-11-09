@@ -1,13 +1,17 @@
 package com.level11data.databricks;
 
 
+import com.level11data.databricks.client.ClustersClient;
+import com.level11data.databricks.client.CommandsClient;
+import com.level11data.databricks.client.ContextsClient;
+import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.commands.CommandRequestDTO;
-import com.level11data.databricks.entities.commands.ExecuteCommandRequestDTO;
-import com.level11data.databricks.entities.commands.CommandStatusDTO;
-import com.level11data.databricks.entities.contexts.CreateContextRequestDTO;
+import com.level11data.databricks.client.entities.commands.CommandRequestDTO;
+import com.level11data.databricks.client.entities.commands.ExecuteCommandRequestDTO;
+import com.level11data.databricks.client.entities.commands.CommandStatusDTO;
+import com.level11data.databricks.client.entities.contexts.CreateContextRequestDTO;
 
 import java.io.InputStream;
 

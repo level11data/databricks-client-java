@@ -2,7 +2,7 @@ package com.level11data.databricks.cluster.builder;
 
 import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.cluster.ClusterConfigException;
-import com.level11data.databricks.entities.clusters.*;
+import com.level11data.databricks.client.entities.clusters.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

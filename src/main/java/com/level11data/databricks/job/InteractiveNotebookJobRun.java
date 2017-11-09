@@ -1,7 +1,7 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.JobsClient;
-import com.level11data.databricks.entities.jobs.RunDTO;
+import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.client.entities.jobs.RunDTO;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

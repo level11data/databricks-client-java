@@ -1,6 +1,6 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.entities.jobs.JobDTO;
+import com.level11data.databricks.client.entities.jobs.JobDTO;
 
 public class JobValidation {
 

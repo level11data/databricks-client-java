@@ -1,13 +1,13 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.ClustersClient;
-import com.level11data.databricks.HttpException;
-import com.level11data.databricks.JobsClient;
+import com.level11data.databricks.client.ClustersClient;
+import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.AutomatedCluster;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.ClusterSpec;
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
-import com.level11data.databricks.entities.jobs.RunDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.jobs.RunDTO;
 
 public abstract class AutomatedJobRun extends JobRun {
     private AutomatedCluster _cluster;

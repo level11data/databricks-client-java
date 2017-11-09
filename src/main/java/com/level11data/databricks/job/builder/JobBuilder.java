@@ -2,7 +2,7 @@ package com.level11data.databricks.job.builder;
 
 import java.util.ArrayList;
 import java.util.TimeZone;
-import com.level11data.databricks.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import org.quartz.Trigger;
 
 public abstract class JobBuilder {

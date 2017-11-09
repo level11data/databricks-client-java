@@ -1,11 +1,11 @@
 package com.level11data.databricks.library;
 
-import com.level11data.databricks.HttpException;
-import com.level11data.databricks.LibrariesClient;
-import com.level11data.databricks.entities.libraries.ClusterLibraryRequestDTO;
-import com.level11data.databricks.entities.libraries.LibraryDTO;
-import com.level11data.databricks.entities.libraries.MavenLibraryDTO;
-import com.level11data.databricks.entities.libraries.PythonPyPiLibraryDTO;
+import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.client.LibrariesClient;
+import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.client.entities.libraries.MavenLibraryDTO;
+import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO;
 
 import java.util.List;
 

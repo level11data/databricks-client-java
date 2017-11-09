@@ -1,6 +1,6 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.entities.jobs.RunStateDTO;
+import com.level11data.databricks.client.entities.jobs.RunStateDTO;
 
 public class RunState {
     public final RunLifeCycleState LifeCycleState;

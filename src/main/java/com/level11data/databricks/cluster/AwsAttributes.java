@@ -1,7 +1,7 @@
 package com.level11data.databricks.cluster;
 
 import com.level11data.databricks.cluster.AwsAttribute.*;
-import com.level11data.databricks.entities.clusters.AwsAttributesDTO;
+import com.level11data.databricks.client.entities.clusters.AwsAttributesDTO;
 
 public class AwsAttributes {
     public final Integer FirstOnDemand;

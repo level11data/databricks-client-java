@@ -3,7 +3,7 @@ package com.level11data.databricks.cluster.builder;
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.job.builder.AutomatedJobBuilder;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 

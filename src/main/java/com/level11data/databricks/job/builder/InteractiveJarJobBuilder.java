@@ -1,6 +1,6 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.JobsClient;
+import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import org.quartz.Trigger;
 import java.util.ArrayList;

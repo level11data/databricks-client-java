@@ -1,10 +1,10 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.ClustersClient;
-import com.level11data.databricks.HttpException;
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
-import com.level11data.databricks.entities.clusters.SparkNodeDTO;
-import com.level11data.databricks.entities.clusters.TerminationReasonDTO;
+import com.level11data.databricks.client.ClustersClient;
+import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.clusters.SparkNodeDTO;
+import com.level11data.databricks.client.entities.clusters.TerminationReasonDTO;
 
 import java.math.BigInteger;
 import java.util.*;

@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.AutoScaleDTO;
+import com.level11data.databricks.client.entities.clusters.AutoScaleDTO;
 
 public class AutoScale {
     public final Integer MinWorkers;

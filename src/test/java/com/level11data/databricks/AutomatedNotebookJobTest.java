@@ -1,5 +1,6 @@
 package com.level11data.databricks;
 
+import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedNotebookJob;
 import com.level11data.databricks.job.AutomatedNotebookJobRun;

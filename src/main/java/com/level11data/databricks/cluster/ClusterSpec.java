@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 
 public class ClusterSpec extends BaseCluster {
 

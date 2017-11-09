@@ -1,7 +1,7 @@
 package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.cluster.InteractiveCluster;
-import com.level11data.databricks.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import org.quartz.Trigger;
 import java.util.TimeZone;
 

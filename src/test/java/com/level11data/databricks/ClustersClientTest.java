@@ -1,6 +1,7 @@
 package com.level11data.databricks;
 
 
+import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.config.DatabricksClientConfiguration;

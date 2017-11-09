@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.NodeTypeDTO;
+import com.level11data.databricks.client.entities.clusters.NodeTypeDTO;
 
 public class NodeType {
     public final String Id;

@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.ClusterLogConfDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterLogConfDTO;
 
 public class ClusterLogConf {
     public final DbfsStorageInfo DbfsInfo;

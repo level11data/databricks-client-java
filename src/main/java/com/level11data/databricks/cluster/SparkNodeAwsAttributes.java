@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.SparkNodeAwsAttributesDTO;
+import com.level11data.databricks.client.entities.clusters.SparkNodeAwsAttributesDTO;
 
 public class SparkNodeAwsAttributes {
     public final Boolean IsSpot;

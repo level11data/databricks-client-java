@@ -1,13 +1,13 @@
 package com.level11data.databricks.cluster.builder;
 
-import com.level11data.databricks.ClustersClient;
-import com.level11data.databricks.HttpException;
+import com.level11data.databricks.client.ClustersClient;
+import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.InteractiveCluster;
-import com.level11data.databricks.entities.clusters.AutoScaleDTO;
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.clusters.AutoScaleDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 
 public class InteractiveClusterBuilder extends ClusterBuilder {
     protected ClustersClient _client;

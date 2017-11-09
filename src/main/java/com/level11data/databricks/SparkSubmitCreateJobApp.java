@@ -1,11 +1,13 @@
 package com.level11data.databricks;
 
 
+import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.clusters.AwsAttributesDTO;
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
-import com.level11data.databricks.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.entities.jobs.SparkSubmitTaskDTO;
+import com.level11data.databricks.client.entities.clusters.AwsAttributesDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.entities.jobs.SparkSubmitTaskDTO;
 
 import java.io.InputStream;
 

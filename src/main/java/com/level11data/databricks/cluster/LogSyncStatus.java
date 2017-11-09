@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.entities.clusters.LogSyncStatusDTO;
+import com.level11data.databricks.client.entities.clusters.LogSyncStatusDTO;
 
 import java.math.BigInteger;
 

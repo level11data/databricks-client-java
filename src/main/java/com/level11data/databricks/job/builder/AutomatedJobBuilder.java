@@ -1,7 +1,7 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
-import com.level11data.databricks.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 
 public abstract class AutomatedJobBuilder extends JobBuilder {
     private ClusterInfoDTO _clusterInfo;
