@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
+import java.util.Map;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,7 +22,7 @@ public class RunNowRequestDTO {
     public String[] JarParams;
 
     @JsonProperty("notebook_params")
-    public ParamPairDTO[] NotebookParams;
+    public Map<String,String> NotebookParams;
 
     @Override
     public String toString() {

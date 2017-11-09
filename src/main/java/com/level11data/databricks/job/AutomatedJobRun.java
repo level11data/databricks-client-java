@@ -14,9 +14,6 @@ public abstract class AutomatedJobRun extends JobRun {
     private JobsClient _client;
     private boolean _clusterCreated = false;
 
-    //TODO evaluate if _client should be private in super (I think so)
-
-
     public final ClusterSpec NewClusterSpec;
 
     protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {

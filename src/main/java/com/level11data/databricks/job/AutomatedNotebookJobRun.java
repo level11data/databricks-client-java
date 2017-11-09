@@ -1,7 +1,6 @@
 package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.entities.jobs.ParamPairDTO;
 import com.level11data.databricks.entities.jobs.RunDTO;
 
 import java.util.Collections;
@@ -20,25 +19,22 @@ public class AutomatedNotebookJobRun extends AutomatedJobRun {
         }
         NotebookPath = runDTO.Task.NotebookTask.NotebookPath;
 
-        HashMap<String,String> newBaseMap = new HashMap<String,String>();
-
         if(runDTO.Task.NotebookTask.BaseParameters != null) {
-            for (ParamPairDTO parameterDTO : runDTO.Task.NotebookTask.BaseParameters) {
-                newBaseMap.put(parameterDTO.Key, parameterDTO.Value);
-            }
+            BaseParameters = Collections.unmodifiableMap(runDTO.Task.NotebookTask.BaseParameters);
+        } else {
+            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
         }
-        BaseParameters = Collections.unmodifiableMap(newBaseMap);
-
-        HashMap<String,String> newOverrideMap = new HashMap<String,String>();
 
         if(runDTO.OverridingParameters != null) {
             if(runDTO.OverridingParameters.NotebookParams != null) {
-                for (ParamPairDTO parameterDTO : runDTO.OverridingParameters.NotebookParams) {
-                    newOverrideMap.put(parameterDTO.Key, parameterDTO.Value);
-                }
+                OverridingParameters = Collections.unmodifiableMap(runDTO.OverridingParameters.NotebookParams);
+            } else {
+                OverridingParameters = Collections.unmodifiableMap(new HashMap<>());
             }
+        } else {
+            OverridingParameters = Collections.unmodifiableMap(new HashMap<>());
         }
-        OverridingParameters = Collections.unmodifiableMap(newOverrideMap);
+
     }
 
 }

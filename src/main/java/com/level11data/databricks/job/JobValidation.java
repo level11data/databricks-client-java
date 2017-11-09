@@ -13,4 +13,13 @@ public class JobValidation {
             throw new JobConfigException("Job is not configured as a Notebook Job");
         }
     }
+
+    public static void validateAutomatedNotebookJob(JobDTO jobDTO) throws JobConfigException {
+        //Validate if JobDTO is for an Automated Notebook Job or not
+        if(!jobDTO.isAutomated()) {
+            throw new JobConfigException("Job is not configured as an Automated Job");
+        } else if(!jobDTO.isNotebookJob()) {
+            throw new JobConfigException("Job is not configured as a Notebook Job");
+        }
+    }
 }

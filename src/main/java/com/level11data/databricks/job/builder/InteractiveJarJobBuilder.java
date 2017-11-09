@@ -1,19 +1,9 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.InteractiveCluster;
-import com.level11data.databricks.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.entities.jobs.NotebookTaskDTO;
-import com.level11data.databricks.entities.jobs.ParamPairDTO;
-import com.level11data.databricks.entities.jobs.SparkJarTaskDTO;
-import com.level11data.databricks.job.InteractiveNotebookJob;
-import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TimeZone;
 
 public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
@@ -91,30 +81,5 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
     public InteractiveJarJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         return (InteractiveJarJobBuilder)super.withSchedule(trigger, timeZone);
     }
-
-    /**
-    public InteractiveJarJob create() throws HttpException {
-        //no validation to perform
-
-        JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
-        jobSettingsDTO = super.applySettings(jobSettingsDTO);
-
-
-        SparkJarTaskDTO jarTaskDTO = new SparkJarTaskDTO();
-        jarTaskDTO.JarUri = ;
-        jarTaskDTO.MainClassName = _mainClassName;
-        jarTaskDTO.Parameters = ;
-
-        jobSettingsDTO.SparkJarTask = jarTaskDTO;
-
-
-        //create job via client
-        long jobId = _client.createJob(jobSettingsDTO);
-
-        //create InteractiveNotebookJob from jobSettingsDTO and jobId
-        return new InteractiveJarJob(_client, this.Cluster, jobId, jobSettingsDTO, _mainClass);
-    }
-    **/
-
 
 }

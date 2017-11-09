@@ -5,12 +5,9 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.entities.jobs.NotebookTaskDTO;
-import com.level11data.databricks.entities.jobs.ParamPairDTO;
 import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -26,7 +23,7 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
         super(cluster);
         _client = client;
         _notebook = notebook;
-        _baseParameters = new HashMap<String,String>(); //empty map
+        _baseParameters = new HashMap<>(); //empty map
     }
 
     public InteractiveNotebookJobBuilder(JobsClient client,
@@ -97,18 +94,8 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
 
         NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
         notebookTaskDTO.NotebookPath = _notebook.Path;
+        notebookTaskDTO.BaseParameters = _baseParameters;
 
-        if(_baseParameters.size() > 0 ){
-            ArrayList<ParamPairDTO> paramPairs = new ArrayList<ParamPairDTO>();
-            for(String key : _baseParameters.keySet()) {
-                String value = _baseParameters.get(key);
-                ParamPairDTO paramPairDTO = new ParamPairDTO();
-                paramPairDTO.Key = key;
-                paramPairDTO.Value = value;
-                paramPairs.add(paramPairDTO);
-            }
-            notebookTaskDTO.BaseParameters = paramPairs.toArray(new ParamPairDTO[paramPairs.size()]);
-        }
         jobSettingsDTO.NotebookTask = notebookTaskDTO;
 
         //create job via client

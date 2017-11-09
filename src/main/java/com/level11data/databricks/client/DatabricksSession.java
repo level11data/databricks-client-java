@@ -192,8 +192,9 @@ public class DatabricksSession {
         JobDTO jobDTO = client.getJob(jobId);
 
         if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
-            Job job = new InteractiveNotebookJob(client, jobDTO);
-            return job;
+            return new InteractiveNotebookJob(client, jobDTO);
+        } else if(jobDTO.isAutomated() && jobDTO.isNotebookJob()) {
+            return new AutomatedNotebookJob(client, jobDTO);
         } else {
             throw new Exception("Unsupported Job Type");  //TODO keep this?
         }
@@ -215,6 +216,11 @@ public class DatabricksSession {
     public AutomatedNotebookJobBuilder createJob(Notebook notebook) {
         JobsClient client = getOrCreateJobsClient();
         return new AutomatedNotebookJobBuilder(client, notebook);
+    }
+
+    public AutomatedNotebookJobBuilder createJob(Notebook notebook, Map<String,String> parameters) {
+        JobsClient client = getOrCreateJobsClient();
+        return new AutomatedNotebookJobBuilder(client, notebook, parameters);
     }
 
 }

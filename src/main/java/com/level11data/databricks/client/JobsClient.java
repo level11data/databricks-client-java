@@ -1,8 +1,5 @@
 package com.level11data.databricks.client;
 
-import com.level11data.databricks.entities.clusters.ClusterInfoDTO;
-import com.level11data.databricks.entities.clusters.ClustersDTO;
-import com.level11data.databricks.entities.clusters.CreateClusterResponseDTO;
 import com.level11data.databricks.entities.jobs.*;
 import org.glassfish.jersey.client.ClientConfig;
 

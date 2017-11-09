@@ -91,18 +91,7 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobBuilder {
 
         NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
         notebookTaskDTO.NotebookPath = _notebook.Path;
-
-        if(_baseParameters.size() > 0 ){
-            ArrayList<ParamPairDTO> paramPairs = new ArrayList<ParamPairDTO>();
-            for(String key : _baseParameters.keySet()) {
-                String value = _baseParameters.get(key);
-                ParamPairDTO paramPairDTO = new ParamPairDTO();
-                paramPairDTO.Key = key;
-                paramPairDTO.Value = value;
-                paramPairs.add(paramPairDTO);
-            }
-            notebookTaskDTO.BaseParameters = paramPairs.toArray(new ParamPairDTO[paramPairs.size()]);
-        }
+        notebookTaskDTO.BaseParameters = _baseParameters;
         jobSettingsDTO.NotebookTask = notebookTaskDTO;
 
         //create job via client

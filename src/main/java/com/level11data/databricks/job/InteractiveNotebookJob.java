@@ -76,16 +76,12 @@ public class InteractiveNotebookJob extends InteractiveJob {
         Notebook notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);
         Notebook = notebook;
 
-        ParamPairDTO baseParametersDTO[] = jobDTO.Settings.NotebookTask.BaseParameters;
-        if(baseParametersDTO != null) {
-            HashMap<String,String> newMap = new HashMap<String,String>();
-            for (int i = 0; i < baseParametersDTO.length; i++){
-                newMap.put(baseParametersDTO[i].Key, baseParametersDTO[i].Value);
-            }
-            BaseParameters = Collections.unmodifiableMap(newMap);
+        if(jobDTO.Settings.NotebookTask.BaseParameters != null) {
+            BaseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
         } else {
-            BaseParameters = Collections.unmodifiableMap(new HashMap<String,String>());
+            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
         }
+
     }
 
     public InteractiveNotebookJobRun run() throws HttpException, JobRunException {
@@ -101,20 +97,7 @@ public class InteractiveNotebookJob extends InteractiveJob {
         //simple run request with no parameter overrides
         RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
         runRequestDTO.JobId = this.Id;
-
-        ArrayList<ParamPairDTO> paramPairList = new ArrayList<ParamPairDTO>();
-
-        for (String key : overrideParameters.keySet()) {
-            ParamPairDTO paramPairDTO = new ParamPairDTO();
-            paramPairDTO.Key = key;
-            paramPairDTO.Value = overrideParameters.get(key);
-            paramPairList.add(paramPairDTO);
-        }
-
-        if(paramPairList.size() > 0) {
-            runRequestDTO.NotebookParams = paramPairList.toArray(new ParamPairDTO[paramPairList.size()]);
-        }
-
+        runRequestDTO.NotebookParams = overrideParameters;
         RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
         RunDTO jobRun = _client.getRun(response.RunId);
         return new InteractiveNotebookJobRun(_client, jobRun);
