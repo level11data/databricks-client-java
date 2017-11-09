@@ -1,7 +1,7 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.HttpException;
+import com.level11data.databricks.JobsClient;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.entities.jobs.NotebookTaskDTO;

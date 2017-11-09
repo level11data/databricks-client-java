@@ -1,4 +1,4 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks;
 
 public class HttpException extends Exception {
     public HttpException() {

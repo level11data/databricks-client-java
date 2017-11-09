@@ -1,7 +1,5 @@
 package com.level11data.databricks;
 
-import com.level11data.databricks.client.DatabricksSession;
-import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.entities.clusters.AwsAttributesDTO;
 import com.level11data.databricks.entities.clusters.ClusterInfoDTO;

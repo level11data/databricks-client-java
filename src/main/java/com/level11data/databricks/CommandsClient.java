@@ -1,4 +1,4 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks;
 
 import com.level11data.databricks.entities.commands.CommandRequestDTO;
 import com.level11data.databricks.entities.commands.CommandResponseDTO;

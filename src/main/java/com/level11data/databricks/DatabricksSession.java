@@ -1,11 +1,11 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks;
 
 import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.entities.clusters.*;
 import com.level11data.databricks.entities.jobs.JobDTO;
 import com.level11data.databricks.entities.jobs.RunDTO;
+import com.level11data.databricks.entities.clusters.*;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 import com.level11data.databricks.workspace.Notebook;

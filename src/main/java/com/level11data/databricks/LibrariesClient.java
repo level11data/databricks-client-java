@@ -1,6 +1,8 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks;
 
-import com.level11data.databricks.entities.libraries.*;
+import com.level11data.databricks.entities.libraries.AllClusterLibraryStatusesDTO;
+import com.level11data.databricks.entities.libraries.ClusterLibraryRequestDTO;
+import com.level11data.databricks.entities.libraries.ClusterLibraryStatusesDTO;
 import org.glassfish.jersey.client.ClientConfig;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

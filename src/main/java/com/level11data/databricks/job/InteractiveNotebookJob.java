@@ -1,13 +1,12 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.HttpException;
+import com.level11data.databricks.JobsClient;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.entities.jobs.*;
 import com.level11data.databricks.workspace.Notebook;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class InteractiveNotebookJob extends InteractiveJob {
             BaseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
         }
     }
-    
+
     /**
      * Create a Notebook Job on an Interactive Cluster using a Job DTO object.
      *

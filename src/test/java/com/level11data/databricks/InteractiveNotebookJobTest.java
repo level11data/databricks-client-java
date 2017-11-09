@@ -1,9 +1,8 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks;
 
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.job.AutomatedNotebookJobRun;
 import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.InteractiveNotebookJobRun;
 import com.level11data.databricks.workspace.Notebook;

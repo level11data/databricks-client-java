@@ -1,4 +1,4 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
