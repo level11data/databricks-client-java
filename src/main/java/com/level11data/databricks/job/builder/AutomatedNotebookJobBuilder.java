@@ -6,6 +6,7 @@ import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
 import com.level11data.databricks.job.AutomatedNotebookJob;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
 
@@ -82,6 +83,11 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobBuilder {
     @Override
     public AutomatedNotebookJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         return (AutomatedNotebookJobBuilder)super.withSchedule(trigger, timeZone);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withLibrary(Library library) {
+        return (AutomatedNotebookJobBuilder)super.withLibrary(library);
     }
 
     public AutomatedNotebookJob create() throws HttpException {

@@ -9,7 +9,7 @@ import com.level11data.databricks.job.AutomatedNotebookJobRun;
 
 import java.io.InputStream;
 import java.util.HashMap;
-
+import org.apache.commons.configuration2.Configuration;
 
 public class DatabricksClientApp {
 
@@ -28,6 +28,8 @@ public class DatabricksClientApp {
         try {
             DatabricksClientConfiguration databricksConfig = new DatabricksClientConfiguration(resourceStream);
             DatabricksSession databricks = new DatabricksSession(databricksConfig);
+
+
 
             System.out.println("Use the Client Layer");
             JobsClient jClient = new JobsClient(databricks);

@@ -1,17 +1,26 @@
 package com.level11data.databricks.client;
 
+import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
+import com.level11data.databricks.client.entities.dbfs.ListResponseDTO;
 import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.client.entities.jobs.JobDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.client.entities.clusters.*;
+import com.level11data.databricks.dbfs.DbfsHelper;
+import com.level11data.databricks.dbfs.DbfsFileInfo;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
+import java.util.Collections;
 
 public class DatabricksSession {
     protected final HttpAuthenticationFeature Authentication;
@@ -21,6 +30,8 @@ public class DatabricksSession {
     private ClustersClient _clustersClient;
     private JobsClient _jobsClient;
     private LibrariesClient _librariesClient;
+    private DbfsClient _dbfsClient;
+
     private SparkVersionsDTO _sparkVersionsDTO;
     private NodeTypesDTO _nodeTypesDTO;
     private List<SparkVersion> _sparkVersions;
@@ -55,6 +66,13 @@ public class DatabricksSession {
             _jobsClient = new JobsClient(this);
         }
         return _jobsClient;
+    }
+
+    private DbfsClient getOrCreateDbfsClient() {
+        if(_dbfsClient == null) {
+            _dbfsClient = new DbfsClient(this);
+        }
+        return _dbfsClient;
     }
 
     public InteractiveClusterBuilder createCluster(String name, Integer numWorkers)  {
@@ -223,4 +241,42 @@ public class DatabricksSession {
         return new AutomatedNotebookJobBuilder(client, notebook, parameters);
     }
 
+    public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws FileNotFoundException, IOException, HttpException {
+        DbfsHelper.putFile(getOrCreateDbfsClient(), file, dbfsPath, overwrite);
+    }
+
+    public void putDbfsFile(File file, String dbfsPath) throws FileNotFoundException, IOException, HttpException {
+        DbfsHelper.putFile(getOrCreateDbfsClient(), file, dbfsPath);
+    }
+
+    public byte[] getDbfsObject(String dbfsPath) throws IOException, HttpException {
+        return DbfsHelper.getObject(getOrCreateDbfsClient(), dbfsPath);
+    }
+
+    public DbfsFileInfo getDbfsObjectStatus(String dbfsPath) throws HttpException {
+        return new DbfsFileInfo(getOrCreateDbfsClient().getStatus(dbfsPath));
+    }
+
+    public void deleteDbfsObject(String dbfsPath, boolean recursive) throws HttpException {
+        getOrCreateDbfsClient().delete(dbfsPath, recursive);
+    }
+
+    public void moveDbfsObject(String fromPath, String toPath) throws HttpException {
+        getOrCreateDbfsClient().move(fromPath, toPath);
+    }
+
+    public void mkdirsDbfs(String path) throws HttpException {
+        getOrCreateDbfsClient().mkdirs(path);
+    }
+
+    public List<DbfsFileInfo> listDbfs(String path) throws HttpException {
+        ListResponseDTO listResponseDTO = getOrCreateDbfsClient().list(path);
+        ArrayList<DbfsFileInfo> fileList = new ArrayList<DbfsFileInfo>();
+
+        for (FileInfoDTO fileInfo : listResponseDTO.Files) {
+            fileList.add(new DbfsFileInfo(fileInfo));
+        }
+
+        return Collections.unmodifiableList(fileList);
+    }
 }

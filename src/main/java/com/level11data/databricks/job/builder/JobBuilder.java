@@ -3,14 +3,17 @@ package com.level11data.databricks.job.builder;
 import java.util.ArrayList;
 import java.util.TimeZone;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.library.JarLibrary;
+import com.level11data.databricks.library.Library;
 import org.quartz.Trigger;
 
 public abstract class JobBuilder {
     private String _name;
-    //private ArrayList<Library> _libraries = new ArrayList<Library>();
-    private ArrayList<String> _emailNotificationsOnStart = new ArrayList<String>();
-    private ArrayList<String> _emailNotificationsOnSuccess = new ArrayList<String>();
-    private ArrayList<String> _emailNotificationsOnFailure = new ArrayList<String>();
+    private ArrayList<Library> _libraries = new ArrayList<Library>();
+    private ArrayList<String> _emailNotificationsOnStart = new ArrayList<>();
+    private ArrayList<String> _emailNotificationsOnSuccess = new ArrayList<>();
+    private ArrayList<String> _emailNotificationsOnFailure = new ArrayList<>();
     private Integer _timeoutSeconds;
     private Integer _maxRetries;
     private Integer _minRetryInterval;
@@ -74,6 +77,11 @@ public abstract class JobBuilder {
         return this;
     }
 
+    protected JobBuilder withLibrary(Library library) {
+        _libraries.add(library);
+        return this;
+    }
+
     protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) {
         jobSettingsDTO.Name = _name;
         jobSettingsDTO.TimeoutSeconds = _timeoutSeconds;
@@ -87,7 +95,18 @@ public abstract class JobBuilder {
         //https://stackoverflow.com/questions/3641575/how-to-get-cron-expression-given-job-name-and-group-name
         //jobSettingsDTO.Schedule = ;
 
-        //TODO add libraries to DTO
+        if(_libraries.size() > 0) {
+            ArrayList<LibraryDTO> librariesDTO = new ArrayList<>();
+            for (Library library : _libraries) {
+                LibraryDTO libraryDTO = new LibraryDTO();
+
+                if(library instanceof JarLibrary) {
+                    libraryDTO.Jar = ((JarLibrary) library).Uri.toString();
+                    librariesDTO.add(libraryDTO);
+                } //TODO Add conditions for other library types
+            }
+            jobSettingsDTO.Libraries = librariesDTO.toArray(new LibraryDTO[librariesDTO.size()]);
+        }
 
         return jobSettingsDTO;
     }

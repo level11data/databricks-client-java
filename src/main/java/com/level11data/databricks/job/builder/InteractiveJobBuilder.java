@@ -2,6 +2,7 @@ package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.library.Library;
 import org.quartz.Trigger;
 import java.util.TimeZone;
 
@@ -61,6 +62,11 @@ public abstract class InteractiveJobBuilder extends JobBuilder {
     @Override
     protected InteractiveJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         return (InteractiveJobBuilder)super.withSchedule(trigger, timeZone);
+    }
+
+    @Override
+    protected InteractiveJobBuilder withLibrary(Library library) {
+        return (InteractiveJobBuilder)super.withLibrary(library);
     }
 
     @Override

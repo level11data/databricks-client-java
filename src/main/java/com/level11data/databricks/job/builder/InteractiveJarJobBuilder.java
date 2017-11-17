@@ -2,6 +2,8 @@ package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.InteractiveCluster;
+import com.level11data.databricks.library.JarLibrary;
+import com.level11data.databricks.library.Library;
 import org.quartz.Trigger;
 import java.util.ArrayList;
 import java.util.TimeZone;
@@ -9,27 +11,29 @@ import java.util.TimeZone;
 public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
     private final JobsClient _client;
     private final String _mainClassName;
-    //private final JarLibrary _jar; //TODO Set JarLibrary
     private final ArrayList<String> _baseParameters;
-
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
+                                    JarLibrary jarLibrary,
                                     String mainClassName) {
         super(cluster);
         _client = client;
         _mainClassName = mainClassName;
         _baseParameters = new ArrayList<String>(); //empty arraylist
+        withLibrary(jarLibrary);
     }
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
+                                    JarLibrary jarLibrary,
                                     String mainClassName,
                                     ArrayList<String> baseParameters) {
         super(cluster);
         _client = client;
         _mainClassName = mainClassName;
         _baseParameters = baseParameters;
+        withLibrary(jarLibrary);
     }
 
     @Override
@@ -82,4 +86,8 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
         return (InteractiveJarJobBuilder)super.withSchedule(trigger, timeZone);
     }
 
+    @Override
+    public InteractiveJarJobBuilder withLibrary(Library library) {
+        return (InteractiveJarJobBuilder)super.withLibrary(library);
+    }
 }

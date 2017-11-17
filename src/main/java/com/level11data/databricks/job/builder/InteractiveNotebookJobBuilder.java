@@ -6,6 +6,7 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
 import com.level11data.databricks.job.InteractiveNotebookJob;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
 import java.util.HashMap;
@@ -84,6 +85,11 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
     @Override
     public InteractiveNotebookJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         return (InteractiveNotebookJobBuilder)super.withSchedule(trigger, timeZone);
+    }
+
+    @Override
+    public InteractiveNotebookJobBuilder withLibrary(Library library) {
+        return (InteractiveNotebookJobBuilder)super.withLibrary(library);
     }
 
     public InteractiveNotebookJob create() throws HttpException {
