@@ -10,7 +10,7 @@ import org.junit.Assert;
 
 import java.io.InputStream;
 
-public class ClustersClientTest {
+public class InteractiveClusterTest {
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -18,7 +18,7 @@ public class ClustersClientTest {
     DatabricksSession _databricks;
     DatabricksClientConfiguration _databricksConfig;
 
-    public ClustersClientTest() throws Exception {
+    public InteractiveClusterTest() throws Exception {
         loadConfigFromResource();
     }
 
