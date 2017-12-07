@@ -269,7 +269,9 @@ public class DatabricksSession {
         getOrCreateDbfsClient().mkdirs(path);
     }
 
-    public List<DbfsFileInfo> listDbfs(String path) throws HttpException {
+    //TODO add listDbfs(String path) and return iterator
+
+    public ArrayList<DbfsFileInfo> listDbfs(String path) throws HttpException {
         ListResponseDTO listResponseDTO = getOrCreateDbfsClient().list(path);
         ArrayList<DbfsFileInfo> fileList = new ArrayList<DbfsFileInfo>();
 
@@ -277,6 +279,6 @@ public class DatabricksSession {
             fileList.add(new DbfsFileInfo(fileInfo));
         }
 
-        return Collections.unmodifiableList(fileList);
+        return fileList;
     }
 }

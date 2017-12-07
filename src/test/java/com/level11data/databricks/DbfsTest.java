@@ -115,7 +115,7 @@ public class DbfsTest {
 
         //cleanup test files
         _databricks.deleteDbfsObject(dbfsPath, false);
-        //new File(tmpPath).delete();
+        new File(tmpPath).delete();
     }
 
 

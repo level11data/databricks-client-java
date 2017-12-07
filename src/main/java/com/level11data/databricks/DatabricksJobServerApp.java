@@ -39,6 +39,7 @@ public class DatabricksJobServerApp {
 
             InteractiveCluster interactiveCluster;
 
+            /**
             interactiveCluster = databricks.createCluster("My JobServer InteractiveCluster", 1)
                     .withAutoTerminationMinutes(25)
                     .withNodeType("i3.xlarge")
@@ -52,9 +53,11 @@ public class DatabricksJobServerApp {
                 System.out.println("InteractiveCluster is starting...");
                 Thread.sleep(10000); //wait 10 seconds
             }
+            **/
 
 
-            //interactiveCluster = databricks.getCluster("0927-044941-grove655");
+            interactiveCluster = databricks.getCluster("1201-183903-hill100");
+            System.out.println("InteractiveCluster is "+interactiveCluster.getState());
 
             //create scala context
             ContextsClient contextClient = new ContextsClient(databricks);
@@ -78,7 +81,6 @@ public class DatabricksJobServerApp {
             System.out.println("Checking Command Status...");
             CommandRequestDTO commandRequest = new CommandRequestDTO();
             commandRequest.ClusterId = interactiveCluster.Id;
-            commandRequest.ContextId = interactiveCluster.SparkContextId;
             commandRequest.CommandId = commandId;
 
             System.out.println("CommandRequest="+commandRequest.toString());

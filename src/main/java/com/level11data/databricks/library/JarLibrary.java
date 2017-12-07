@@ -6,17 +6,16 @@ import com.level11data.databricks.client.entities.libraries.ClusterLibraryReques
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
 public class JarLibrary extends Library {
     private final LibrariesClient _client;
 
-    public final URI Uri;
-
-    public JarLibrary(LibrariesClient client, URI uri) {
-        //TODO validate only dbfs:// or s3:// or s3a:// etc
+    public JarLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
+        super(uri);
         _client = client;
-        Uri = uri;
     }
 
     public void install(InteractiveCluster cluster) throws HttpException {
@@ -42,5 +41,16 @@ public class JarLibrary extends Library {
 
         _client.uninstallLibraries(libraryRequestDTO);
     }
+
+    public void upload(File file) throws HttpException, IOException, LibraryConfigException{
+        if(Uri.getScheme().equals("dbfs")) {
+            _client.Session.putDbfsFile(file, Uri.toString());
+        } else {
+            throw new LibraryConfigException(Uri.getScheme() + " is not a supported scheme for upload");
+        }
+
+    }
+
+
 
 }
