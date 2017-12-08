@@ -105,7 +105,7 @@ public class InteractiveNotebookJobTest {
 
         //create job
         //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook";
+        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook-parameters";
         Notebook notebook = new Notebook(notebookPath);
 
         HashMap<String,String> parameters = new HashMap<String,String>();
