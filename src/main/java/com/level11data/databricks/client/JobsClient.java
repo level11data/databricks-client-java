@@ -133,4 +133,17 @@ public class JobsClient extends DatabricksClient {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(run));
     }
+
+    public JobRunOutputDTO getRunOutput(long runId) throws HttpException {
+        Response response = _target.path("runs/get-output")
+                .register(Session.Authentication)
+                .queryParam("run_id", runId)
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .get();
+
+        checkResponse(response);
+        return response.readEntity(JobRunOutputDTO.class);
+    }
+
 }

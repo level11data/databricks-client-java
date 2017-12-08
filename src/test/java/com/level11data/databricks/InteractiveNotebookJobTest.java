@@ -42,6 +42,8 @@ public class InteractiveNotebookJobTest {
 
         InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
                 .withAutoTerminationMinutes(20)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
                 .create();
 
         while(cluster.getState() == ClusterState.PENDING) {
@@ -72,6 +74,12 @@ public class InteractiveNotebookJobTest {
 
         Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
+        while(!jobRun.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+
+        Assert.assertEquals("Job Run Output Does Not Match", "2", jobRun.getOutput());
+
         //cleanup
         job.delete();
         cluster.terminate();
@@ -85,6 +93,8 @@ public class InteractiveNotebookJobTest {
 
         InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
                 .withAutoTerminationMinutes(20)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
                 .create();
 
         while(cluster.getState() == ClusterState.PENDING) {
@@ -125,6 +135,13 @@ public class InteractiveNotebookJobTest {
         Assert.assertEquals("Parameter 2 was not set", "World",
                 jobRun.BaseParameters.get("parameter2"));
 
+        while(!jobRun.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+
+        Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Hello, and this is Parameter 2: World",
+                jobRun.getOutput());
+
         HashMap<String,String> parameterOverride = new HashMap<String,String>();
         parameterOverride.put("parameter1", "Override One");
         parameterOverride.put("parameter2", "Override Two");
@@ -136,6 +153,13 @@ public class InteractiveNotebookJobTest {
 
         Assert.assertEquals("Override Parameter 2 was not set", "Override Two",
                 jobRunWithParamOverride.OverridingParameters.get("parameter2"));
+
+        while(!jobRunWithParamOverride.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+
+        Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Override One, and this is Parameter 2: Override Two",
+                jobRunWithParamOverride.getOutput());
 
         //cleanup
         job.delete();

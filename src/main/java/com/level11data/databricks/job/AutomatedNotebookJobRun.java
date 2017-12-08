@@ -1,19 +1,25 @@
 package com.level11data.databricks.job;
 
+import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
+import com.level11data.databricks.job.util.JobRunHelper;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AutomatedNotebookJobRun extends AutomatedJobRun {
+    private JobsClient _client;
+    private String _jobRunOutputResult;
+
     public final String NotebookPath;
     public final Map<String,String> BaseParameters;
     public final Map<String,String> OverridingParameters;
 
     public AutomatedNotebookJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
+        _client = client;
         if(!runDTO.isNotebookJob()) {
             throw new JobRunException("Job Run is not configured as a Notebook Job");
         }
@@ -37,4 +43,11 @@ public class AutomatedNotebookJobRun extends AutomatedJobRun {
 
     }
 
+    public String getOutput() throws HttpException, JobRunException {
+        if(_jobRunOutputResult != null) {
+            return _jobRunOutputResult;
+        }
+
+        return JobRunHelper.getJobRunOutput(_client, RunId);
+    }
 }

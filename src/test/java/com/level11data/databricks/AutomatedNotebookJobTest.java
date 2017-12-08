@@ -5,6 +5,7 @@ import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedNotebookJob;
 import com.level11data.databricks.job.AutomatedNotebookJobRun;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
+import com.level11data.databricks.job.util.JobRunHelper;
 import com.level11data.databricks.workspace.Notebook;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,6 +48,8 @@ public class AutomatedNotebookJobTest {
         AutomatedNotebookJob job = _databricks.createJob(notebook)
                 .withName("testSimpleAutomatedNotebookJob " + now)
                 .withClusterSpec(1)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
                 .addToJob(AutomatedNotebookJobBuilder.class)
                 .create();
 
@@ -62,6 +65,13 @@ public class AutomatedNotebookJobTest {
                 _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
 
         Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
+
+        System.out.println("jobRun.getRunState()="+jobRun.getRunState().LifeCycleState);
+
+        while(!jobRun.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+        Assert.assertEquals("Job Run Output Does Not Match", "2", jobRun.getOutput());
 
         //cleanup
         job.delete();
@@ -84,6 +94,8 @@ public class AutomatedNotebookJobTest {
         AutomatedNotebookJob job = _databricks.createJob(notebook, parameters)
                 .withName("testSimpleAutomatedNotebookJobWithParameters "+now)
                 .withClusterSpec(1)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
                 .addToJob(AutomatedNotebookJobBuilder.class)
                 .create();
 
@@ -106,6 +118,13 @@ public class AutomatedNotebookJobTest {
         Assert.assertEquals("Parameter 2 was not set", "World",
                 jobRun.BaseParameters.get("parameter2"));
 
+        while(!jobRun.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+
+        Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Hello, and this is Parameter 2: World",
+                jobRun.getOutput());
+
         HashMap<String,String> parameterOverride = new HashMap<String,String>();
         parameterOverride.put("parameter1", "Override One");
         parameterOverride.put("parameter2", "Override Two");
@@ -117,6 +136,13 @@ public class AutomatedNotebookJobTest {
 
         Assert.assertEquals("Override Parameter 2 was not set", "Override Two",
                 jobRunWithParamOverride.OverridingParameters.get("parameter2"));
+
+        while(!jobRunWithParamOverride.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+
+        Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Override One, and this is Parameter 2: Override Two",
+                jobRunWithParamOverride.getOutput());
 
         //cleanup
         job.delete();

@@ -9,7 +9,11 @@ public class RunState {
 
     public RunState(RunStateDTO runStateDTO) {
         LifeCycleState = RunLifeCycleState.valueOf(runStateDTO.LifeCycleState);
-        ResultState = RunResultState.valueOf(runStateDTO.ResultState);
+        if(runStateDTO.ResultState != null) {
+            ResultState = RunResultState.valueOf(runStateDTO.ResultState);
+        } else {
+            ResultState = null;
+        }
         StateMessage = runStateDTO.StateMessage;
     }
 }

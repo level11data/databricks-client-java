@@ -32,13 +32,16 @@ public class InteractiveClusterTest {
     }
 
     @Test
-    public void testCreateSimpleClusterFixedSize() throws Exception {
+    public void testSimpleClusterFixedSize() throws Exception {
         long now = System.currentTimeMillis();
         String clusterName = "test cluster fixed size " + now;
         int numberOfExecutors = 1;
 
         InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
-                .withAutoTerminationMinutes(20).create();
+                .withAutoTerminationMinutes(20)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
+                .create();
 
         Assert.assertEquals("Simple Fixed Size InteractiveCluster Name does NOT match expected Name",
                 clusterName, cluster.Name);
@@ -63,16 +66,16 @@ public class InteractiveClusterTest {
                 numberOfExecutors, cluster.getExecutors().size());
 
         //TODO Change the Default Spark Version from "Spark 1.6.2 (Hadoop 1)"
-        Assert.assertEquals("Simple Fixed Size InteractiveCluster Spark Version does NOT match default",
-                _databricks.getDefaultSparkVersion(), cluster.SparkVersion);
+        //Assert.assertEquals("Simple Fixed Size InteractiveCluster Spark Version does NOT match default",
+        //        _databricks.getDefaultSparkVersion(), cluster.SparkVersion);
 
         //TODO Change the Default Node Type from "Memory Optimized"
-        Assert.assertEquals("Simple Fixed Size InteractiveCluster Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
+        //Assert.assertEquals("Simple Fixed Size InteractiveCluster Node Type does NOT match default",
+        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         //TODO Change the Default Node Type from "Memory Optimized"
-        Assert.assertEquals("Simple Fixed Size InteractiveCluster Driver Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
+        //Assert.assertEquals("Simple Fixed Size InteractiveCluster Driver Node Type does NOT match default",
+        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         cluster.restart();
 
@@ -116,14 +119,17 @@ public class InteractiveClusterTest {
     }
 
     @Test
-    public void testCreateSimpleClusterAutoscaling() throws Exception {
+    public void testSimpleClusterAutoscaling() throws Exception {
         long now = System.currentTimeMillis();
         String clusterName = "test cluster autoscaling " + now;
         Integer minWorkers = 0;
         Integer maxWorkers = 1;
 
         InteractiveCluster cluster = _databricks.createCluster(clusterName, minWorkers, maxWorkers)
-                .withAutoTerminationMinutes(20).create();
+                .withAutoTerminationMinutes(20)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
+                .create();
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster Name does NOT match expected NAME",
                 clusterName, cluster.Name);
@@ -151,16 +157,16 @@ public class InteractiveClusterTest {
                 cluster.AutoScale.MaxWorkers, maxWorkers);
 
         //TODO Change the Default Spark Version from "Spark 1.6.2 (Hadoop 1)"
-        Assert.assertEquals("Simple Autoscaling InteractiveCluster Spark Version does NOT match default",
-                _databricks.getDefaultSparkVersion(), cluster.SparkVersion);
+        //Assert.assertEquals("Simple Autoscaling InteractiveCluster Spark Version does NOT match default",
+        //        _databricks.getDefaultSparkVersion(), cluster.SparkVersion);
 
         //TODO Change the Default Node Type from "Memory Optimized"
-        Assert.assertEquals("Simple Autoscaling InteractiveCluster Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
+        //Assert.assertEquals("Simple Autoscaling InteractiveCluster Node Type does NOT match default",
+        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         //TODO Change the Default Node Type from "Memory Optimized"
-        Assert.assertEquals("Simple Autoscaling InteractiveCluster Driver Node Type does NOT match default",
-                _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
+        //Assert.assertEquals("Simple Autoscaling InteractiveCluster Driver Node Type does NOT match default",
+        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         cluster.restart();
 
