@@ -24,6 +24,7 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
 
     public static final String LEVEL11DATA_PREFIX = "com.level11data";
     private static final String CLIENT_PREFIX = LEVEL11DATA_PREFIX + ".databricks.client";
+    public static final String CLIENT_TOKEN = CLIENT_PREFIX + ".token";
     public static final String CLIENT_USERNAME = CLIENT_PREFIX + ".username";
     public static final String CLIENT_PASSWORD = CLIENT_PREFIX + ".password";
     public static final String CLIENT_URL = CLIENT_PREFIX + ".url";
@@ -103,11 +104,19 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
     }
 
     public String getClientUsername() {
-        return getNonEmptyString(CLIENT_USERNAME);
+        if(verifyStringPropSet(CLIENT_TOKEN)) {
+            return "token";
+        } else {
+            return getNonEmptyString(CLIENT_USERNAME);
+        }
     }
 
     public String getClientPassword() {
-        return getNonEmptyString(CLIENT_PASSWORD);
+        if(verifyStringPropSet(CLIENT_TOKEN)) {
+            return getNonEmptyString(CLIENT_TOKEN);
+        } else {
+            return getNonEmptyString(CLIENT_PASSWORD);
+        }
     }
 
     /**
@@ -116,8 +125,12 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
     public boolean hasRequiredClientProps() {
         boolean valid = true;
         valid &= verifyStringPropSet(CLIENT_URL);
-        valid &= verifyStringPropSet(CLIENT_USERNAME);
-        valid &= verifyStringPropSet(CLIENT_PASSWORD);
+
+        if(verifyStringPropSet(CLIENT_TOKEN)) {
+            valid &= true;
+        } else if(verifyStringPropSet(CLIENT_USERNAME) & verifyStringPropSet(CLIENT_PASSWORD)) {
+            valid &= true;
+        }
         return valid;
     }
 
