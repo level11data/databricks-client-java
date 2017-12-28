@@ -12,6 +12,7 @@ import com.level11data.databricks.dbfs.DbfsHelper;
 import com.level11data.databricks.dbfs.DbfsFileInfo;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
+import com.level11data.databricks.library.*;
 import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
@@ -20,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
-import java.util.Collections;
+
 
 public class DatabricksSession {
     protected final HttpAuthenticationFeature Authentication;
@@ -281,4 +282,50 @@ public class DatabricksSession {
 
         return fileList;
     }
+
+    public JarLibrary getJarLibrary(URI uri) throws LibraryConfigException {
+        return new JarLibrary(getOrCreateLibrariesClient(), uri);
+    }
+
+    public EggLibrary getEggLibrary(URI uri) throws LibraryConfigException {
+        return new EggLibrary(getOrCreateLibrariesClient(), uri);
+    }
+
+    public MavenLibrary getMavenLibrary(String coordinates) throws LibraryConfigException {
+        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates);
+    }
+
+    public MavenLibrary getMavenLibrary(String coordinates,
+                                        String repo) throws LibraryConfigException {
+        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates, repo);
+    }
+
+    public MavenLibrary getMavenLibrary(String coordinates,
+                                        String repo,
+                                        String[] exclusions) throws LibraryConfigException {
+        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates, repo, exclusions);
+    }
+
+    public MavenLibrary getMavenLibrary(String coordinates,
+                                        String[] exclusions) throws LibraryConfigException {
+        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates, exclusions);
+    }
+
+    public PyPiLibrary getPyPiLibrary(String packageName) throws LibraryConfigException {
+        return new PyPiLibrary(getOrCreateLibrariesClient(), packageName);
+    }
+
+    public PyPiLibrary getPyPiLibrary(String packageName, String repo) throws LibraryConfigException {
+        return new PyPiLibrary(getOrCreateLibrariesClient(), packageName, repo);
+    }
+
+    public CranLibrary getCranLibrary(String packageName) throws LibraryConfigException {
+        return new CranLibrary(getOrCreateLibrariesClient(), packageName);
+    }
+
+    public CranLibrary getCranLibrary(String packageName, String repo) throws LibraryConfigException {
+        return new CranLibrary(getOrCreateLibrariesClient(), packageName, repo);
+    }
+
 }
+

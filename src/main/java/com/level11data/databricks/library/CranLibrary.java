@@ -5,14 +5,23 @@ import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
-import java.net.URI;
 
-public class JarLibrary extends PrivateLibrary {
+public class CranLibrary extends PublishedLibrary {
     private final LibrariesClient _client;
 
-    public JarLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
-        super(client, uri);
+    public final String PackageName;
+    public final String RepoOverride;
+
+    public CranLibrary(LibrariesClient client, String packageName) {
         _client = client;
+        PackageName = packageName;
+        RepoOverride = null;
+    }
+
+    public CranLibrary(LibrariesClient client, String packageName, String repo) {
+        _client = client;
+        PackageName = packageName;
+        RepoOverride = repo;
     }
 
     public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws HttpException, LibraryConfigException {
@@ -20,13 +29,14 @@ public class JarLibrary extends PrivateLibrary {
 
         //find library status for this library
         for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
-            if(libStat.Library.Jar != null) {
-                if(libStat.Library.Jar.equals(this.Uri.toString())) {
+            if(libStat.Library.Cran != null) {
+                if(libStat.Library.Cran.Package.equals(this.PackageName)) {
                     return new LibraryStatus(libStat);
                 }
             }
         }
-        throw new LibraryConfigException("Jar Library " + this.Uri.toString() +
+        throw new LibraryConfigException("CRAN Library " + this.PackageName +
                 " Not Associated With Cluster Id " + cluster.Id);
     }
+
 }

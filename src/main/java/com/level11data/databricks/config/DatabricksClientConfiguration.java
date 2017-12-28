@@ -119,6 +119,10 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
         }
     }
 
+    public String getClientToken() {
+        return getNonEmptyString(CLIENT_TOKEN);
+    }
+
     /**
      * Returns true if required properties for Client are set
      */

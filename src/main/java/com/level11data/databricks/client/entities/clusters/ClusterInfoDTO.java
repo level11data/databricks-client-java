@@ -44,6 +44,9 @@ public class ClusterInfoDTO {
     @JsonProperty("cluster_created_by")
     public String ClusterCreatedBy;
 
+    @JsonProperty("cluster_source")
+    public String ClusterSource;
+
     @JsonProperty("start_time")
     public Long StartTime;
 

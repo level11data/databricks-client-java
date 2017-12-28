@@ -17,6 +17,7 @@ public abstract class Cluster extends BaseCluster {
     public final NodeType DefaultNodeType;
     public final String CreatorUserName;
     public final ServiceType CreatedBy;
+    public final ClusterSource ClusterSource;
     public final SparkNode Driver;
     public final Long SparkContextId;
     public final Integer JdbcPort;
@@ -34,6 +35,7 @@ public abstract class Cluster extends BaseCluster {
         DefaultNodeType = initNodeType();
         CreatorUserName = initCreatorUserName();
         CreatedBy = initCreatedBy();
+        ClusterSource = initClusterSource();
         Driver = initDriver();
         SparkContextId = initSparkContextId();
         JdbcPort = initJdbcPort();
@@ -53,7 +55,20 @@ public abstract class Cluster extends BaseCluster {
     }
 
     private ServiceType initCreatedBy() throws HttpException {
-        return ServiceType.valueOf(getClusterInfo().ClusterCreatedBy);
+        //Looks like this has been deprecated; possibly in favor of ClusterSource
+        if(getClusterInfo().ClusterCreatedBy != null) {
+            return ServiceType.valueOf(getClusterInfo().ClusterCreatedBy);
+        } else {
+            return null;
+        }
+    }
+
+    private ClusterSource initClusterSource() throws HttpException {
+        if(getClusterInfo().ClusterSource != null) {
+            return ClusterSource.valueOf(getClusterInfo().ClusterSource);
+        } else {
+            return null;
+        }
     }
 
     private SparkNode initDriver() throws HttpException, ClusterConfigException {

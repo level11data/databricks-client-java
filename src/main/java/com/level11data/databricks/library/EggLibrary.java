@@ -5,12 +5,13 @@ import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
+
 import java.net.URI;
 
-public class JarLibrary extends PrivateLibrary {
+public class EggLibrary extends PrivateLibrary {
     private final LibrariesClient _client;
 
-    public JarLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
+    public EggLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
         super(client, uri);
         _client = client;
     }
@@ -20,13 +21,13 @@ public class JarLibrary extends PrivateLibrary {
 
         //find library status for this library
         for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
-            if(libStat.Library.Jar != null) {
-                if(libStat.Library.Jar.equals(this.Uri.toString())) {
+            if(libStat.Library.Egg != null) {
+                if(libStat.Library.Egg.equals(this.Uri.toString())) {
                     return new LibraryStatus(libStat);
                 }
             }
         }
-        throw new LibraryConfigException("Jar Library " + this.Uri.toString() +
+        throw new LibraryConfigException("Egg Library " + this.Uri.toString() +
                 " Not Associated With Cluster Id " + cluster.Id);
     }
 }
