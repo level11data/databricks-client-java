@@ -26,9 +26,11 @@ databricks-client.iml
 
 # Package Files #
 *.jar
+!/src/test/resources/*.jar
 *.war
 *.ear
 *.zip
+!/src/test/resources/*.zip
 *.tar.gz
 *.rar
 

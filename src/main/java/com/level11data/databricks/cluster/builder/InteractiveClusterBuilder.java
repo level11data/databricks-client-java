@@ -148,7 +148,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
         return this;
     }
 
-    protected InteractiveClusterBuilder withLibrary(Library library) {
+    public InteractiveClusterBuilder withLibrary(Library library) {
         _libraries.add(library);
         return this;
     }
