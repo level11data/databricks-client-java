@@ -3,6 +3,7 @@ package com.level11data.databricks.cluster.builder;
 import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.*;
+import com.level11data.databricks.library.Library;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +33,8 @@ abstract public class ClusterBuilder {
     private String _logConfS3EncryptionType;
     private String _logConfS3KmsKey;
     private String _logConfS3CannedAcl;
-    private Map<String, String> _sparkEnvironmentVariables = new HashMap<String, String>();;
+    private Map<String, String> _sparkEnvironmentVariables = new HashMap<String, String>();
+
 
     protected ClusterBuilder withSparkVersion(String sparkVersion) {
         _sparkVersion = sparkVersion;

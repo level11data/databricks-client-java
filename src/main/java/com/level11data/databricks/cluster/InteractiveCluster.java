@@ -5,10 +5,7 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
-import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
-import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
+import com.level11data.databricks.client.entities.libraries.*;
 import com.level11data.databricks.job.builder.InteractiveNotebookJobBuilder;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.workspace.Notebook;
@@ -148,9 +145,129 @@ public class InteractiveCluster extends Cluster{
         _libraries.add(new ClusterLibrary(this, library));
     }
 
+    public void installLibrary(EggLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        libraryDTO.Egg = library.Uri.toString();
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().installLibraries(libraryRequestDTO);
+        _libraries.add(new ClusterLibrary(this, library));
+    }
+
+    public void installLibrary(MavenLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        MavenLibraryDTO mavenLibraryDTO = new MavenLibraryDTO();
+        mavenLibraryDTO.Coordinates = library.Coordinates;
+        mavenLibraryDTO.Repo = library.RepoOverride;
+        mavenLibraryDTO.Exclusions = library.DependencyExclusions;
+        libraryDTO.Maven = mavenLibraryDTO;
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().installLibraries(libraryRequestDTO);
+        _libraries.add(new ClusterLibrary(this, library));
+    }
+
+    public void installLibrary(PyPiLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        PythonPyPiLibraryDTO pyPiLibrary = new PythonPyPiLibraryDTO();
+        pyPiLibrary.Package = library.PackageName;
+        pyPiLibrary.Repo = library.RepoOverride;
+        libraryDTO.PyPi = pyPiLibrary;
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().installLibraries(libraryRequestDTO);
+        _libraries.add(new ClusterLibrary(this, library));
+    }
+
+    public void installLibrary(CranLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        RCranLibraryDTO cranLibraryDTO = new RCranLibraryDTO();
+        cranLibraryDTO.Package = library.PackageName;
+        cranLibraryDTO.Repo = library.RepoOverride;
+        libraryDTO.Cran = cranLibraryDTO;
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().installLibraries(libraryRequestDTO);
+        _libraries.add(new ClusterLibrary(this, library));
+    }
+
     public void uninstallLibrary(JarLibrary library) throws HttpException {
         LibraryDTO libraryDTO = new LibraryDTO();
         libraryDTO.Jar = library.Uri.toString();
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().uninstallLibraries(libraryRequestDTO);
+    }
+
+    public void uninstallLibrary(EggLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        libraryDTO.Egg = library.Uri.toString();
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().uninstallLibraries(libraryRequestDTO);
+    }
+
+    public void uninstallLibrary(PyPiLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        PythonPyPiLibraryDTO pyPiLibrary = new PythonPyPiLibraryDTO();
+        pyPiLibrary.Package = library.PackageName;
+        pyPiLibrary.Repo = library.RepoOverride;
+        libraryDTO.PyPi = pyPiLibrary;
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().uninstallLibraries(libraryRequestDTO);
+    }
+
+    public void uninstallLibrary(MavenLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        MavenLibraryDTO mavenLibraryDTO = new MavenLibraryDTO();
+        mavenLibraryDTO.Coordinates = library.Coordinates;
+        mavenLibraryDTO.Repo = library.RepoOverride;
+        mavenLibraryDTO.Exclusions = library.DependencyExclusions;
+        libraryDTO.Maven = mavenLibraryDTO;
+
+        ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
+        libraryRequestDTO.ClusterId = this.Id;
+        libraryRequestDTO.Libraries = new LibraryDTO[1];
+        libraryRequestDTO.Libraries[0] = libraryDTO;
+
+        getLibrariesClient().uninstallLibraries(libraryRequestDTO);
+    }
+
+    public void uninstallLibrary(CranLibrary library) throws HttpException {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        RCranLibraryDTO cranLibraryDTO = new RCranLibraryDTO();
+        cranLibraryDTO.Package = library.PackageName;
+        cranLibraryDTO.Repo = library.RepoOverride;
+        libraryDTO.Cran = cranLibraryDTO;
 
         ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
         libraryRequestDTO.ClusterId = this.Id;

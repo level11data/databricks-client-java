@@ -8,6 +8,9 @@ import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.clusters.AutoScaleDTO;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.library.*;
+
+import java.util.ArrayList;
 
 public class InteractiveClusterBuilder extends ClusterBuilder {
     protected ClustersClient _client;
@@ -16,6 +19,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
     private Integer _autoscaleMinWorkers;
     private Integer _autoscaleMaxWorkers;
     private Integer _autoTerminationMinutes;
+    private ArrayList<Library> _libraries = new ArrayList<Library>();
 
     public InteractiveClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
         _client = client;
@@ -144,6 +148,11 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
         return this;
     }
 
+    protected InteractiveClusterBuilder withLibrary(Library library) {
+        _libraries.add(library);
+        return this;
+    }
+
     public InteractiveCluster create() throws ClusterConfigException, HttpException {
         validateLogConf();
 
@@ -153,7 +162,24 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
         //create cluster via client
         clusterInfoDTO.ClusterId = _client.create(clusterInfoDTO);
 
-        return new InteractiveCluster(_client, clusterInfoDTO);
+        InteractiveCluster cluster = new InteractiveCluster(_client, clusterInfoDTO);
+
+        //install libraries
+        for (Library library : _libraries) {
+            if(library instanceof JarLibrary) {
+                cluster.installLibrary((JarLibrary) library);
+            } else if (library instanceof EggLibrary) {
+                cluster.installLibrary((EggLibrary) library);
+            } else if (library instanceof MavenLibrary) {
+                cluster.installLibrary((MavenLibrary) library);
+            } else if (library instanceof PyPiLibrary) {
+                cluster.installLibrary((PyPiLibrary) library);
+            } else if (library instanceof CranLibrary) {
+                cluster.installLibrary((CranLibrary) library);
+            }
+        }
+
+        return cluster;
     }
 
 }
