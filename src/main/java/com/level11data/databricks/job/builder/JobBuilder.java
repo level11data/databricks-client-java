@@ -10,7 +10,6 @@ import org.quartz.Trigger;
 
 public abstract class JobBuilder {
     private String _name;
-    private ArrayList<Library> _libraries = new ArrayList<Library>();
     private ArrayList<String> _emailNotificationsOnStart = new ArrayList<>();
     private ArrayList<String> _emailNotificationsOnSuccess = new ArrayList<>();
     private ArrayList<String> _emailNotificationsOnFailure = new ArrayList<>();
@@ -77,11 +76,6 @@ public abstract class JobBuilder {
         return this;
     }
 
-    protected JobBuilder withLibrary(Library library) {
-        _libraries.add(library);
-        return this;
-    }
-
     protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) {
         jobSettingsDTO.Name = _name;
         jobSettingsDTO.TimeoutSeconds = _timeoutSeconds;
@@ -94,19 +88,6 @@ public abstract class JobBuilder {
         //TODO parse cron schedule expression
         //https://stackoverflow.com/questions/3641575/how-to-get-cron-expression-given-job-name-and-group-name
         //jobSettingsDTO.Schedule = ;
-
-        if(_libraries.size() > 0) {
-            ArrayList<LibraryDTO> librariesDTO = new ArrayList<>();
-            for (Library library : _libraries) {
-                LibraryDTO libraryDTO = new LibraryDTO();
-
-                if(library instanceof JarLibrary) {
-                    libraryDTO.Jar = ((JarLibrary) library).Uri.toString();
-                    librariesDTO.add(libraryDTO);
-                } //TODO Add conditions for other library types
-            }
-            jobSettingsDTO.Libraries = librariesDTO.toArray(new LibraryDTO[librariesDTO.size()]);
-        }
 
         return jobSettingsDTO;
     }

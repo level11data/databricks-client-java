@@ -3,7 +3,9 @@ package com.level11data.databricks.library;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
+import com.level11data.databricks.client.entities.libraries.RCranLibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
 public class CranLibrary extends PublishedLibrary {
@@ -37,6 +39,15 @@ public class CranLibrary extends PublishedLibrary {
         }
         throw new LibraryConfigException("CRAN Library " + this.PackageName +
                 " Not Associated With Cluster Id " + cluster.Id);
+    }
+
+    public LibraryDTO createLibraryDTO() {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        RCranLibraryDTO cranLibraryDTO = new RCranLibraryDTO();
+        cranLibraryDTO.Package = this.PackageName;
+        cranLibraryDTO.Repo = this.RepoOverride;
+        libraryDTO.Cran = cranLibraryDTO;
+        return libraryDTO;
     }
 
 }

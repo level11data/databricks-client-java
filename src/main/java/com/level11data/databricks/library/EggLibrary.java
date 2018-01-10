@@ -3,6 +3,7 @@ package com.level11data.databricks.library;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
@@ -30,4 +31,11 @@ public class EggLibrary extends PrivateLibrary {
         throw new LibraryConfigException("Egg Library " + this.Uri.toString() +
                 " Not Associated With Cluster Id " + cluster.Id);
     }
+
+    public LibraryDTO createLibraryDTO() {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        libraryDTO.Egg = this.Uri.toString();
+        return libraryDTO;
+    }
+
 }

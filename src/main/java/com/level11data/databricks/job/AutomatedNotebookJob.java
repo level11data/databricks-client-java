@@ -4,13 +4,17 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.jobs.*;
+import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
+
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AutomatedNotebookJob extends AutomatedJob {
 
+    private JobsClient _client;
     public final com.level11data.databricks.workspace.Notebook Notebook;
     public final Map<String,String> BaseParameters;
 
@@ -25,9 +29,16 @@ public class AutomatedNotebookJob extends AutomatedJob {
     public AutomatedNotebookJob(JobsClient client,
                                   long jobId,
                                   JobSettingsDTO jobSettingsDTO,
-                                  Notebook notebook) {
+                                  Notebook notebook) throws JobConfigException, URISyntaxException, LibraryConfigException {
         super(client, jobId, jobSettingsDTO);
+
+        _client = client;
+
+        //Validate that the DTO represents an AutomatedNotebookJob
+        JobValidation.validateAutomatedNotebookJob(jobSettingsDTO);
+
         Notebook = notebook;
+
         if(jobSettingsDTO.NotebookTask.BaseParameters == null) {
             BaseParameters = Collections.unmodifiableMap(new HashMap<>());
         } else {
@@ -45,14 +56,15 @@ public class AutomatedNotebookJob extends AutomatedJob {
      * @throws HttpException
      */
     public AutomatedNotebookJob(JobsClient client, JobDTO jobDTO)
-            throws JobConfigException, ClusterConfigException, HttpException {
+            throws JobConfigException, ClusterConfigException, HttpException, URISyntaxException, LibraryConfigException {
         super(client, jobDTO.JobId, jobDTO.Settings);
 
-        //Validate that the DTO represents an InteractiveNotebookJob
+        _client = client;
+
+        //Validate that the DTO represents an AutomatedNotebookJob
         JobValidation.validateAutomatedNotebookJob(jobDTO);
 
-        Notebook notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);
-        Notebook = notebook;
+        Notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);
 
         if(jobDTO.Settings.NotebookTask.BaseParameters != null) {
             BaseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
@@ -61,7 +73,7 @@ public class AutomatedNotebookJob extends AutomatedJob {
         }
     }
 
-    public AutomatedNotebookJobRun run() throws HttpException, JobRunException {
+    public AutomatedNotebookJobRun run() throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
         //simple run request with no parameter overrides
         RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
         runRequestDTO.JobId = this.Id;
@@ -70,7 +82,7 @@ public class AutomatedNotebookJob extends AutomatedJob {
         return new AutomatedNotebookJobRun(_client, jobRun);
     }
 
-    public AutomatedNotebookJobRun run(Map<String,String> overrideParameters) throws HttpException, JobRunException {
+    public AutomatedNotebookJobRun run(Map<String,String> overrideParameters) throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
         //simple run request with no parameter overrides
         RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
         runRequestDTO.JobId = this.Id;

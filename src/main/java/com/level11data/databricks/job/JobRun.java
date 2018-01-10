@@ -3,8 +3,16 @@ package com.level11data.databricks.job;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.library.Library;
+import com.level11data.databricks.library.LibraryConfigException;
+import com.level11data.databricks.library.util.LibraryHelper;
 
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 abstract public class JobRun {
     private String _sparkContextId;
@@ -21,9 +29,9 @@ abstract public class JobRun {
     //public final CronScheduleDTO Schedule;
     public final TriggerType Trigger;
     public final Date StartTime;
-    //public final List<Library> ClusterSpecLibraries; //TODO add libraries
+    public final List<Library> Libraries;
 
-    protected JobRun(JobsClient client, RunDTO runDTO) {
+    protected JobRun(JobsClient client, RunDTO runDTO) throws LibraryConfigException, URISyntaxException {
         _client = client;
         JobId = runDTO.JobId;
         RunId = runDTO.RunId;
@@ -32,6 +40,17 @@ abstract public class JobRun {
         OriginalAttemptRunId = runDTO.OriginalAttemptRunId;
         Trigger = TriggerType.valueOf(runDTO.TriggerType);
         StartTime = new Date(runDTO.StartTime);
+
+        if(runDTO.ClusterSpec.Libraries != null) {
+            ArrayList<Library> libraries = new ArrayList<>();
+            for (LibraryDTO libraryDTO : runDTO.ClusterSpec.Libraries) {
+                libraries.add(LibraryHelper.createLibrary(_client.Session.getLibrariesClient(), libraryDTO));
+            }
+            Libraries = Collections.unmodifiableList(libraries);
+        } else {
+            Libraries = Collections.unmodifiableList(new ArrayList<Library>());
+        }
+
     }
 
     //TODO Be more clever with not making an API call if the RunState is in a final state

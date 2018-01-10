@@ -7,13 +7,16 @@ import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
+import com.level11data.databricks.library.LibraryConfigException;
+
+import java.net.URISyntaxException;
 
 abstract public class InteractiveJobRun extends JobRun {
     private InteractiveCluster _cluster;
     private JobsClient _client;
     private boolean _clusterCreated = false;
 
-    protected InteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException{
+    protected InteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException, LibraryConfigException, URISyntaxException {
         super(client, runDTO);
         _client = client;
 

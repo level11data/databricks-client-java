@@ -46,7 +46,7 @@ public class LibraryTest {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
-        String dbfsPath = "dbfs:/jason/tmp/test/"+now+"/spark-simpleapp-sbt_2.10-1.0.jar";
+        String dbfsPath = "dbfs:/jason/tmp/test/"+now+"/"+SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
 
         //Create Library and Upload to DBFS

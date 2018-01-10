@@ -8,6 +8,9 @@ import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
+import com.level11data.databricks.library.LibraryConfigException;
+
+import java.net.URISyntaxException;
 
 public abstract class AutomatedJobRun extends JobRun {
     private AutomatedCluster _cluster;
@@ -16,7 +19,7 @@ public abstract class AutomatedJobRun extends JobRun {
 
     public final ClusterSpec NewClusterSpec;
 
-    protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
+    protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException, LibraryConfigException, URISyntaxException {
         super(client, runDTO);
         _client = client;
 

@@ -6,10 +6,13 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.libraries.*;
+import com.level11data.databricks.job.builder.InteractiveJarJobBuilder;
 import com.level11data.databricks.job.builder.InteractiveNotebookJobBuilder;
 import com.level11data.databricks.library.*;
+import com.level11data.databricks.library.util.LibraryHelper;
 import com.level11data.databricks.workspace.Notebook;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -125,6 +128,25 @@ public class InteractiveCluster extends Cluster{
         return new InteractiveNotebookJobBuilder(getOrCreateJobsClient(), this, notebook, baseParameters);
     }
 
+    public InteractiveJarJobBuilder createJarJob(URI jarLibrary, String mainClassName) {
+        return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, mainClassName);
+    }
+
+    public InteractiveJarJobBuilder createJarJob(URI jarLibrary, File jarFile, String mainClassName) {
+        return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, jarFile, mainClassName);
+    }
+
+    public InteractiveJarJobBuilder createJarJob(URI jarLibrary, String mainClassName,
+                                              List<String> baseParameters) {
+        return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, mainClassName, baseParameters);
+    }
+
+    public InteractiveJarJobBuilder createJarJob(URI jarLibrary, File jarFile,
+                                              String mainClassName,
+                                              List<String> baseParameters) {
+        return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, jarFile, mainClassName, baseParameters);
+    }
+
     private LibrariesClient getLibrariesClient() {
         if(_librariesClient == null) {
             _librariesClient = new LibrariesClient(_client.Session);
@@ -133,75 +155,50 @@ public class InteractiveCluster extends Cluster{
     }
 
     public void installLibrary(JarLibrary library) throws HttpException {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        libraryDTO.Jar = library.Uri.toString();
-
         ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
         libraryRequestDTO.ClusterId = this.Id;
         libraryRequestDTO.Libraries = new LibraryDTO[1];
-        libraryRequestDTO.Libraries[0] = libraryDTO;
+        libraryRequestDTO.Libraries[0] = library.createLibraryDTO();
 
         getLibrariesClient().installLibraries(libraryRequestDTO);
         _libraries.add(new ClusterLibrary(this, library));
     }
 
     public void installLibrary(EggLibrary library) throws HttpException {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        libraryDTO.Egg = library.Uri.toString();
-
         ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
         libraryRequestDTO.ClusterId = this.Id;
         libraryRequestDTO.Libraries = new LibraryDTO[1];
-        libraryRequestDTO.Libraries[0] = libraryDTO;
+        libraryRequestDTO.Libraries[0] = library.createLibraryDTO();
 
         getLibrariesClient().installLibraries(libraryRequestDTO);
         _libraries.add(new ClusterLibrary(this, library));
     }
 
     public void installLibrary(MavenLibrary library) throws HttpException {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        MavenLibraryDTO mavenLibraryDTO = new MavenLibraryDTO();
-        mavenLibraryDTO.Coordinates = library.Coordinates;
-        mavenLibraryDTO.Repo = library.RepoOverride;
-        mavenLibraryDTO.Exclusions = library.DependencyExclusions;
-        libraryDTO.Maven = mavenLibraryDTO;
-
         ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
         libraryRequestDTO.ClusterId = this.Id;
         libraryRequestDTO.Libraries = new LibraryDTO[1];
-        libraryRequestDTO.Libraries[0] = libraryDTO;
+        libraryRequestDTO.Libraries[0] = library.createLibraryDTO();
 
         getLibrariesClient().installLibraries(libraryRequestDTO);
         _libraries.add(new ClusterLibrary(this, library));
     }
 
     public void installLibrary(PyPiLibrary library) throws HttpException {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        PythonPyPiLibraryDTO pyPiLibrary = new PythonPyPiLibraryDTO();
-        pyPiLibrary.Package = library.PackageName;
-        pyPiLibrary.Repo = library.RepoOverride;
-        libraryDTO.PyPi = pyPiLibrary;
-
         ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
         libraryRequestDTO.ClusterId = this.Id;
         libraryRequestDTO.Libraries = new LibraryDTO[1];
-        libraryRequestDTO.Libraries[0] = libraryDTO;
+        libraryRequestDTO.Libraries[0] = library.createLibraryDTO();
 
         getLibrariesClient().installLibraries(libraryRequestDTO);
         _libraries.add(new ClusterLibrary(this, library));
     }
 
     public void installLibrary(CranLibrary library) throws HttpException {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        RCranLibraryDTO cranLibraryDTO = new RCranLibraryDTO();
-        cranLibraryDTO.Package = library.PackageName;
-        cranLibraryDTO.Repo = library.RepoOverride;
-        libraryDTO.Cran = cranLibraryDTO;
-
         ClusterLibraryRequestDTO libraryRequestDTO = new ClusterLibraryRequestDTO();
         libraryRequestDTO.ClusterId = this.Id;
         libraryRequestDTO.Libraries = new LibraryDTO[1];
-        libraryRequestDTO.Libraries[0] = libraryDTO;
+        libraryRequestDTO.Libraries[0] = library.createLibraryDTO();
 
         getLibrariesClient().installLibraries(libraryRequestDTO);
         _libraries.add(new ClusterLibrary(this, library));
@@ -281,7 +278,7 @@ public class InteractiveCluster extends Cluster{
         //add remote libraries to cached list (if NOT already in list)
         ClusterLibraryStatusesDTO remoteLibStatuses = getLibrariesClient().getClusterStatus(this.Id);
         for (LibraryFullStatusDTO libStat : remoteLibStatuses.LibraryStatuses) {
-            Library library = createLibraryFromDTO(libStat);
+            Library library = LibraryHelper.createLibrary(getLibrariesClient(), libStat.Library);
             ClusterLibrary clusterLibrary = getClusterLibraryFromCache(library);
             if(clusterLibrary == null) {
                 _libraries.add(new ClusterLibrary(this, library));
@@ -301,27 +298,8 @@ public class InteractiveCluster extends Cluster{
 
     private ClusterLibrary getClusterLibraryFromCache(Library library) throws HttpException {
         for (ClusterLibrary clusterLibrary : _libraries) {
-            Library cachedLibrary = clusterLibrary.Library;
-            if(cachedLibrary instanceof JarLibrary && library instanceof JarLibrary) {
-                if(((JarLibrary) cachedLibrary).Uri.equals(((JarLibrary) library).Uri)) {
-                    return clusterLibrary;
-                }
-            } else if(cachedLibrary instanceof EggLibrary && library instanceof EggLibrary) {
-                if(((EggLibrary) cachedLibrary).Uri.equals(((EggLibrary) library).Uri)) {
-                    return clusterLibrary;
-                }
-            } else if(cachedLibrary instanceof MavenLibrary && library instanceof MavenLibrary) {
-                if(((MavenLibrary) cachedLibrary).Coordinates.equals(((MavenLibrary) library).Coordinates)) {
-                    return clusterLibrary;
-                }
-            } else if(cachedLibrary instanceof PyPiLibrary && library instanceof PyPiLibrary) {
-                if(((PyPiLibrary) cachedLibrary).PackageName.equals(((PyPiLibrary) library).PackageName)) {
-                    return clusterLibrary;
-                }
-            } else if(cachedLibrary instanceof CranLibrary && library instanceof CranLibrary) {
-                if(((CranLibrary) cachedLibrary).PackageName.equals(((CranLibrary) library).PackageName)) {
-                    return clusterLibrary;
-                }
+            if(clusterLibrary.Library.equals(library)) {
+                return clusterLibrary;
             }
         }
         //no ClusterLibrary matches the library
@@ -331,55 +309,11 @@ public class InteractiveCluster extends Cluster{
     private Library getLibraryFromDTO(ClusterLibraryStatusesDTO remoteLibStatuses,
                                       Library library) throws HttpException {
         for (LibraryFullStatusDTO remoteLibStatus : remoteLibStatuses.LibraryStatuses) {
-            if(remoteLibStatus.Library.Jar != null && library instanceof JarLibrary) {
-                if(((JarLibrary) library).Uri.toString().equals(remoteLibStatus.Library.Jar)) {
-                    //System.out.println("DEBUG InteractiveCluster.getLibraryFromDTO library.Uri="+((JarLibrary) library).Uri.toString());
-                    //System.out.println("DEBUG InteractiveCluster.getLibraryFromDTO remoteLibStatus.Library.Jar=" + remoteLibStatus.Library.Jar);
-                    return library;
-                }
-            } else if(remoteLibStatus.Library.Egg != null && library instanceof EggLibrary) {
-                if(((EggLibrary) library).Uri.toString().equals(remoteLibStatus.Library.Egg)) {
-                    return library;
-                }
-            } else if(remoteLibStatus.Library.Maven != null && library instanceof MavenLibrary) {
-                if(((MavenLibrary) library).Coordinates.equals(remoteLibStatus.Library.Maven.Coordinates)) {
-                    return library;
-                }
-            } else if(remoteLibStatus.Library.PyPi != null && library instanceof PyPiLibrary) {
-                if(((PyPiLibrary) library).PackageName.equals(remoteLibStatus.Library.PyPi.Package)) {
-                    return library;
-                }
-            } else if(remoteLibStatus.Library.Cran != null && library instanceof CranLibrary) {
-                if(((CranLibrary) library).PackageName.equals(remoteLibStatus.Library.Cran.Package)) {
-                    return library;
-                }
+            if(remoteLibStatus.Library.equals(library)) {
+                return library;
             }
         }
         //Library could not be found in DTO
         return null;
-    }
-
-    private Library createLibraryFromDTO(LibraryFullStatusDTO libraryStatus)
-            throws LibraryConfigException, URISyntaxException {
-        if(libraryStatus.Library.Jar != null) {
-            return new JarLibrary(getLibrariesClient(), new URI(libraryStatus.Library.Jar));
-        } else if(libraryStatus.Library.Egg != null) {
-            return new EggLibrary(getLibrariesClient(), new URI(libraryStatus.Library.Egg));
-        } else if (libraryStatus.Library.Maven != null) {
-            return new MavenLibrary(getLibrariesClient(),
-                    libraryStatus.Library.Maven.Coordinates,
-                    libraryStatus.Library.Maven.Repo,
-                    libraryStatus.Library.Maven.Exclusions);
-        } else if (libraryStatus.Library.PyPi != null) {
-            return new PyPiLibrary(getLibrariesClient(),
-                    libraryStatus.Library.PyPi.Package,
-                    libraryStatus.Library.PyPi.Repo);
-        } else if (libraryStatus.Library.Cran != null) {
-            return new CranLibrary(getLibrariesClient(),
-                    libraryStatus.Library.Cran.Package,
-                    libraryStatus.Library.Cran.Repo);
-        } else {
-            throw new LibraryConfigException("Unknown Library Type");
-        }
     }
 }

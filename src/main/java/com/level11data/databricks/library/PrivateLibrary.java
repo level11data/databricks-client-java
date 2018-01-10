@@ -2,6 +2,7 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
+import com.level11data.databricks.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,14 +42,6 @@ public abstract class PrivateLibrary extends Library {
     }
 
     public void upload(File file) throws HttpException, IOException, LibraryConfigException {
-        //TODO add support for s3, s3a, s3n
-        if(Uri.getScheme() == null) {
-            throw new LibraryConfigException("Library must be stored in dbfs or s3. Make sure the URI begins with 'dbfs:' or 's3:'");
-        } else if(Uri.getScheme().equals("dbfs")) {
-            _client.Session.putDbfsFile(file, Uri.toString());
-        } else {
-            throw new LibraryConfigException(Uri.getScheme() + " is not a supported scheme for upload");
-        }
-
+        FileUtils.uploadFile(_client.Session, file, Uri);
     }
 }

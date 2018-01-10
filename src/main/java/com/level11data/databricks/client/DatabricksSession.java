@@ -48,28 +48,28 @@ public class DatabricksSession {
         Url = databricksConfig.getClientUrl();
     }
 
-    private ClustersClient getOrCreateClustersClient() {
+    public ClustersClient getClustersClient() {
         if(_clustersClient == null) {
             _clustersClient =  new ClustersClient(this);
         }
         return _clustersClient;
     }
 
-    private LibrariesClient getOrCreateLibrariesClient() {
+    public LibrariesClient getLibrariesClient() {
         if(_librariesClient == null) {
             _librariesClient =  new LibrariesClient(this);
         }
         return _librariesClient;
     }
 
-    private JobsClient getOrCreateJobsClient() {
+    public JobsClient getJobsClient() {
         if(_jobsClient == null) {
             _jobsClient = new JobsClient(this);
         }
         return _jobsClient;
     }
 
-    private DbfsClient getOrCreateDbfsClient() {
+    public DbfsClient getDbfsClient() {
         if(_dbfsClient == null) {
             _dbfsClient = new DbfsClient(this);
         }
@@ -77,15 +77,15 @@ public class DatabricksSession {
     }
 
     public InteractiveClusterBuilder createCluster(String name, Integer numWorkers)  {
-        return new InteractiveClusterBuilder(getOrCreateClustersClient(), name, numWorkers);
+        return new InteractiveClusterBuilder(getClustersClient(), name, numWorkers);
     }
 
     public InteractiveClusterBuilder createCluster(String name, Integer minWorkers, Integer maxWorkers) {
-        return new InteractiveClusterBuilder(getOrCreateClustersClient(), name, minWorkers, maxWorkers);
+        return new InteractiveClusterBuilder(getClustersClient(), name, minWorkers, maxWorkers);
     }
 
     private void refreshSparkVersionsDTO() throws HttpException {
-        _sparkVersionsDTO = getOrCreateClustersClient().getSparkVersions();
+        _sparkVersionsDTO = getClustersClient().getSparkVersions();
     }
 
     private SparkVersionsDTO getOrRequestSparkVersionsDTO() throws HttpException {
@@ -139,7 +139,7 @@ public class DatabricksSession {
     }
 
     private void refreshNodeTypesDTO() throws HttpException {
-        _nodeTypesDTO = getOrCreateClustersClient().getNodeTypes();
+        _nodeTypesDTO = getClustersClient().getNodeTypes();
     }
 
     private NodeTypesDTO getOrRequestNodeTypesDTO() throws HttpException {
@@ -155,7 +155,7 @@ public class DatabricksSession {
 
     private void initNodeTypes() throws HttpException {
         List<NodeTypeDTO> nodeTypesInfoListDTO
-                = getOrCreateClustersClient().getNodeTypes().NodeTypes;
+                = getClustersClient().getNodeTypes().NodeTypes;
 
         ArrayList<NodeType> nodeTypesList = new ArrayList<NodeType>();
 
@@ -186,28 +186,28 @@ public class DatabricksSession {
     }
 
     public String getDefaultZone()  throws HttpException {
-        return getOrCreateClustersClient().getZones().DefaultZone;
+        return getClustersClient().getZones().DefaultZone;
     }
 
     public String[] getZones() throws HttpException  {
-        return getOrCreateClustersClient().getZones().Zones;
+        return getClustersClient().getZones().Zones;
     }
 
     public Iterator<InteractiveCluster> listClusters() throws HttpException {
-        ClustersClient client = getOrCreateClustersClient();
+        ClustersClient client = getClustersClient();
         ClusterInfoDTO[] clusterInfoDTOs = client.listClusters().Clusters;
         return new ClusterIter(client, clusterInfoDTOs);
     }
 
     public InteractiveCluster getCluster(String id) throws ClusterConfigException, HttpException {
-        ClustersClient client = getOrCreateClustersClient();
+        ClustersClient client = getClustersClient();
         ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
         return new InteractiveCluster(client, clusterInfoDTO);
     }
 
     //TODO make return type generic
     public Job getJob(long jobId) throws HttpException, ClusterConfigException, Exception {
-        JobsClient client = getOrCreateJobsClient();
+        JobsClient client = getJobsClient();
         JobDTO jobDTO = client.getJob(jobId);
 
         if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
@@ -221,7 +221,7 @@ public class DatabricksSession {
 
     //TODO make return type generic
     public JobRun getRun(long runId) throws HttpException, Exception {
-        JobsClient client = getOrCreateJobsClient();
+        JobsClient client = getJobsClient();
         RunDTO runDTO = client.getRun(runId);
 
         if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
@@ -233,47 +233,47 @@ public class DatabricksSession {
     }
 
     public AutomatedNotebookJobBuilder createJob(Notebook notebook) {
-        JobsClient client = getOrCreateJobsClient();
+        JobsClient client = getJobsClient();
         return new AutomatedNotebookJobBuilder(client, notebook);
     }
 
     public AutomatedNotebookJobBuilder createJob(Notebook notebook, Map<String,String> parameters) {
-        JobsClient client = getOrCreateJobsClient();
+        JobsClient client = getJobsClient();
         return new AutomatedNotebookJobBuilder(client, notebook, parameters);
     }
 
     public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws FileNotFoundException, IOException, HttpException {
-        DbfsHelper.putFile(getOrCreateDbfsClient(), file, dbfsPath, overwrite);
+        DbfsHelper.putFile(getDbfsClient(), file, dbfsPath, overwrite);
     }
 
     public void putDbfsFile(File file, String dbfsPath) throws FileNotFoundException, IOException, HttpException {
-        DbfsHelper.putFile(getOrCreateDbfsClient(), file, dbfsPath);
+        DbfsHelper.putFile(getDbfsClient(), file, dbfsPath);
     }
 
     public byte[] getDbfsObject(String dbfsPath) throws IOException, HttpException {
-        return DbfsHelper.getObject(getOrCreateDbfsClient(), dbfsPath);
+        return DbfsHelper.getObject(getDbfsClient(), dbfsPath);
     }
 
     public DbfsFileInfo getDbfsObjectStatus(String dbfsPath) throws HttpException {
-        return new DbfsFileInfo(getOrCreateDbfsClient().getStatus(dbfsPath));
+        return new DbfsFileInfo(getDbfsClient().getStatus(dbfsPath));
     }
 
     public void deleteDbfsObject(String dbfsPath, boolean recursive) throws HttpException {
-        getOrCreateDbfsClient().delete(dbfsPath, recursive);
+        getDbfsClient().delete(dbfsPath, recursive);
     }
 
     public void moveDbfsObject(String fromPath, String toPath) throws HttpException {
-        getOrCreateDbfsClient().move(fromPath, toPath);
+        getDbfsClient().move(fromPath, toPath);
     }
 
     public void mkdirsDbfs(String path) throws HttpException {
-        getOrCreateDbfsClient().mkdirs(path);
+        getDbfsClient().mkdirs(path);
     }
 
     //TODO add listDbfs(String path) and return iterator
 
     public ArrayList<DbfsFileInfo> listDbfs(String path) throws HttpException {
-        ListResponseDTO listResponseDTO = getOrCreateDbfsClient().list(path);
+        ListResponseDTO listResponseDTO = getDbfsClient().list(path);
         ArrayList<DbfsFileInfo> fileList = new ArrayList<DbfsFileInfo>();
 
         for (FileInfoDTO fileInfo : listResponseDTO.Files) {
@@ -284,47 +284,47 @@ public class DatabricksSession {
     }
 
     public JarLibrary getJarLibrary(URI uri) throws LibraryConfigException {
-        return new JarLibrary(getOrCreateLibrariesClient(), uri);
+        return new JarLibrary(getLibrariesClient(), uri);
     }
 
     public EggLibrary getEggLibrary(URI uri) throws LibraryConfigException {
-        return new EggLibrary(getOrCreateLibrariesClient(), uri);
+        return new EggLibrary(getLibrariesClient(), uri);
     }
 
     public MavenLibrary getMavenLibrary(String coordinates) throws LibraryConfigException {
-        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates);
+        return new MavenLibrary(getLibrariesClient(), coordinates);
     }
 
     public MavenLibrary getMavenLibrary(String coordinates,
                                         String repo) throws LibraryConfigException {
-        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates, repo);
+        return new MavenLibrary(getLibrariesClient(), coordinates, repo);
     }
 
     public MavenLibrary getMavenLibrary(String coordinates,
                                         String repo,
                                         String[] exclusions) throws LibraryConfigException {
-        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates, repo, exclusions);
+        return new MavenLibrary(getLibrariesClient(), coordinates, repo, exclusions);
     }
 
     public MavenLibrary getMavenLibrary(String coordinates,
                                         String[] exclusions) throws LibraryConfigException {
-        return new MavenLibrary(getOrCreateLibrariesClient(), coordinates, exclusions);
+        return new MavenLibrary(getLibrariesClient(), coordinates, exclusions);
     }
 
     public PyPiLibrary getPyPiLibrary(String packageName) throws LibraryConfigException {
-        return new PyPiLibrary(getOrCreateLibrariesClient(), packageName);
+        return new PyPiLibrary(getLibrariesClient(), packageName);
     }
 
     public PyPiLibrary getPyPiLibrary(String packageName, String repo) throws LibraryConfigException {
-        return new PyPiLibrary(getOrCreateLibrariesClient(), packageName, repo);
+        return new PyPiLibrary(getLibrariesClient(), packageName, repo);
     }
 
     public CranLibrary getCranLibrary(String packageName) throws LibraryConfigException {
-        return new CranLibrary(getOrCreateLibrariesClient(), packageName);
+        return new CranLibrary(getLibrariesClient(), packageName);
     }
 
     public CranLibrary getCranLibrary(String packageName, String repo) throws LibraryConfigException {
-        return new CranLibrary(getOrCreateLibrariesClient(), packageName, repo);
+        return new CranLibrary(getLibrariesClient(), packageName, repo);
     }
 
 }

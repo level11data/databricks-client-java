@@ -6,15 +6,21 @@ import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
 import com.level11data.databricks.job.AutomatedNotebookJob;
+import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.Library;
+import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class AutomatedNotebookJobBuilder extends AutomatedJobBuilder {
+public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilder {
     private AutomatedClusterBuilder _clusterBuilder ;
     private final Notebook _notebook;
     private final JobsClient _client;
@@ -22,14 +28,11 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobBuilder {
 
 
     public AutomatedNotebookJobBuilder(JobsClient client, Notebook notebook) {
-        super();
-        _client = client;
-        _notebook = notebook;
-        _baseParameters = new HashMap<String,String>(); //empty map
+        this(client, notebook, new HashMap<String,String>());
     }
 
     public AutomatedNotebookJobBuilder(JobsClient client, Notebook notebook, Map<String,String> baseParameters) {
-        super();
+        super(client);
         _client = client;
         _notebook = notebook;
         _baseParameters = baseParameters;
@@ -86,11 +89,66 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobBuilder {
     }
 
     @Override
-    public AutomatedNotebookJobBuilder withLibrary(Library library) {
-        return (AutomatedNotebookJobBuilder)super.withLibrary(library);
+    public AutomatedNotebookJobBuilder withJarLibrary(URI uri) {
+        return (AutomatedNotebookJobBuilder)super.withJarLibrary(uri);
     }
 
-    public AutomatedNotebookJob create() throws HttpException {
+    @Override
+    public AutomatedNotebookJobBuilder withJarLibrary(URI uri, File libraryFile) {
+        return (AutomatedNotebookJobBuilder)super.withJarLibrary(uri, libraryFile);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withEggLibrary(URI uri) {
+        return (AutomatedNotebookJobBuilder)super.withEggLibrary(uri);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withEggLibrary(URI uri, File libraryFile) {
+        return (AutomatedNotebookJobBuilder)super.withEggLibrary(uri, libraryFile);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withMavenLibrary(String coordinates) {
+        return (AutomatedNotebookJobBuilder)super.withMavenLibrary(coordinates);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withMavenLibrary(String coordinates, String repo) {
+        return (AutomatedNotebookJobBuilder)super.withMavenLibrary(coordinates, repo);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withMavenLibrary(String coordinates, String repo, String[] exclusions) {
+        return (AutomatedNotebookJobBuilder)super.withMavenLibrary(coordinates, repo, exclusions);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withMavenLibrary(String coordinates, String[] exclusions) {
+        return (AutomatedNotebookJobBuilder)super.withMavenLibrary(coordinates, exclusions);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withPyPiLibrary(String packageName)  {
+        return (AutomatedNotebookJobBuilder)super.withPyPiLibrary(packageName);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withPyPiLibrary(String packageName, String repo) {
+        return (AutomatedNotebookJobBuilder)super.withPyPiLibrary(packageName, repo);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withCranLibrary(String packageName) {
+        return (AutomatedNotebookJobBuilder)super.withCranLibrary(packageName);
+    }
+
+    @Override
+    public AutomatedNotebookJobBuilder withCranLibrary(String packageName, String repo) {
+        return (AutomatedNotebookJobBuilder)super.withCranLibrary(packageName, repo);
+    }
+
+    public AutomatedNotebookJob create() throws HttpException, IOException, LibraryConfigException, JobConfigException, URISyntaxException {
         //no validation to perform
         JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
         jobSettingsDTO = super.applySettings(jobSettingsDTO);
@@ -99,6 +157,9 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobBuilder {
         notebookTaskDTO.NotebookPath = _notebook.Path;
         notebookTaskDTO.BaseParameters = _baseParameters;
         jobSettingsDTO.NotebookTask = notebookTaskDTO;
+
+        //upload any library files
+        uploadLibraryFiles();
 
         //create job via client
         long jobId = _client.createJob(jobSettingsDTO);

@@ -2,21 +2,29 @@ package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.jobs.JobDTO;
 import com.level11data.databricks.client.entities.jobs.JobEmailNotificationsDTO;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.library.*;
+import com.level11data.databricks.library.util.LibraryHelper;
 
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public abstract class Job {
     private boolean _jobInfoRequested = false;
     private JobDTO _jobDTO;
-
-    protected JobsClient _client;
+    private LibrariesClient _librariesClient;
+    private JobsClient _client;
 
     public final long Id;
     public final String Name;
-    //public final ArrayList<Library> Libraries;
+    public final List<Library> Libraries;
     public final EmailNotification NotificationOnStart;
     public final EmailNotification NotificationOnSuccess;
     public final EmailNotification NotificationOnFailure;
@@ -27,8 +35,7 @@ public abstract class Job {
     public final Integer MaxConcurrentRuns;
     public final Integer TimeoutSeconds;
 
-
-    protected Job(JobsClient client, long jobId, JobSettingsDTO jobSettingsDTO) {
+    protected Job(JobsClient client, long jobId, JobSettingsDTO jobSettingsDTO) throws LibraryConfigException, URISyntaxException {
         _client = client;
 
         Id = jobId;
@@ -39,7 +46,14 @@ public abstract class Job {
         MaxConcurrentRuns = jobSettingsDTO.MaxConcurrentRuns;
         TimeoutSeconds = jobSettingsDTO.TimeoutSeconds;
 
-        //TODO Add in Libraries
+        List<Library> libraryList = new ArrayList<Library>();
+        if(jobSettingsDTO.Libraries != null) {
+            for (LibraryDTO libraryDTO : jobSettingsDTO.Libraries) {
+                libraryList.add(LibraryHelper.createLibrary(getLibrariesClient(), libraryDTO));
+            }
+        }
+        Libraries = Collections.unmodifiableList(libraryList);
+
         //Schedule = TODO Add in Schedule
 
         NotificationOnStart = initOnStartNotification(jobSettingsDTO.EmailNotifications);
@@ -47,27 +61,24 @@ public abstract class Job {
         NotificationOnFailure = initOnFailureNotification(jobSettingsDTO.EmailNotifications);
     }
 
-    protected Job(JobsClient client, JobDTO jobDTO) {
-        _client = client;
-        _jobDTO = jobDTO;
-        _jobInfoRequested = true;
-
-        Id = jobDTO.JobId;
-        Name = jobDTO.Settings.Name;
-        MaxRetries = jobDTO.Settings.MaxRetries;
-        MinRetryIntervalMillis = jobDTO.Settings.MinRetryIntervalMillis;
-        RetryOnTimeout = jobDTO.Settings.RetryOnTimeout;
-        MaxConcurrentRuns = jobDTO.Settings.MaxConcurrentRuns;
-        TimeoutSeconds = jobDTO.Settings.TimeoutSeconds;
-
-        //TODO Add in Libraries
-        //Schedule = TODO Add in Schedule
-
-        NotificationOnStart = initOnStartNotification(jobDTO.Settings.EmailNotifications);
-        NotificationOnSuccess = initOnSuccessNotification(jobDTO.Settings.EmailNotifications);
-        NotificationOnFailure = initOnFailureNotification(jobDTO.Settings.EmailNotifications);
+    private boolean isLibraryDtoInLibraries(LibraryDTO libraryDTO) {
+        for (Library library : Libraries) {
+            if(library.equals(libraryDTO)) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    protected Job(JobsClient client, JobDTO jobDTO)
+            throws LibraryConfigException, URISyntaxException {
+        this(client, jobDTO.JobId, jobDTO.Settings);
+    }
+
+    protected Job(JobsClient client, JobDTO jobDTO, List<Library> libraries)
+            throws LibraryConfigException, URISyntaxException {
+        this(client, jobDTO.JobId, jobDTO.Settings);
+    }
 
     private EmailNotification initOnStartNotification(JobEmailNotificationsDTO emailNotifications) {
         if(emailNotifications != null) {
@@ -128,5 +139,12 @@ public abstract class Job {
 
     public void delete() throws HttpException {
         _client.deleteJob(this.Id);
+    }
+
+    private LibrariesClient getLibrariesClient() {
+        if(_librariesClient == null) {
+            _librariesClient = new LibrariesClient(_client.Session);
+        }
+        return _librariesClient;
     }
 }

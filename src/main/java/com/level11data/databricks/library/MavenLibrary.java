@@ -3,7 +3,9 @@ package com.level11data.databricks.library;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
+import com.level11data.databricks.client.entities.libraries.MavenLibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
 public class MavenLibrary extends PublishedLibrary {
@@ -58,5 +60,15 @@ public class MavenLibrary extends PublishedLibrary {
         }
         throw new LibraryConfigException("Maven Library " + this.Coordinates +
                 " Not Associated With Cluster Id " + cluster.Id);
+    }
+
+    public LibraryDTO createLibraryDTO() {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        MavenLibraryDTO mavenLibraryDTO = new MavenLibraryDTO();
+        mavenLibraryDTO.Coordinates = this.Coordinates;
+        mavenLibraryDTO.Repo = this.RepoOverride;
+        mavenLibraryDTO.Exclusions = this.DependencyExclusions;
+        libraryDTO.Maven = mavenLibraryDTO;
+        return libraryDTO;
     }
 }

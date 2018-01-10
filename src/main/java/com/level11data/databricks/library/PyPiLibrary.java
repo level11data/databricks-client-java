@@ -3,7 +3,9 @@ package com.level11data.databricks.library;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
+import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
+import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
 public class PyPiLibrary extends PublishedLibrary {
@@ -39,5 +41,14 @@ public class PyPiLibrary extends PublishedLibrary {
         }
         throw new LibraryConfigException("PyPi Library " + this.PackageName +
                 " Not Associated With Cluster Id " + cluster.Id);
+    }
+
+    public LibraryDTO createLibraryDTO() {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        PythonPyPiLibraryDTO pyPiLibrary = new PythonPyPiLibraryDTO();
+        pyPiLibrary.Package = this.PackageName;
+        pyPiLibrary.Repo = this.RepoOverride;
+        libraryDTO.PyPi = pyPiLibrary;
+        return libraryDTO;
     }
 }

@@ -4,7 +4,9 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.util.JobRunHelper;
+import com.level11data.databricks.library.LibraryConfigException;
 
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +19,7 @@ public class InteractiveNotebookJobRun extends InteractiveJobRun {
     public final Map<String,String> BaseParameters;
     public final Map<String,String> OverridingParameters;
 
-    public InteractiveNotebookJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
+    public InteractiveNotebookJobRun(JobsClient client, RunDTO runDTO) throws JobRunException, LibraryConfigException, URISyntaxException {
         super(client, runDTO);
         _client = client;
         if(!runDTO.isNotebookJob()) {
