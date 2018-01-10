@@ -66,7 +66,7 @@ public class InteractiveJarJobTest {
 
         System.out.println(run.getRunState());
 
-        cleanup
+        //cleanup
         job.delete();
         cluster.terminate();
         _databricks.deleteDbfsObject(dbfsPath, true);}
