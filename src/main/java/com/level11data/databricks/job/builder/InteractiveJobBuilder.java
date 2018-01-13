@@ -202,6 +202,7 @@ public abstract class InteractiveJobBuilder extends JobBuilder {
     }
 
     protected void uploadLibraryFiles() throws HttpException, IOException, LibraryConfigException {
+        System.out.println("InteractiveJobBuilder uploadLibraryFiles() _libraryFileMap.size="+_libraryFileMap.size());
         for (URI uri : _libraryFileMap.keySet()) {
             FileUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
         }

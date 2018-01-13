@@ -11,7 +11,7 @@ public class AutomatedClusterBuilder extends ClusterBuilder {
     private AutomatedJobBuilder _jobBuilder;
     private int _numWorkers;
 
-    public AutomatedClusterBuilder(AutomatedNotebookJobBuilder jobBuilder, int numWorkers) {
+    public AutomatedClusterBuilder(AutomatedJobBuilder jobBuilder, int numWorkers) {
         _jobBuilder = jobBuilder;
         _numWorkers = numWorkers;
     }

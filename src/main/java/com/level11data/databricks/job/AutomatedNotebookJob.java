@@ -22,16 +22,13 @@ public class AutomatedNotebookJob extends AutomatedJob {
      * Create a Notebook Job on an Automated Cluster
      *
      * @param client
-     * @param jobId
      * @param jobSettingsDTO
      * @param notebook
      */
     public AutomatedNotebookJob(JobsClient client,
-                                  long jobId,
-                                  JobSettingsDTO jobSettingsDTO,
-                                  Notebook notebook) throws JobConfigException, URISyntaxException, LibraryConfigException {
-        super(client, jobId, jobSettingsDTO);
-
+                                JobSettingsDTO jobSettingsDTO,
+                                Notebook notebook) throws HttpException, JobConfigException, URISyntaxException, LibraryConfigException {
+        super(client, client.createJob(jobSettingsDTO), jobSettingsDTO);
         _client = client;
 
         //Validate that the DTO represents an AutomatedNotebookJob

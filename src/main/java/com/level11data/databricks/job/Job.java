@@ -36,6 +36,10 @@ public abstract class Job {
     public final Integer TimeoutSeconds;
 
     protected Job(JobsClient client, long jobId, JobSettingsDTO jobSettingsDTO) throws LibraryConfigException, URISyntaxException {
+        this(client, jobId, jobSettingsDTO, null);
+    }
+
+    protected Job(JobsClient client, long jobId, JobSettingsDTO jobSettingsDTO, List<Library> libraries) throws LibraryConfigException, URISyntaxException {
         _client = client;
 
         Id = jobId;
@@ -46,10 +50,13 @@ public abstract class Job {
         MaxConcurrentRuns = jobSettingsDTO.MaxConcurrentRuns;
         TimeoutSeconds = jobSettingsDTO.TimeoutSeconds;
 
-        List<Library> libraryList = new ArrayList<Library>();
+        List<Library> libraryList = libraries == null ? new ArrayList<Library>() : libraries;
         if(jobSettingsDTO.Libraries != null) {
             for (LibraryDTO libraryDTO : jobSettingsDTO.Libraries) {
-                libraryList.add(LibraryHelper.createLibrary(getLibrariesClient(), libraryDTO));
+                //maintain object reference for passed in Libraries
+                if(!isInList(libraryDTO, libraryList)) {
+                    libraryList.add(LibraryHelper.createLibrary(getLibrariesClient(), libraryDTO));
+                }
             }
         }
         Libraries = Collections.unmodifiableList(libraryList);
@@ -146,5 +153,15 @@ public abstract class Job {
             _librariesClient = new LibrariesClient(_client.Session);
         }
         return _librariesClient;
+    }
+
+    private boolean isInList(LibraryDTO libraryDTO, List<Library> libraries) {
+        for (Library library : libraries) {
+            if(library.equals(libraryDTO)) {
+                return true;
+            }
+        }
+        //not in list
+        return false;
     }
 }

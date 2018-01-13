@@ -7,7 +7,9 @@ import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.MavenLibraryDTO;
 import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO;
 import com.level11data.databricks.client.entities.libraries.RCranLibraryDTO;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
+import com.level11data.databricks.library.PrivateLibrary;
 import com.level11data.databricks.util.FileUtils;
 
 import java.io.File;
@@ -15,23 +17,47 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuilder {
 
     private JobsClient _client;
-    private ArrayList<LibraryDTO> _libraries = new ArrayList<LibraryDTO>();
+    private ArrayList<LibraryDTO> _libraryDTOs = new ArrayList<LibraryDTO>();
+    private ArrayList<Library> _libraries = new ArrayList<Library>();
     private Map<URI, File> _libraryFileMap = new HashMap<URI, File>();
 
     public AutomatedJobWithLibrariesBuilder(JobsClient client) {
+        this(client, null, null);
+    }
+
+    public AutomatedJobWithLibrariesBuilder(JobsClient client, PrivateLibrary library) {
+        this(client, library, null);
+    }
+
+    public AutomatedJobWithLibrariesBuilder(JobsClient client, PrivateLibrary library, File libraryFile) {
         super();
         _client = client;
+
+        if(library != null) {
+            _libraries.add(library);  //will maintain library object reference to Job
+            _libraryDTOs.add(library.createLibraryDTO()); //needed to create job via API
+        }
+
+        if(libraryFile != null) {
+            addLibraryToUpload(library.Uri, libraryFile);
+        }
+    }
+
+    protected AutomatedJobWithLibrariesBuilder withLibrary(Library library) {
+        _libraries.add(library);
+        return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withJarLibrary(URI uri) {
         LibraryDTO libraryDTO = new LibraryDTO();
         libraryDTO.Jar = uri.toString();
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -43,7 +69,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
     protected AutomatedJobWithLibrariesBuilder withEggLibrary(URI uri) {
         LibraryDTO libraryDTO = new LibraryDTO();
         libraryDTO.Egg = uri.toString();
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -57,7 +83,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
         mavenDTO.Coordinates = coordinates;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -67,7 +93,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         mavenDTO.Coordinates = coordinates;
         mavenDTO.Repo = repo;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -78,7 +104,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         mavenDTO.Repo = repo;
         mavenDTO.Exclusions = exclusions;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -88,7 +114,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         mavenDTO.Coordinates = coordinates;
         mavenDTO.Exclusions = exclusions;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -97,7 +123,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         PythonPyPiLibraryDTO piPyDTO = new PythonPyPiLibraryDTO();
         piPyDTO.Package = packageName;
         libraryDTO.PyPi = piPyDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -107,7 +133,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         piPyDTO.Package = packageName;
         piPyDTO.Repo = repo;
         libraryDTO.PyPi = piPyDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -116,7 +142,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         RCranLibraryDTO cranDTO = new RCranLibraryDTO();
         cranDTO.Package = packageName;
         libraryDTO.Cran = cranDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -126,7 +152,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         cranDTO.Package = packageName;
         cranDTO.Repo = repo;
         libraryDTO.Cran = cranDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -134,8 +160,8 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
     protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) {
         jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
-        if(_libraries.size() > 0) {
-            jobSettingsDTO.Libraries = _libraries.toArray(new LibraryDTO[_libraries.size()]);
+        if(_libraryDTOs.size() > 0) {
+            jobSettingsDTO.Libraries = _libraryDTOs.toArray(new LibraryDTO[_libraryDTOs.size()]);
         }
         return jobSettingsDTO;
     }
@@ -148,5 +174,9 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         for (URI uri : _libraryFileMap.keySet()) {
             FileUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
         }
+    }
+
+    protected List<Library> getLibraries() {
+        return _libraries;
     }
 }

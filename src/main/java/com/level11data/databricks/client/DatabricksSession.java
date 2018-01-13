@@ -11,6 +11,7 @@ import com.level11data.databricks.client.entities.clusters.*;
 import com.level11data.databricks.dbfs.DbfsHelper;
 import com.level11data.databricks.dbfs.DbfsFileInfo;
 import com.level11data.databricks.job.*;
+import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.workspace.Notebook;
@@ -233,13 +234,27 @@ public class DatabricksSession {
     }
 
     public AutomatedNotebookJobBuilder createJob(Notebook notebook) {
-        JobsClient client = getJobsClient();
-        return new AutomatedNotebookJobBuilder(client, notebook);
+        return new AutomatedNotebookJobBuilder(getJobsClient(), notebook);
     }
 
     public AutomatedNotebookJobBuilder createJob(Notebook notebook, Map<String,String> parameters) {
-        JobsClient client = getJobsClient();
-        return new AutomatedNotebookJobBuilder(client, notebook, parameters);
+        return new AutomatedNotebookJobBuilder(getJobsClient(), notebook, parameters);
+    }
+
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName, List<String> parameters) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, parameters);
+    }
+
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary);
+    }
+
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName, File jarFile) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, jarFile);
+    }
+
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName, File jarFile, List<String> parameters) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, jarFile, parameters);
     }
 
     public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws FileNotFoundException, IOException, HttpException {

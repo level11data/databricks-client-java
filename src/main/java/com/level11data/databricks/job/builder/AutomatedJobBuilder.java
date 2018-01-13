@@ -2,9 +2,12 @@ package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 
 public abstract class AutomatedJobBuilder extends JobBuilder {
     private ClusterInfoDTO _clusterInfo;
+    private AutomatedClusterBuilder _clusterBuilder ;
+
     public AutomatedJobBuilder() {
         super();
     }
@@ -28,4 +31,10 @@ public abstract class AutomatedJobBuilder extends JobBuilder {
         return jobSettingsDTO;
     }
 
+    public AutomatedClusterBuilder withClusterSpec(int numWorkers) {
+        if (_clusterBuilder == null) {
+            _clusterBuilder = new AutomatedClusterBuilder(this, numWorkers);
+        }
+        return _clusterBuilder;
+    }
 }

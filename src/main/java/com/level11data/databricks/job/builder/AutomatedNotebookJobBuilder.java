@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilder {
-    private AutomatedClusterBuilder _clusterBuilder ;
     private final Notebook _notebook;
     private final JobsClient _client;
     private final Map<String,String> _baseParameters;
@@ -86,6 +85,11 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
     @Override
     public AutomatedNotebookJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         return (AutomatedNotebookJobBuilder)super.withSchedule(trigger, timeZone);
+    }
+
+    @Override
+    protected AutomatedNotebookJobBuilder withLibrary(Library library) {
+        return (AutomatedNotebookJobBuilder)super.withLibrary(library);
     }
 
     @Override
@@ -161,18 +165,10 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
         //upload any library files
         uploadLibraryFiles();
 
-        //create job via client
-        long jobId = _client.createJob(jobSettingsDTO);
-
         //create InteractiveNotebookJob from jobSettingsDTO and jobId
-        return new AutomatedNotebookJob(_client, jobId, jobSettingsDTO, _notebook);
+        return new AutomatedNotebookJob(_client, jobSettingsDTO, _notebook);
     }
 
-    public AutomatedClusterBuilder withClusterSpec(int numWorkers) {
-        if (_clusterBuilder == null) {
-            _clusterBuilder = new AutomatedClusterBuilder(this, numWorkers);
-        }
-        return _clusterBuilder;
-    }
+
 
 }

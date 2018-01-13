@@ -57,8 +57,11 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
         _mainClassName = mainClassName;
         _baseParameters = baseParameters;
 
+        System.out.println("InteractiveJarJobBuilder jarLibraryFile is null="+jarLibraryFile == null);
+
         if(jarLibraryFile != null) {
             withJarLibrary(jarLibraryLocation, jarLibraryFile);
+            System.out.println("InteractiveJarJobBuilder I just called withJarLibrary()");
         } else {
             withJarLibrary(jarLibraryLocation);
         }
@@ -187,10 +190,9 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
         }
         jobSettingsDTO.SparkJarTask = jarTaskDTO;
 
-        //upload any library files
+        //upload library files
         uploadLibraryFiles();
 
-        //create InteractiveJarJob from jobSettingsDTO
         return new InteractiveJarJob(_client, this.Cluster, jobSettingsDTO);
     }
 
