@@ -57,11 +57,8 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
         _mainClassName = mainClassName;
         _baseParameters = baseParameters;
 
-        System.out.println("InteractiveJarJobBuilder jarLibraryFile is null="+jarLibraryFile == null);
-
         if(jarLibraryFile != null) {
             withJarLibrary(jarLibraryLocation, jarLibraryFile);
-            System.out.println("InteractiveJarJobBuilder I just called withJarLibrary()");
         } else {
             withJarLibrary(jarLibraryLocation);
         }

@@ -4,8 +4,11 @@ import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedJarJob;
 import com.level11data.databricks.job.AutomatedJarJobRun;
+import com.level11data.databricks.job.RunLifeCycleState;
+import com.level11data.databricks.job.RunResultState;
 import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.library.JarLibrary;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -44,6 +47,7 @@ public class AutomatedJarJobTest {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
         String dbfsPath = "dbfs:/jason/tmp/test/" + now + "/" + SIMPLE_JAR_RESOURCE_NAME;
+        //String dbfsPath = "dbfs:/mnt/jason-fieldeng/lib/" + SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
         JarLibrary jarLibrary = _databricks.getJarLibrary(new URI(dbfsPath));
 
@@ -56,6 +60,7 @@ public class AutomatedJarJobTest {
         params.add("world");
 
         AutomatedJarJob job = _databricks.createJob(jarLibrary, mainClass, jarFile, params)
+        //AutomatedJarJob job = _databricks.createJob(jarLibrary, mainClass, params)
                 .withName(jobName)
                 .withClusterSpec(1)
                 .withSparkVersion("3.4.x-scala2.11")
@@ -70,7 +75,8 @@ public class AutomatedJarJobTest {
             Thread.sleep(10000); //sleep 10 seconds
         }
 
-        System.out.println(run.getRunState().LifeCycleState.toString());
+        Assert.assertEquals("Job Run was NOT Successful", RunResultState.SUCCESS,
+                run.getRunState().ResultState);
 
         //cleanup
         //job.delete();

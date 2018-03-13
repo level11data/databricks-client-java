@@ -1,6 +1,7 @@
 package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.client.DbfsClient;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.dbfs.DbfsFileInfo;
 import org.junit.Assert;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 
 public class DbfsTest {
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
+    public static final String SIMPLE_JAR_RESOURCE_NAME = "simple-scala-spark-app_2.11-0.0.1.jar";
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
@@ -53,9 +55,9 @@ public class DbfsTest {
         long now = System.currentTimeMillis();
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        String localPath = loader.getResource("spark-simpleapp-sbt_2.10-1.0.jar").getFile(); //less than 1MB
-        String dbfsPath = "/jason/tmp/test/"+now+"/spark-simpleapp-sbt_2.10-1.0.jar";
-        String tmpPath = "/tmp/"+now+"-spark-simpleapp-sbt_2.10-1.0.jar";
+        String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile(); //less than 1MB
+        String dbfsPath = "/jason/tmp/test/"+now+"/"+SIMPLE_JAR_RESOURCE_NAME;
+        String tmpPath = "/tmp/"+now+"-"+SIMPLE_JAR_RESOURCE_NAME;
 
         File file = new File(localPath);
         long srcFileSize = file.length();
@@ -92,6 +94,9 @@ public class DbfsTest {
         String dbfsPath = "/jason/tmp/test/"+now+"/large-file.zip";
         String tmpPath = "/tmp/"+now+"-large-file.zip";
 
+        //DEBUG
+        System.out.println("DBFS Path: " + dbfsPath);
+
         File file = new File(localPath);
         long srcFileSize = file.length();
 
@@ -110,13 +115,55 @@ public class DbfsTest {
 
         long downloadedFileSize = new File(tmpPath).length();
 
+        //DEBUG
+        System.out.println("Downloaded Tmp Path: " + tmpPath);
+        System.out.println("Downloaded File Size: " + downloadedFileSize);
+
         Assert.assertEquals("Pre-uploaded file size is different from file size after download",
                 srcFileSize, downloadedFileSize);
 
         //cleanup test files
-        _databricks.deleteDbfsObject(dbfsPath, false);
-        new File(tmpPath).delete();
+        //_databricks.deleteDbfsObject(dbfsPath, false);
+        //new File(tmpPath).delete();
     }
 
+    @Test
+    public void testPutSmallFile() throws Exception {
+        long now = System.currentTimeMillis();
+
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile(); //less than 1MB
+        String dbfsPath = "/jason/tmp/test/"+now+"/"+SIMPLE_JAR_RESOURCE_NAME;
+        String tmpPath = "/tmp/"+now+"-"+SIMPLE_JAR_RESOURCE_NAME;
+
+        File file = new File(localPath);
+        long srcFileSize = file.length();
+
+        DbfsClient dbfsClient = new DbfsClient(_databricks);
+
+        //DOES THIS WORK?
+        dbfsClient.put(file, dbfsPath);
+
+
+        DbfsFileInfo fileStatus = _databricks.getDbfsObjectStatus(dbfsPath);
+
+        Assert.assertEquals("Object on DBFS is incorrectly classified as a directory",
+                false, fileStatus.IsDir);
+
+        byte[] downloadedBytes = _databricks.getDbfsObject(dbfsPath);
+
+        FileOutputStream fos = new FileOutputStream(tmpPath);
+        fos.write(downloadedBytes);
+        fos.close();
+
+        long downloadedFileSize = new File(tmpPath).length();
+
+        Assert.assertEquals("Pre-uploaded file size is different from file size after download",
+                srcFileSize, downloadedFileSize);
+
+        //cleanup test files
+        //_databricks.deleteDbfsObject(dbfsPath, false);
+        new File(tmpPath).delete();
+    }
 
 }

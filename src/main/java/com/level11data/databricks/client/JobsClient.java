@@ -58,6 +58,9 @@ public class JobsClient extends DatabricksClient {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(jobSettingsDTO));
 
+        //debug
+        System.out.println(jobSettingsDTO.toString());
+
         checkResponse(response);
         return response.readEntity(CreateJobResponseDTO.class).JobId;
     }
@@ -84,6 +87,9 @@ public class JobsClient extends DatabricksClient {
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(runNowRequestDTO));
+
+        //debug
+        System.out.println(runNowRequestDTO.toString());
 
         checkResponse(response);
         return response.readEntity(RunNowResponseDTO.class);

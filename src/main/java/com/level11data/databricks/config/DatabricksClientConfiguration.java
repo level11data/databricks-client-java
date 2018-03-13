@@ -104,19 +104,11 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
     }
 
     public String getClientUsername() {
-        if(verifyStringPropSet(CLIENT_TOKEN)) {
-            return "token";
-        } else {
-            return getNonEmptyString(CLIENT_USERNAME);
-        }
+        return getNonEmptyString(CLIENT_USERNAME);
     }
 
     public String getClientPassword() {
-        if(verifyStringPropSet(CLIENT_TOKEN)) {
-            return getNonEmptyString(CLIENT_TOKEN);
-        } else {
-            return getNonEmptyString(CLIENT_PASSWORD);
-        }
+        return getNonEmptyString(CLIENT_PASSWORD);
     }
 
     public String getClientToken() {

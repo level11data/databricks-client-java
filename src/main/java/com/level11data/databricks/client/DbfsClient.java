@@ -7,8 +7,10 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 
 public class DbfsClient extends DatabricksClient {
 
@@ -39,6 +41,20 @@ public class DbfsClient extends DatabricksClient {
         checkResponse(response);
         return response.readEntity(FileInfoDTO.class);
     }
+
+    public void put(File file, String dbfsPath) throws HttpException {
+        Form form = new Form();
+        form.param("contents", "@"+file.getAbsolutePath());
+        form.param("path", dbfsPath);
+
+        Response response = _target.path("put")
+                .register(Session.Authentication)
+                .request(MediaType.MULTIPART_FORM_DATA)
+                .post(Entity.form(form));
+
+        checkResponse(response);
+    }
+
 
     public long create(String path, boolean overwrite) throws HttpException {
         CreateRequestDTO requestDTO = new CreateRequestDTO();

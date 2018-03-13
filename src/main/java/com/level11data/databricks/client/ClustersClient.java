@@ -162,6 +162,8 @@ public class ClustersClient extends DatabricksClient {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(clusterInfoDTO));
 
+        System.out.println(clusterInfoDTO);
+
         checkResponse(response);
         return response.readEntity(CreateClusterResponseDTO.class).ClusterId;
     }
