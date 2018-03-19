@@ -14,7 +14,7 @@ public abstract class PrivateLibrary extends Library {
     public final URI Uri;
 
     public PrivateLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
-        super();
+        super(client);
         _client = client;
         validate(uri);
         Uri = uri;

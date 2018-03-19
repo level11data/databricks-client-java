@@ -37,4 +37,15 @@ public class JarLibrary extends PrivateLibrary {
         libraryDTO.Jar = this.Uri.toString();
         return libraryDTO;
     }
+
+    public void uninstall(InteractiveCluster cluster) throws HttpException {
+        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
+        clusterLibraryRequest.ClusterId = cluster.Id;
+
+        LibraryDTO[] libraries = new LibraryDTO[1];
+        libraries[0] = this.createLibraryDTO();
+        clusterLibraryRequest.Libraries = libraries;
+
+        _client.uninstallLibraries(clusterLibraryRequest);
+    }
 }

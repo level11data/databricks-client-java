@@ -4,7 +4,6 @@ import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedJarJob;
 import com.level11data.databricks.job.AutomatedJarJobRun;
-import com.level11data.databricks.job.RunLifeCycleState;
 import com.level11data.databricks.job.RunResultState;
 import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.library.JarLibrary;
@@ -47,7 +46,6 @@ public class AutomatedJarJobTest {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
         String dbfsPath = "dbfs:/jason/tmp/test/" + now + "/" + SIMPLE_JAR_RESOURCE_NAME;
-        //String dbfsPath = "dbfs:/mnt/jason-fieldeng/lib/" + SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
         JarLibrary jarLibrary = _databricks.getJarLibrary(new URI(dbfsPath));
 
@@ -79,9 +77,8 @@ public class AutomatedJarJobTest {
                 run.getRunState().ResultState);
 
         //cleanup
-        //job.delete();
-        //cluster.terminate();
-        //_databricks.deleteDbfsObject(dbfsPath, true);
+        job.delete();
+        _databricks.deleteDbfsObject(dbfsPath, true);
     }
 
 

@@ -277,21 +277,27 @@ public class InteractiveCluster extends Cluster{
     public List<ClusterLibrary> getLibraries() throws LibraryConfigException, HttpException, URISyntaxException {
         //add remote libraries to cached list (if NOT already in list)
         ClusterLibraryStatusesDTO remoteLibStatuses = getLibrariesClient().getClusterStatus(this.Id);
-        for (LibraryFullStatusDTO libStat : remoteLibStatuses.LibraryStatuses) {
-            Library library = LibraryHelper.createLibrary(getLibrariesClient(), libStat.Library);
-            ClusterLibrary clusterLibrary = getClusterLibraryFromCache(library);
-            if(clusterLibrary == null) {
-                _libraries.add(new ClusterLibrary(this, library));
+
+        if(remoteLibStatuses.LibraryStatuses == null) {
+            //reset list of libraries
+            _libraries = new ArrayList<ClusterLibrary>();
+        } else {
+            for (LibraryFullStatusDTO libStat : remoteLibStatuses.LibraryStatuses) {
+                Library library = LibraryHelper.createLibrary(getLibrariesClient(), libStat.Library);
+                ClusterLibrary clusterLibrary = getClusterLibraryFromCache(library);
+                if(clusterLibrary == null) {
+                    _libraries.add(new ClusterLibrary(this, library));
+                }
             }
-        }
-        //remove ClusterLibrary from cached list if it is NOT in the remote library status list
-        //avoid ConcurrentModificationException by using the list's iterator
-        Iterator<ClusterLibrary> iterClusterLibrary = _libraries.iterator();
-        while(iterClusterLibrary.hasNext()) {
-          ClusterLibrary clusterLib = iterClusterLibrary.next();
-          if(getLibraryFromDTO(remoteLibStatuses, clusterLib.Library) == null) {
-              iterClusterLibrary.remove();
-          }
+            //remove ClusterLibrary from cached list if it is NOT in the remote library status list
+            //avoid ConcurrentModificationException by using the list's iterator
+            Iterator<ClusterLibrary> iterClusterLibrary = _libraries.iterator();
+            while(iterClusterLibrary.hasNext()) {
+                ClusterLibrary clusterLib = iterClusterLibrary.next();
+                if(getLibraryFromDTO(remoteLibStatuses, clusterLib.Library) == null) {
+                    iterClusterLibrary.remove();
+                }
+            }
         }
         return Collections.unmodifiableList(_libraries);
     }
@@ -309,7 +315,7 @@ public class InteractiveCluster extends Cluster{
     private Library getLibraryFromDTO(ClusterLibraryStatusesDTO remoteLibStatuses,
                                       Library library) throws HttpException {
         for (LibraryFullStatusDTO remoteLibStatus : remoteLibStatuses.LibraryStatuses) {
-            if(remoteLibStatus.Library.equals(library)) {
+            if (library.equals(remoteLibStatus.Library)) {
                 return library;
             }
         }

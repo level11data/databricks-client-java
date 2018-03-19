@@ -40,7 +40,7 @@ public class JobsClient extends DatabricksClient {
 
     public JobDTO getJob(long jobId) throws HttpException {
         //TODO should be DEBUG logging statement
-        System.out.println("getJob HTTP request for id "+jobId);
+        //System.out.println("getJob HTTP request for id "+jobId);
         Response response = _target.path("get")
                 .register(Session.Authentication)
                 .queryParam("job_id", jobId)
@@ -57,9 +57,6 @@ public class JobsClient extends DatabricksClient {
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(jobSettingsDTO));
-
-        //debug
-        System.out.println(jobSettingsDTO.toString());
 
         checkResponse(response);
         return response.readEntity(CreateJobResponseDTO.class).JobId;
@@ -88,9 +85,6 @@ public class JobsClient extends DatabricksClient {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(runNowRequestDTO));
 
-        //debug
-        System.out.println(runNowRequestDTO.toString());
-
         checkResponse(response);
         return response.readEntity(RunNowResponseDTO.class);
     }
@@ -118,7 +112,7 @@ public class JobsClient extends DatabricksClient {
 
     public RunDTO getRun(long runId) throws HttpException {
         //TODO should be DEBUG logging statement
-        System.out.println("getRun HTTP request for id "+runId);
+        //System.out.println("getRun HTTP request for id "+runId);
         Response response = _target.path("runs/get")
                 .register(Session.Authentication)
                 .queryParam("run_id", runId)

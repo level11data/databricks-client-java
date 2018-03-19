@@ -18,7 +18,7 @@ public class ReadResponseDTO {
     public long BytesRead;
 
     @JsonProperty("data")
-    public byte[] data;
+    public String data;
 
     @Override
     public String toString() {

@@ -27,7 +27,8 @@ public class DbfsHelper {
         try {
             byte[] fileBytes = new byte[(int)file.length()];
             fileInputStreamReader.read(fileBytes);
-            System.out.println("Total Num of raw Bytes from File = " + file.length());
+            fileInputStreamReader.close();
+
 
             //encode bytes to Base64
             Base64.Encoder encoder = Base64.getEncoder();
@@ -35,43 +36,27 @@ public class DbfsHelper {
 
             long bytesLeftToSend = fileBase64Bytes.length;
 
-            System.out.println("Max Block Size                   ="+MAX_BLOCK_SIZE);
-            System.out.println("Total Num of Base64 Bytes to Send=" + bytesLeftToSend);
-
             if(bytesLeftToSend < MAX_BLOCK_SIZE) {
-                //TODO add call to .put() if less than MAX_BLOCK_SIZE
-                System.out.println("TODO add call to .put() if less than MAX_BLOCK_SIZE");
-
-                //open handler to DBFS
-                long dbfsHandle = client.create(dbfsPath, overwrite);
-
-                //TODO add retry logic; inside or outside the client?
-
-                //add block to DBFS
-                client.addBlock(dbfsHandle, fileBase64Bytes);
-
-                //close handler to DBFS
-                client.close(dbfsHandle);
+                client.put(encoder.encodeToString(fileBytes), dbfsPath, overwrite);
             } else {
                 //open handler to DBFS
                 long dbfsHandle = client.create(dbfsPath, overwrite);
 
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileBase64Bytes);
+                //reset the reader to begin reading from the start again
+                fileInputStreamReader = new FileInputStream(file);
 
                 while(bytesLeftToSend > 0) {
                     int numBytesToSend = (int) bytesLeftToSend > MAX_BLOCK_SIZE ? MAX_BLOCK_SIZE : (int) bytesLeftToSend;
                     byte[] bytesToSend = new byte[(int)numBytesToSend];
 
                     //read the next batch of bytes that fits into the byte array
-                    int numBytesRead = byteArrayInputStream.read(bytesToSend);
+                    fileInputStreamReader.read(bytesToSend);
 
                     //TODO add retry logic; inside or outside the client?
 
                     //add block to DBFS
-                    System.out.println("BEFORE addBlock; base64Bytes     =" + numBytesToSend);
-                    client.addBlock(dbfsHandle, bytesToSend);
+                    client.addBlock(dbfsHandle, encoder.encodeToString(bytesToSend));
 
-                    //bytesLeftToSend = bytesLeftToSend - numBytesRead;
                     bytesLeftToSend = bytesLeftToSend - numBytesToSend;
                 }
                 //close handler to DBFS
@@ -97,8 +82,6 @@ public class DbfsHelper {
             while(bytesLeftToRead > 0) {
                 ReadResponseDTO readResponseDTO = client.read(dbfsPath, offset, MAX_BLOCK_SIZE);
                 long numBytesRead = readResponseDTO.BytesRead;
-
-                //System.out.println("bytesLeftToRead: "+bytesLeftToRead + ", numBytesRead: "+numBytesRead);
 
                 Base64.Decoder decoder = Base64.getDecoder();
                 byte[] decodedBytes = decoder.decode(readResponseDTO.data);

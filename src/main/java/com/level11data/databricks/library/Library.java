@@ -1,8 +1,15 @@
 package com.level11data.databricks.library;
 
+import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 
 public abstract class Library implements ILibrary {
+
+    private final LibrariesClient _client;
+
+    protected Library(LibrariesClient client) {
+        _client = client;
+    }
 
     @Override
     public boolean equals(Object obj) {

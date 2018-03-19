@@ -2,10 +2,7 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
-import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
-import com.level11data.databricks.client.entities.libraries.MavenLibraryDTO;
+import com.level11data.databricks.client.entities.libraries.*;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
 public class MavenLibrary extends PublishedLibrary {
@@ -16,7 +13,7 @@ public class MavenLibrary extends PublishedLibrary {
     public final String[] DependencyExclusions;
 
     public MavenLibrary(LibrariesClient client, String coordinates) {
-        super();
+        super(client);
         _client = client;
         Coordinates = coordinates;
         RepoOverride = null;
@@ -24,7 +21,7 @@ public class MavenLibrary extends PublishedLibrary {
     }
 
     public MavenLibrary(LibrariesClient client, String coordinates, String repo) {
-        super();
+        super(client);
         _client = client;
         Coordinates = coordinates;
         RepoOverride = repo;
@@ -32,7 +29,7 @@ public class MavenLibrary extends PublishedLibrary {
     }
 
     public MavenLibrary(LibrariesClient client, String coordinates, String repo, String[] exclusions) {
-        super();
+        super(client);
         _client = client;
         Coordinates = coordinates;
         RepoOverride = repo;
@@ -40,7 +37,7 @@ public class MavenLibrary extends PublishedLibrary {
     }
 
     public MavenLibrary(LibrariesClient client, String coordinates, String[] exclusions) {
-        super();
+        super(client);
         _client = client;
         Coordinates = coordinates;
         RepoOverride = null;
@@ -70,5 +67,16 @@ public class MavenLibrary extends PublishedLibrary {
         mavenLibraryDTO.Exclusions = this.DependencyExclusions;
         libraryDTO.Maven = mavenLibraryDTO;
         return libraryDTO;
+    }
+
+    public void uninstall(InteractiveCluster cluster) throws HttpException {
+        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
+        clusterLibraryRequest.ClusterId = cluster.Id;
+
+        LibraryDTO[] libraries = new LibraryDTO[1];
+        libraries[0] = this.createLibraryDTO();
+        clusterLibraryRequest.Libraries = libraries;
+
+        _client.uninstallLibraries(clusterLibraryRequest);
     }
 }

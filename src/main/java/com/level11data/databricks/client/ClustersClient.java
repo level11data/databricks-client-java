@@ -72,7 +72,7 @@ public class ClustersClient extends DatabricksClient {
 
     public ClusterInfoDTO getCluster(String clusterId) throws HttpException {
         //TODO should be DEBUG logging statement
-        System.out.println("getCluster HTTP request for id "+clusterId);
+        //System.out.println("getCluster HTTP request for id "+clusterId);
         Response response = _target.path("get")
                 .register(Session.Authentication)
                 .queryParam("cluster_id", clusterId)
@@ -161,8 +161,6 @@ public class ClustersClient extends DatabricksClient {
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(clusterInfoDTO));
-
-        System.out.println(clusterInfoDTO);
 
         checkResponse(response);
         return response.readEntity(CreateClusterResponseDTO.class).ClusterId;

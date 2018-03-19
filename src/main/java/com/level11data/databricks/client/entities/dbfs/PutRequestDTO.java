@@ -18,7 +18,7 @@ public class PutRequestDTO {
     public String Path;
 
     @JsonProperty("contents")
-    public byte[] Contents;
+    public String Contents;
 
     @JsonProperty("overwrite")
     public boolean Overwrite;

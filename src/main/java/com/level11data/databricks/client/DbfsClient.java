@@ -2,6 +2,7 @@ package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.dbfs.*;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientResponse;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -11,6 +12,9 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Base64;
 
 public class DbfsClient extends DatabricksClient {
 
@@ -42,20 +46,6 @@ public class DbfsClient extends DatabricksClient {
         return response.readEntity(FileInfoDTO.class);
     }
 
-    public void put(File file, String dbfsPath) throws HttpException {
-        Form form = new Form();
-        form.param("contents", "@"+file.getAbsolutePath());
-        form.param("path", dbfsPath);
-
-        Response response = _target.path("put")
-                .register(Session.Authentication)
-                .request(MediaType.MULTIPART_FORM_DATA)
-                .post(Entity.form(form));
-
-        checkResponse(response);
-    }
-
-
     public long create(String path, boolean overwrite) throws HttpException {
         CreateRequestDTO requestDTO = new CreateRequestDTO();
         requestDTO.Path = path;
@@ -82,7 +72,7 @@ public class DbfsClient extends DatabricksClient {
         checkResponse(response);
     }
 
-    public void addBlock(long handle, byte[] data) throws HttpException {
+    public void addBlock(long handle, String data) throws HttpException {
         AddBlockRequestDTO requestDTO = new AddBlockRequestDTO();
         requestDTO.Handle = handle;
         requestDTO.Data = data;
@@ -91,6 +81,24 @@ public class DbfsClient extends DatabricksClient {
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(requestDTO));
+
+        checkResponse(response);
+    }
+
+    public void put(String contents, String dbfsPath) throws HttpException, IOException {
+        put(contents, dbfsPath, false);
+    }
+
+    public void put(String contents, String dbfsPath, boolean overwrite) throws HttpException, IOException {
+        PutRequestDTO putRequestDTO = new PutRequestDTO();
+        putRequestDTO.Path = dbfsPath;
+        putRequestDTO.Contents = contents;
+        putRequestDTO.Overwrite = overwrite;
+
+        Response response = _target.path("put")
+                .register(Session.Authentication)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(putRequestDTO));
 
         checkResponse(response);
     }

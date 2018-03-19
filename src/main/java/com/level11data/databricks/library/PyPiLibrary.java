@@ -2,10 +2,7 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
-import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
-import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO;
+import com.level11data.databricks.client.entities.libraries.*;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
 public class PyPiLibrary extends PublishedLibrary {
@@ -15,14 +12,14 @@ public class PyPiLibrary extends PublishedLibrary {
     public final String RepoOverride;
 
     public PyPiLibrary(LibrariesClient client, String packageName) {
-        super();
+        super(client);
         _client = client;
         PackageName = packageName;
         RepoOverride = null;
     }
 
     public PyPiLibrary(LibrariesClient client, String packageName, String repo) {
-        super();
+        super(client);
         _client = client;
         PackageName = packageName;
         RepoOverride = repo;
@@ -50,5 +47,16 @@ public class PyPiLibrary extends PublishedLibrary {
         pyPiLibrary.Repo = this.RepoOverride;
         libraryDTO.PyPi = pyPiLibrary;
         return libraryDTO;
+    }
+
+    public void uninstall(InteractiveCluster cluster) throws HttpException {
+        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
+        clusterLibraryRequest.ClusterId = cluster.Id;
+
+        LibraryDTO[] libraries = new LibraryDTO[1];
+        libraries[0] = this.createLibraryDTO();
+        clusterLibraryRequest.Libraries = libraries;
+
+        _client.uninstallLibraries(clusterLibraryRequest);
     }
 }

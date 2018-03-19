@@ -19,7 +19,7 @@ public class AddBlockRequestDTO {
     public long Handle;
 
     @JsonProperty("data")
-    public byte[] Data;
+    public String Data;
 
     @Override
     public String toString() {

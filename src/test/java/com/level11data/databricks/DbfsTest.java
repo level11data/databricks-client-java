@@ -1,7 +1,6 @@
 package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
-import com.level11data.databricks.client.DbfsClient;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.dbfs.DbfsFileInfo;
 import org.junit.Assert;
@@ -94,9 +93,6 @@ public class DbfsTest {
         String dbfsPath = "/jason/tmp/test/"+now+"/large-file.zip";
         String tmpPath = "/tmp/"+now+"-large-file.zip";
 
-        //DEBUG
-        System.out.println("DBFS Path: " + dbfsPath);
-
         File file = new File(localPath);
         long srcFileSize = file.length();
 
@@ -115,54 +111,11 @@ public class DbfsTest {
 
         long downloadedFileSize = new File(tmpPath).length();
 
-        //DEBUG
-        System.out.println("Downloaded Tmp Path: " + tmpPath);
-        System.out.println("Downloaded File Size: " + downloadedFileSize);
-
-        Assert.assertEquals("Pre-uploaded file size is different from file size after download",
-                srcFileSize, downloadedFileSize);
+        Assert.assertEquals("Downloaded file size is different from file size on DBFS",
+                _databricks.getDbfsObjectStatus(dbfsPath).FileSize, downloadedFileSize);
 
         //cleanup test files
-        //_databricks.deleteDbfsObject(dbfsPath, false);
-        //new File(tmpPath).delete();
-    }
-
-    @Test
-    public void testPutSmallFile() throws Exception {
-        long now = System.currentTimeMillis();
-
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile(); //less than 1MB
-        String dbfsPath = "/jason/tmp/test/"+now+"/"+SIMPLE_JAR_RESOURCE_NAME;
-        String tmpPath = "/tmp/"+now+"-"+SIMPLE_JAR_RESOURCE_NAME;
-
-        File file = new File(localPath);
-        long srcFileSize = file.length();
-
-        DbfsClient dbfsClient = new DbfsClient(_databricks);
-
-        //DOES THIS WORK?
-        dbfsClient.put(file, dbfsPath);
-
-
-        DbfsFileInfo fileStatus = _databricks.getDbfsObjectStatus(dbfsPath);
-
-        Assert.assertEquals("Object on DBFS is incorrectly classified as a directory",
-                false, fileStatus.IsDir);
-
-        byte[] downloadedBytes = _databricks.getDbfsObject(dbfsPath);
-
-        FileOutputStream fos = new FileOutputStream(tmpPath);
-        fos.write(downloadedBytes);
-        fos.close();
-
-        long downloadedFileSize = new File(tmpPath).length();
-
-        Assert.assertEquals("Pre-uploaded file size is different from file size after download",
-                srcFileSize, downloadedFileSize);
-
-        //cleanup test files
-        //_databricks.deleteDbfsObject(dbfsPath, false);
+        _databricks.deleteDbfsObject(dbfsPath, false);
         new File(tmpPath).delete();
     }
 

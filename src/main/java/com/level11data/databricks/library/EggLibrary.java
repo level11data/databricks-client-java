@@ -2,6 +2,7 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
+import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
@@ -38,4 +39,14 @@ public class EggLibrary extends PrivateLibrary {
         return libraryDTO;
     }
 
+    public void uninstall(InteractiveCluster cluster) throws HttpException {
+        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
+        clusterLibraryRequest.ClusterId = cluster.Id;
+
+        LibraryDTO[] libraries = new LibraryDTO[1];
+        libraries[0] = this.createLibraryDTO();
+        clusterLibraryRequest.Libraries = libraries;
+
+        _client.uninstallLibraries(clusterLibraryRequest);
+    }
 }

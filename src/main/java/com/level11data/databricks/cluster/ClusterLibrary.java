@@ -28,4 +28,8 @@ public class ClusterLibrary {
         }
     }
 
+    public void uninstall() throws HttpException {
+        Library.uninstall(Cluster);
+    }
+
 }
