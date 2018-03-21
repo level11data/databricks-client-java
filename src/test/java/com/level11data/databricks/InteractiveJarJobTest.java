@@ -65,7 +65,7 @@ public class InteractiveJarJobTest {
 
 
         //Create Job
-        InteractiveJarJob job = cluster.createJarJob(new URI(dbfsPath),
+        InteractiveJarJob job = cluster.createJob(new URI(dbfsPath),
                 jarFile,
                 "com.level11data.example.scala.simpleapp.SimpleApp",
                 baseParams)

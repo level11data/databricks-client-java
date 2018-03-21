@@ -1,12 +1,14 @@
 package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;
 
 public interface ILibrary {
 
-    LibraryDTO createLibraryDTO();
+    LibraryStatus getClusterStatus(InteractiveCluster cluster) throws HttpException, LibraryConfigException;
+
+    ClusterLibrary install(InteractiveCluster cluster) throws HttpException;
 
     void uninstall(InteractiveCluster cluster) throws HttpException;
 }

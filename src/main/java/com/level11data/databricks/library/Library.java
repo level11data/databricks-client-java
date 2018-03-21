@@ -1,7 +1,9 @@
 package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.LibrariesClient;
+import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.cluster.InteractiveCluster;
 
 public abstract class Library implements ILibrary {
 
@@ -9,6 +11,17 @@ public abstract class Library implements ILibrary {
 
     protected Library(LibrariesClient client) {
         _client = client;
+    }
+
+    protected ClusterLibraryRequestDTO createLibraryRequest(InteractiveCluster cluster, LibraryDTO libraryDTO) {
+        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
+        clusterLibraryRequest.ClusterId = cluster.Id;
+
+        LibraryDTO[] libraries = new LibraryDTO[1];
+        libraries[0] = libraryDTO;
+        clusterLibraryRequest.Libraries = libraries;
+
+        return clusterLibraryRequest;
     }
 
     @Override

@@ -3,7 +3,9 @@ package com.level11data.databricks.library;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.libraries.*;
+import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;
+import com.level11data.databricks.library.util.LibraryHelper;
 
 public class CranLibrary extends PublishedLibrary {
     private final LibrariesClient _client;
@@ -40,24 +42,13 @@ public class CranLibrary extends PublishedLibrary {
                 " Not Associated With Cluster Id " + cluster.Id);
     }
 
-    public LibraryDTO createLibraryDTO() {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        RCranLibraryDTO cranLibraryDTO = new RCranLibraryDTO();
-        cranLibraryDTO.Package = this.PackageName;
-        cranLibraryDTO.Repo = this.RepoOverride;
-        libraryDTO.Cran = cranLibraryDTO;
-        return libraryDTO;
+    public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {
+        _client.installLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
+        return new ClusterLibrary(cluster, this);
     }
 
     public void uninstall(InteractiveCluster cluster) throws HttpException {
-        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
-        clusterLibraryRequest.ClusterId = cluster.Id;
-
-        LibraryDTO[] libraries = new LibraryDTO[1];
-        libraries[0] = this.createLibraryDTO();
-        clusterLibraryRequest.Libraries = libraries;
-
-        _client.uninstallLibraries(clusterLibraryRequest);
+        _client.uninstallLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
     }
 
 }

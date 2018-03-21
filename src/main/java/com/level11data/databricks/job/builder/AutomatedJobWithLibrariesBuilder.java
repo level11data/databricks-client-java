@@ -3,13 +3,11 @@ package com.level11data.databricks.job.builder;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryDTO;
-import com.level11data.databricks.client.entities.libraries.MavenLibraryDTO;
-import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO;
-import com.level11data.databricks.client.entities.libraries.RCranLibraryDTO;
+import com.level11data.databricks.client.entities.libraries.*;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.library.PrivateLibrary;
+import com.level11data.databricks.library.util.LibraryHelper;
 import com.level11data.databricks.util.FileUtils;
 
 import java.io.File;
@@ -41,7 +39,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
 
         if(library != null) {
             _libraries.add(library);  //will maintain library object reference to Job
-            _libraryDTOs.add(library.createLibraryDTO()); //needed to create job via API
+            _libraryDTOs.add(LibraryHelper.createLibraryDTO(library)); //needed to create job via API
         }
 
         if(libraryFile != null) {
@@ -55,9 +53,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
     }
 
     protected AutomatedJobWithLibrariesBuilder withJarLibrary(URI uri) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        libraryDTO.Jar = uri.toString();
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createJarLibraryDTO(uri));
         return this;
     }
 
@@ -67,9 +63,7 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
     }
 
     protected AutomatedJobWithLibrariesBuilder withEggLibrary(URI uri) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        libraryDTO.Egg = uri.toString();
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createEggLibraryDTO(uri));
         return this;
     }
 
@@ -79,80 +73,42 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
     }
 
     protected AutomatedJobWithLibrariesBuilder withMavenLibrary(String coordinates) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
-        mavenDTO.Coordinates = coordinates;
-        libraryDTO.Maven = mavenDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createMavenLibraryDTO(coordinates));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withMavenLibrary(String coordinates, String repo) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
-        mavenDTO.Coordinates = coordinates;
-        mavenDTO.Repo = repo;
-        libraryDTO.Maven = mavenDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createMavenLibraryDTO(coordinates, repo));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withMavenLibrary(String coordinates, String repo, String[] exclusions) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
-        mavenDTO.Coordinates = coordinates;
-        mavenDTO.Repo = repo;
-        mavenDTO.Exclusions = exclusions;
-        libraryDTO.Maven = mavenDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createMavenLibraryDTO(coordinates, repo, exclusions));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withMavenLibrary(String coordinates, String[] exclusions) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
-        mavenDTO.Coordinates = coordinates;
-        mavenDTO.Exclusions = exclusions;
-        libraryDTO.Maven = mavenDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createMavenLibraryDTO(coordinates, exclusions));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withPyPiLibrary(String packageName)  {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        PythonPyPiLibraryDTO piPyDTO = new PythonPyPiLibraryDTO();
-        piPyDTO.Package = packageName;
-        libraryDTO.PyPi = piPyDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createPyPiLibraryDTO(packageName));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withPyPiLibrary(String packageName, String repo) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        PythonPyPiLibraryDTO piPyDTO = new PythonPyPiLibraryDTO();
-        piPyDTO.Package = packageName;
-        piPyDTO.Repo = repo;
-        libraryDTO.PyPi = piPyDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createPyPiLibraryDTO(packageName, repo));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withCranLibrary(String packageName) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        RCranLibraryDTO cranDTO = new RCranLibraryDTO();
-        cranDTO.Package = packageName;
-        libraryDTO.Cran = cranDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createCranLibraryDTO(packageName));
         return this;
     }
 
     protected AutomatedJobWithLibrariesBuilder withCranLibrary(String packageName, String repo) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        RCranLibraryDTO cranDTO = new RCranLibraryDTO();
-        cranDTO.Package = packageName;
-        cranDTO.Repo = repo;
-        libraryDTO.Cran = cranDTO;
-        _libraryDTOs.add(libraryDTO);
+        _libraryDTOs.add(LibraryHelper.createCranLibraryDTO(packageName, repo));
         return this;
     }
 

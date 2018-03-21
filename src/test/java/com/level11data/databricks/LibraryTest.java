@@ -55,7 +55,9 @@ public class LibraryTest {
         library.upload(jarFile);
 
         //Create Interactive Cluster
-        String clusterName = this.getClass().getName() + " " + now;
+        String clusterName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
         int numberOfExecutors = 1;
 
         InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)

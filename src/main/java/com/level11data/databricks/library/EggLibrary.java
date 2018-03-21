@@ -6,7 +6,9 @@ import com.level11data.databricks.client.entities.libraries.ClusterLibraryReques
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
+import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;
+import com.level11data.databricks.library.util.LibraryHelper;
 
 import java.net.URI;
 
@@ -33,20 +35,12 @@ public class EggLibrary extends PrivateLibrary {
                 " Not Associated With Cluster Id " + cluster.Id);
     }
 
-    public LibraryDTO createLibraryDTO() {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        libraryDTO.Egg = this.Uri.toString();
-        return libraryDTO;
+    public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {
+        _client.installLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
+        return new ClusterLibrary(cluster, this);
     }
 
     public void uninstall(InteractiveCluster cluster) throws HttpException {
-        ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
-        clusterLibraryRequest.ClusterId = cluster.Id;
-
-        LibraryDTO[] libraries = new LibraryDTO[1];
-        libraries[0] = this.createLibraryDTO();
-        clusterLibraryRequest.Libraries = libraries;
-
-        _client.uninstallLibraries(clusterLibraryRequest);
+        _client.uninstallLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
     }
 }
