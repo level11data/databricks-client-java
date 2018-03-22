@@ -44,16 +44,24 @@ public class InteractiveJarJobTest {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
-        String dbfsPath = "dbfs:/jason/tmp/test/" + now + "/" + SIMPLE_JAR_RESOURCE_NAME;
+
+        //Set to ClassName.MethodName-TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" +now;
+
+        String dbfsPath = "dbfs:/tmp/test/" + uniqueName + "/" + SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
 
         System.out.println(jarFile.toString());
 
-        //Create Interactive Cluster
-        String clusterName = "testInteractiveJarJob " + now;
-        int numberOfExecutors = 1;
+        //Set cluster name to ClassName.MethodName TIMESTAMP
+        String clusterName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
 
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
+        //Create Interactive Cluster
+        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("4.0.x-scala2.11") //must be a Spark 1.6.x cluster
                 .withNodeType("i3.xlarge")
@@ -62,7 +70,6 @@ public class InteractiveJarJobTest {
         List<String> baseParams = new ArrayList<String>();
         baseParams.add("hello");
         baseParams.add("world");
-
 
         //Create Job
         InteractiveJarJob job = cluster.createJob(new URI(dbfsPath),

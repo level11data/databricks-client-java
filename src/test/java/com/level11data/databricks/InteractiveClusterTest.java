@@ -34,10 +34,15 @@ public class InteractiveClusterTest {
     @Test
     public void testSimpleClusterFixedSize() throws Exception {
         long now = System.currentTimeMillis();
-        String clusterName = "test cluster fixed size " + now;
-        int numberOfExecutors = 1;
 
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
+
+        //Set cluster name to ClassName.MethodName TIMESTAMP
+        String clusterName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
+
+        //Create Interactive Cluster
+        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
@@ -63,7 +68,7 @@ public class InteractiveClusterTest {
                 ClusterState.RUNNING, cluster.getState());
 
         Assert.assertEquals("Simple Fixed Size InteractiveCluster was NOT created with expected number of executors",
-                numberOfExecutors, cluster.getExecutors().size());
+                1, cluster.getExecutors().size());
 
         //TODO Change the Default Spark Version from "Spark 1.6.2 (Hadoop 1)"
         //Assert.assertEquals("Simple Fixed Size InteractiveCluster Spark Version does NOT match default",
@@ -89,8 +94,7 @@ public class InteractiveClusterTest {
         Assert.assertEquals("Simple Fixed Size InteractiveCluster did NOT enter a RUNNING state after restart",
                 ClusterState.RUNNING, cluster.getState());
 
-        numberOfExecutors = 0;
-        cluster = cluster.resize(numberOfExecutors);
+        cluster = cluster.resize(0);
 
         Assert.assertEquals("Simple Fixed Size InteractiveCluster did NOT enter a RESIZING state after resize",
                 ClusterState.RESIZING, cluster.getState());
@@ -103,7 +107,7 @@ public class InteractiveClusterTest {
                 ClusterState.RUNNING, cluster.getState());
 
         Assert.assertEquals("Simple Fixed Size InteractiveCluster was NOT resized with expected number of executors",
-                numberOfExecutors, cluster.getExecutors().size());
+                0, cluster.getExecutors().size());
 
         cluster.terminate();
 
@@ -121,7 +125,14 @@ public class InteractiveClusterTest {
     @Test
     public void testSimpleClusterAutoscaling() throws Exception {
         long now = System.currentTimeMillis();
-        String clusterName = "test cluster autoscaling " + now;
+
+
+        //Set cluster name to ClassName.MethodName TIMESTAMP
+        String clusterName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
+
+        //Create Interactive Cluster
         Integer minWorkers = 0;
         Integer maxWorkers = 1;
 
@@ -151,23 +162,12 @@ public class InteractiveClusterTest {
                 ClusterState.RUNNING, cluster.getState());
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT created with expected MINIMUM number of workers",
-                cluster.AutoScale.MinWorkers, minWorkers);
+                minWorkers, cluster.AutoScale.MinWorkers);
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT created with expected MAXIMUM number of workers",
-                cluster.AutoScale.MaxWorkers, maxWorkers);
+                maxWorkers, cluster.AutoScale.MaxWorkers);
 
-        //TODO Change the Default Spark Version from "Spark 1.6.2 (Hadoop 1)"
-        //Assert.assertEquals("Simple Autoscaling InteractiveCluster Spark Version does NOT match default",
-        //        _databricks.getDefaultSparkVersion(), cluster.SparkVersion);
-
-        //TODO Change the Default Node Type from "Memory Optimized"
-        //Assert.assertEquals("Simple Autoscaling InteractiveCluster Node Type does NOT match default",
-        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
-
-        //TODO Change the Default Node Type from "Memory Optimized"
-        //Assert.assertEquals("Simple Autoscaling InteractiveCluster Driver Node Type does NOT match default",
-        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
-
+        //TODO allow default cluster config overrides in Databricks Config File
         cluster.restart();
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster did NOT enter a RESTARTING state after restart",

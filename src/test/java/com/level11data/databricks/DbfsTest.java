@@ -37,7 +37,13 @@ public class DbfsTest {
         long now = System.currentTimeMillis();
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        String dbfsPath = "/jason/tmp/test/"+now+"/test-dir";
+
+        //Set to ClassName.MethodName-TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" +now;
+
+        String dbfsPath = "/tmp/test/"+uniqueName+"/test-dir";
 
         _databricks.mkdirsDbfs(dbfsPath);
         DbfsFileInfo fileInfo = _databricks.getDbfsObjectStatus(dbfsPath);
@@ -55,7 +61,14 @@ public class DbfsTest {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile(); //less than 1MB
-        String dbfsPath = "/jason/tmp/test/"+now+"/"+SIMPLE_JAR_RESOURCE_NAME;
+
+        //Set to ClassName.MethodName-TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" +now;
+
+        String dbfsPath = "/tmp/test/"+uniqueName+"/"+SIMPLE_JAR_RESOURCE_NAME;
+
         String tmpPath = "/tmp/"+now+"-"+SIMPLE_JAR_RESOURCE_NAME;
 
         File file = new File(localPath);
@@ -90,7 +103,13 @@ public class DbfsTest {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource("large-file.zip").getFile(); //greater than 1MB
-        String dbfsPath = "/jason/tmp/test/"+now+"/large-file.zip";
+
+        //Set to ClassName.MethodName-TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" +now;
+
+        String dbfsPath = "/tmp/test/"+uniqueName+"/large-file.zip";
         String tmpPath = "/tmp/"+now+"-large-file.zip";
 
         File file = new File(localPath);

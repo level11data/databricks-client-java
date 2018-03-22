@@ -38,7 +38,11 @@ public class AutomatedNotebookJobTest {
     @Test
     public void testSimpleAutomatedNotebookJob() throws Exception {
         long now = System.currentTimeMillis();
-        int numberOfExecutors = 1;
+
+        //Set job name to ClassName.MethodName TIMESTAMP
+        String jobName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
 
         //create job
         //TODO Implement Workspace API to import notebook from resources
@@ -46,7 +50,7 @@ public class AutomatedNotebookJobTest {
         Notebook notebook = new Notebook(notebookPath);
 
         AutomatedNotebookJob job = _databricks.createJob(notebook)
-                .withName("testSimpleAutomatedNotebookJob " + now)
+                .withName(jobName)
                 .withClusterSpec(1)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
@@ -80,7 +84,11 @@ public class AutomatedNotebookJobTest {
     @Test
     public void testSimpleAutomatedNotebookJobWithParameters() throws Exception {
         long now = System.currentTimeMillis();
-        int numberOfExecutors = 1;
+
+        //Set cluster name to ClassName.MethodName TIMESTAMP
+        String jobName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
 
         //create job
         //TODO Implement Workspace API to import notebook from resources
@@ -92,7 +100,7 @@ public class AutomatedNotebookJobTest {
         parameters.put("parameter2", "World");
 
         AutomatedNotebookJob job = _databricks.createJob(notebook, parameters)
-                .withName("testSimpleAutomatedNotebookJobWithParameters "+now)
+                .withName(jobName)
                 .withClusterSpec(1)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")

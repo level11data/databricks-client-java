@@ -37,10 +37,14 @@ public class InteractiveNotebookJobTest {
     @Test
     public void testSimpleInteractiveNotebookJob() throws Exception {
         long now = System.currentTimeMillis();
-        String clusterName = "test simple interactive notebook job " + now;
-        int numberOfExecutors = 1;
 
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
+        //Set cluster name to ClassName.MethodName TIMESTAMP
+        String clusterName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
+
+        //Create Interactive Cluster
+        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
@@ -88,10 +92,15 @@ public class InteractiveNotebookJobTest {
     @Test
     public void testSimpleInteractiveNotebookJobWithParams() throws Exception {
         long now = System.currentTimeMillis();
-        String clusterName = "test simple interactive notebook job with params" + now;
-        int numberOfExecutors = 1;
 
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
+
+        //Set cluster name to ClassName.MethodName TIMESTAMP
+        String clusterName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
+
+        //Create Interactive Cluster
+        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")

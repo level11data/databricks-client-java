@@ -16,7 +16,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 
 public class LibraryTest {
@@ -47,37 +46,35 @@ public class LibraryTest {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
-        String dbfsPath = "dbfs:/jason/tmp/test/"+now+"/spark-simpleapp-sbt_2.10-1.0.jar";
+
+        //Set to ClassName.MethodName-TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" +now;
+
+        String dbfsPath = "dbfs:/tmp/test/"+uniqueName+"/spark-simpleapp-sbt_2.10-1.0.jar";
         File jarFile = new File(localPath);
 
         //Create Library and Upload to DBFS
         JarLibrary library = _databricks.getJarLibrary(new URI(dbfsPath));
         library.upload(jarFile);
 
-        //Create Interactive Cluster
-        String clusterName = this.getClass().getSimpleName() + "." +
-                Thread.currentThread().getStackTrace()[1].getMethodName() +
-                " " +now;
-        int numberOfExecutors = 1;
+        //Set cluster name to ClassName.MethodName-TIMESTAMP
+        String clusterName = uniqueName;
 
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
+        //Create Interactive Cluster
+        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
                 .withLibrary(library)  //THIS IS WHAT I'm TESTING
                 .create();
 
-        System.out.println("Cluster State        : " + cluster.getState().toString());
-        System.out.println("Cluster State Message: " + cluster.getStateMessage());
-
         while(!cluster.getState().equals(ClusterState.RUNNING)) {
-            System.out.println("Cluster State        : " + cluster.getState().toString());
-            System.out.println("Cluster State Message: " + cluster.getStateMessage());
+            //System.out.println("Cluster State        : " + cluster.getState().toString());
+            //System.out.println("Cluster State Message: " + cluster.getStateMessage());
             Thread.sleep(5000); //wait 5 seconds
         }
-
-        System.out.println("Cluster State        : " + cluster.getState().toString());
-        System.out.println("Cluster State Message: " + cluster.getStateMessage());
 
         //test to make sure that library was attached to cluster
         List<ClusterLibrary> clusterLibraries = cluster.getLibraries();
@@ -99,6 +96,23 @@ public class LibraryTest {
         //test to make sure cluster library status is INSTALLED
         Assert.assertEquals("Library Install Status is NOT INSTALLED",
                 LibraryInstallStatus.INSTALLED, clusterLibraries.get(0).getLibraryStatus().InstallStatus);
+
+        //Run an Interactive Notebook Job (without including library) to see if
+        // the notebook is able to import the library (which is already attached)
+        //TODO Implement Workspace API to import notebook from resources
+        String notebookPath = "/Users/" + "jason@databricks.com" + "/test-notebook-jar-library";
+        Notebook notebook = new Notebook(notebookPath);
+
+        InteractiveNotebookJob job = cluster.createJob(notebook).withName(clusterName).create();
+
+        //run job
+        InteractiveNotebookJobRun jobRun = job.run();
+
+        while(!jobRun.getRunState().LifeCycleState.isFinal()) {
+            Thread.sleep(5000); //wait 5 seconds
+        }
+
+        Assert.assertEquals("Job Output Does Not Match", "$$ Money Time $$", jobRun.getOutput());
 
         //Uninstall library
         clusterLibraries.get(0).uninstall();
@@ -127,99 +141,8 @@ public class LibraryTest {
                 1, cluster.getLibraries().size());
 
         //cleanup the test
-        _databricks.deleteDbfsObject(dbfsPath, false);
-        cluster.terminate();
-    }
-
-
-    @Test
-    public void testInteractiveNotebookJobWithDbfsLibrary() throws Exception {
-        long now = System.currentTimeMillis();
-
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
-        String dbfsPath = "dbfs:/jason/tmp/test/"+now+"/"+SIMPLE_JAR_RESOURCE_NAME;
-        File jarFile = new File(localPath);
-
-        //Create Library and Upload to DBFS
-        JarLibrary library = _databricks.getJarLibrary(new URI(dbfsPath));
-        library.upload(jarFile);
-
-        //Create Interactive Cluster
-        String clusterName = this.getClass().getName() + " " + now;
-        int numberOfExecutors = 1;
-
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, numberOfExecutors)
-                .withAutoTerminationMinutes(20)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
-                .create();
-
-
-        //System.out.println("Cluster State        : " + cluster.getState().toString());
-        //System.out.println("Cluster State Message: " + cluster.getStateMessage());
-
-        while(!cluster.getState().equals(ClusterState.RUNNING)) {
-            //System.out.println("Cluster State        : " + cluster.getState().toString());
-            //System.out.println("Cluster State Final  : " + cluster.getState().isFinal());
-            //System.out.println("Cluster State Message: " + cluster.getStateMessage());
-            Thread.sleep(5000); //wait 5 seconds
-        }
-
-        //System.out.println("Cluster State        : " + cluster.getState().toString());
-        //System.out.println("Cluster State Message: " + cluster.getStateMessage());
-
-        //Install Library - maybe have to wait until after cluster is started?
-        cluster.installLibrary(library);
-
-        List<ClusterLibrary> clusterLibraries = cluster.getLibraries();
-        Assert.assertEquals("Number of installed libraries is NOT 1",
-                1, clusterLibraries.size());
-
-        Assert.assertEquals("Installed library on cluster is NOT a JarLibrary",
-                JarLibrary.class.getTypeName(), clusterLibraries.get(0).Library.getClass().getTypeName());
-
-        Assert.assertEquals("Library object reference does NOT match",
-                library, clusterLibraries.get(0).Library);
-
-        while(!clusterLibraries.get(0).getLibraryStatus().InstallStatus.isFinal()){
-            System.out.println("InstallStatus="+clusterLibraries.get(0).getLibraryStatus().InstallStatus);
-            Thread.sleep(5000); //wait 5 seconds
-        }
-
-        Assert.assertEquals("Library Install Status is NOT INSTALLED",
-                LibraryInstallStatus.INSTALLED, clusterLibraries.get(0).getLibraryStatus().InstallStatus);
-
-        if(clusterLibraries.get(0).getLibraryStatus().Messages != null) {
-            int index = 0;
-            while(index < clusterLibraries.get(0).getLibraryStatus().Messages.length) {
-                System.out.println("Messages="+clusterLibraries.get(0).getLibraryStatus().Messages[index].toString());
-                index ++;
-            }
-        }
-
-        //create job - Job keeps failing due to Scala version conflicts, but I can get it to run manually through UI
-        //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + "jason@databricks.com" + "/test-notebook-jar-library";
-        Notebook notebook = new Notebook(notebookPath);
-
-        InteractiveNotebookJob job = cluster.createJob(notebook)
-                .withName("testRunningInteractiveClusterDbfsLibrary "+now)
-                .create();
-
-        //run job
-        InteractiveNotebookJobRun jobRun = job.run();
-
-        while(!jobRun.getRunState().LifeCycleState.isFinal()) {
-            Thread.sleep(5000); //wait 5 seconds
-        }
-
-        Assert.assertEquals("Job Output Does Not Match", "$$ Money Time $$",
-                jobRun.getOutput());
-
-        //cleanup
-        _databricks.deleteDbfsObject(dbfsPath, false);
         job.delete();
+        _databricks.deleteDbfsObject(dbfsPath, false);
         cluster.terminate();
     }
 }

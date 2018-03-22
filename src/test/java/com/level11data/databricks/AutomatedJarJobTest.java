@@ -45,20 +45,24 @@ public class AutomatedJarJobTest {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String localPath = loader.getResource(SIMPLE_JAR_RESOURCE_NAME).getFile();
-        String dbfsPath = "dbfs:/jason/tmp/test/" + now + "/" + SIMPLE_JAR_RESOURCE_NAME;
+
+        //Set to ClassName.MethodName-TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" +now;
+
+        String dbfsPath = "dbfs:/tmp/test/" + uniqueName + "/" + SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
         JarLibrary jarLibrary = _databricks.getJarLibrary(new URI(dbfsPath));
 
-
         //create job
-        String jobName = "testAutomatedJarJob " + now;
+        String jobName = uniqueName;
         String mainClass = "com.level11data.example.scala.simpleapp.SimpleApp";
         List<String> params = new ArrayList<String>();
         params.add("hello");
         params.add("world");
 
         AutomatedJarJob job = _databricks.createJob(jarLibrary, mainClass, jarFile, params)
-        //AutomatedJarJob job = _databricks.createJob(jarLibrary, mainClass, params)
                 .withName(jobName)
                 .withClusterSpec(1)
                 .withSparkVersion("3.4.x-scala2.11")
