@@ -5,6 +5,7 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
+import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.clusters.AutoScaleDTO;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
@@ -161,8 +162,23 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
 
         //create cluster via client
         clusterInfoDTO.ClusterId = _client.create(clusterInfoDTO);
-
         InteractiveCluster cluster = new InteractiveCluster(_client, clusterInfoDTO);
+
+        if(_libraries.size() > 0) {
+            //TODO include wait step in future on Library.install
+            ClusterState clusterState = cluster.getState();
+            if(!clusterState.isFinal()) {
+                while(!cluster.getState().equals(ClusterState.RUNNING)) {
+                    try {
+                        Thread.sleep(5000); //wait 5 seconds
+                    } catch (InterruptedException e){
+                        //swallow
+                    }
+                }
+            } else {
+                throw new ClusterConfigException("Library cannot be attached to cluster because it is "+clusterState.toString());
+            }
+        }
 
         //install libraries
         for (Library library : _libraries) {
