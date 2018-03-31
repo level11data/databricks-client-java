@@ -5,7 +5,8 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.*;
-import com.level11data.databricks.library.Library;
+import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
+import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
 

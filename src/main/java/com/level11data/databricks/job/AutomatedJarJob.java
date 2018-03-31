@@ -6,6 +6,8 @@ import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
+import com.level11data.databricks.job.run.AutomatedJarJobRun;
+import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 

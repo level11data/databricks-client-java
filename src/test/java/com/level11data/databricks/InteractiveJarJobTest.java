@@ -4,9 +4,7 @@ import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.InteractiveJarJob;
-import com.level11data.databricks.job.InteractiveJarJobRun;
-import com.level11data.databricks.job.RunState;
-import org.junit.Assert;
+import com.level11data.databricks.job.run.InteractiveJarJobRun;
 import org.junit.Test;
 
 import java.io.File;

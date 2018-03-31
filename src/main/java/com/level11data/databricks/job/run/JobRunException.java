@@ -1,4 +1,4 @@
-package com.level11data.databricks.job;
+package com.level11data.databricks.job.run;
 
 public class JobRunException extends Exception {
     public JobRunException() {

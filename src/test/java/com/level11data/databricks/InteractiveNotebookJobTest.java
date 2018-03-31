@@ -5,7 +5,7 @@ import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.InteractiveNotebookJob;
-import com.level11data.databricks.job.InteractiveNotebookJobRun;
+import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
 import com.level11data.databricks.workspace.Notebook;
 import org.junit.Assert;
 import org.junit.Test;

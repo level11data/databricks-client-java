@@ -1,9 +1,10 @@
-package com.level11data.databricks.job;
+package com.level11data.databricks.job.run;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
+import com.level11data.databricks.job.TriggerType;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.library.util.LibraryHelper;

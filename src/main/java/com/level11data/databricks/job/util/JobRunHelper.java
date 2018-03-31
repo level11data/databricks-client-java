@@ -3,8 +3,7 @@ package com.level11data.databricks.job.util;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobRunOutputDTO;
-import com.level11data.databricks.job.JobRunException;
-import com.level11data.databricks.job.RunLifeCycleState;
+import com.level11data.databricks.job.run.JobRunException;
 
 public class JobRunHelper {
 

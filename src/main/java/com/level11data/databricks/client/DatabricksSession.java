@@ -13,6 +13,8 @@ import com.level11data.databricks.dbfs.DbfsFileInfo;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
+import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
+import com.level11data.databricks.job.run.JobRun;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;

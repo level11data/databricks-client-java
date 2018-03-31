@@ -7,6 +7,8 @@ import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
+import com.level11data.databricks.job.run.InteractiveJarJobRun;
+import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.LibraryConfigException;
 import java.net.URISyntaxException;
 import java.util.List;

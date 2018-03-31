@@ -1,4 +1,4 @@
-package com.level11data.databricks.job;
+package com.level11data.databricks.job.run;
 
 public enum RunLifeCycleState {
     PENDING, RUNNING, TERMINATING, TERMINATED, SKIPPED, INTERNAL_ERROR;

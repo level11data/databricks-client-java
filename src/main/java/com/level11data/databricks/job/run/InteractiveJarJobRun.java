@@ -1,4 +1,4 @@
-package com.level11data.databricks.job;
+package com.level11data.databricks.job.run;
 
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;

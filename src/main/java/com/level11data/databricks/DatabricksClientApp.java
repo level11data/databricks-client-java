@@ -1,18 +1,11 @@
 package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
-import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.SparkVersion;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.client.entities.jobs.JobDTO;
-import com.level11data.databricks.job.AutomatedNotebookJob;
-import com.level11data.databricks.job.AutomatedNotebookJobRun;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-
-import org.apache.commons.configuration2.Configuration;
 
 public class DatabricksClientApp {
 
