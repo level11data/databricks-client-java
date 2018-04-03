@@ -25,7 +25,7 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
-                                    URI jarLibraryLocation,
+                                    URI jarLibraryLocation,  //TODO replace this with JarLibrary
                                     String mainClassName) {
         this(client, cluster, jarLibraryLocation, null, mainClassName,new ArrayList<String>());
     }

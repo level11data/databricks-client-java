@@ -33,7 +33,7 @@ public class AutomatedNotebookJob extends AutomatedJob {
         super(client, client.createJob(jobSettingsDTO), jobSettingsDTO);
         _client = client;
 
-        //Validate that the DTO represents an AutomatedNotebookJob
+        //Validate DTO for this Job Type
         JobValidation.validateAutomatedNotebookJob(jobSettingsDTO);
 
         Notebook = notebook;
@@ -46,7 +46,7 @@ public class AutomatedNotebookJob extends AutomatedJob {
     }
 
     /**
-     * Create a Notebook Job on an Interactive Cluster using a Job DTO object
+     * Create a Notebook Job on an Automated Cluster using a Job DTO object
      *
      * @param client
      * @param jobDTO
@@ -60,7 +60,7 @@ public class AutomatedNotebookJob extends AutomatedJob {
 
         _client = client;
 
-        //Validate that the DTO represents an AutomatedNotebookJob
+        //Validate DTO for this Job Type
         JobValidation.validateAutomatedNotebookJob(jobDTO);
 
         Notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);

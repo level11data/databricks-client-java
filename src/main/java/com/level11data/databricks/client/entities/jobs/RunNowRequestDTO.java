@@ -21,6 +21,12 @@ public class RunNowRequestDTO {
     @JsonProperty("jar_params")
     public String[] JarParams;
 
+    @JsonProperty("python_params")
+    public String[] PythonParams;
+
+    @JsonProperty("spark_submit_params")
+    public String[] SparkSubmitParams;
+
     @JsonProperty("notebook_params")
     public Map<String,String> NotebookParams;
 

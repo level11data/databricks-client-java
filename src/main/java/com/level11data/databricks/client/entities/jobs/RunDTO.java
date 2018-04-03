@@ -87,7 +87,7 @@ public class RunDTO {
     public boolean isJarJob() { return Task.SparkJarTask != null; }
 
     @JsonIgnore
-    public boolean isEggJob() { return Task.SparkPythonTask != null; }
+    public boolean isPythonJob() { return Task.SparkPythonTask != null; }
 
     @JsonIgnore
     public boolean isSparkSubmitJob() {return Task.SparkSubmitTask != null; }

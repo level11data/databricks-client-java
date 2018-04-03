@@ -8,7 +8,8 @@ import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.library.PrivateLibrary;
 import com.level11data.databricks.library.util.LibraryHelper;
-import com.level11data.databricks.util.FileUtils;
+import com.level11data.databricks.util.ResourceConfigException;
+import com.level11data.databricks.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +22,9 @@ import java.util.Map;
 public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuilder {
 
     private JobsClient _client;
-    private ArrayList<LibraryDTO> _libraryDTOs = new ArrayList<LibraryDTO>();
-    private ArrayList<Library> _libraries = new ArrayList<Library>();
-    private Map<URI, File> _libraryFileMap = new HashMap<URI, File>();
+    private ArrayList<LibraryDTO> _libraryDTOs = new ArrayList<>();
+    private ArrayList<Library> _libraries = new ArrayList<>();
+    private Map<URI, File> _libraryFileMap = new HashMap<>();
 
     public AutomatedJobWithLibrariesBuilder(JobsClient client) {
         this(client, null, null);
@@ -126,9 +127,17 @@ public abstract class AutomatedJobWithLibrariesBuilder extends AutomatedJobBuild
         _libraryFileMap.put(destination, libraryFile);
     }
 
-    protected void uploadLibraryFiles() throws HttpException, IOException, LibraryConfigException {
+    protected void uploadLibraryFiles() throws LibraryConfigException {
         for (URI uri : _libraryFileMap.keySet()) {
-            FileUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
+            try {
+                ResourceUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
+            } catch (ResourceConfigException e) {
+                throw new LibraryConfigException(e);
+            } catch (IOException e) {
+                throw new LibraryConfigException(e);
+            } catch (HttpException e) {
+                throw new LibraryConfigException(e);
+            }
         }
     }
 

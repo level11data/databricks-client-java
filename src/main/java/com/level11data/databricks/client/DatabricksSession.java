@@ -13,9 +13,11 @@ import com.level11data.databricks.dbfs.DbfsFileInfo;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
+import com.level11data.databricks.job.builder.AutomatedPythonJobBuilder;
 import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
 import com.level11data.databricks.job.run.JobRun;
 import com.level11data.databricks.library.*;
+import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
@@ -259,6 +261,22 @@ public class DatabricksSession {
         return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, jarFile, parameters);
     }
 
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, File pythonFile, List<String> parameters) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, pythonFile, parameters);
+    }
+
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, File pythonFile) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, pythonFile);
+    }
+
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript);
+    }
+
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, List<String> parameters) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, parameters);
+    }
+
     public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws FileNotFoundException, IOException, HttpException {
         DbfsHelper.putFile(getDbfsClient(), file, dbfsPath, overwrite);
     }
@@ -342,6 +360,10 @@ public class DatabricksSession {
 
     public CranLibrary getCranLibrary(String packageName, String repo) throws LibraryConfigException {
         return new CranLibrary(getLibrariesClient(), packageName, repo);
+    }
+
+    public PythonScript getPythonScript(URI uri) throws ResourceConfigException {
+        return new PythonScript(this, uri);
     }
 
 }

@@ -6,8 +6,10 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.LibrariesClient;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.libraries.*;
+import com.level11data.databricks.job.PythonScript;
 import com.level11data.databricks.job.builder.InteractiveJarJobBuilder;
 import com.level11data.databricks.job.builder.InteractiveNotebookJobBuilder;
+import com.level11data.databricks.job.builder.InteractivePythonJobBuilder;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.library.util.LibraryHelper;
 import com.level11data.databricks.workspace.Notebook;
@@ -128,23 +130,39 @@ public class InteractiveCluster extends Cluster{
         return new InteractiveNotebookJobBuilder(getOrCreateJobsClient(), this, notebook, baseParameters);
     }
 
+    //TODO change this from URI to JarLibrary
     public InteractiveJarJobBuilder createJob(URI jarLibrary, String mainClassName) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, mainClassName);
     }
 
+    //TODO change this from URI to JarLibrary
     public InteractiveJarJobBuilder createJob(URI jarLibrary, File jarFile, String mainClassName) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, jarFile, mainClassName);
     }
 
+    //TODO change this from URI to JarLibrary
     public InteractiveJarJobBuilder createJob(URI jarLibrary, String mainClassName,
                                               List<String> baseParameters) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, mainClassName, baseParameters);
     }
 
+    //TODO change this from URI to JarLibrary
     public InteractiveJarJobBuilder createJob(URI jarLibrary, File jarFile,
                                               String mainClassName,
                                               List<String> baseParameters) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, jarFile, mainClassName, baseParameters);
+    }
+
+    public InteractivePythonJobBuilder createJob(PythonScript pythonScript, File pythonFile, List<String> params) {
+        return new InteractivePythonJobBuilder(getOrCreateJobsClient(), this, pythonScript, pythonFile, params);
+    }
+
+    public InteractivePythonJobBuilder createJob(PythonScript pythonScript, File pythonFile) {
+        return new InteractivePythonJobBuilder(getOrCreateJobsClient(), this, pythonScript, pythonFile);
+    }
+
+    public InteractivePythonJobBuilder createJob(PythonScript pythonScript) {
+        return new InteractivePythonJobBuilder(getOrCreateJobsClient(), this, pythonScript);
     }
 
     private LibrariesClient getLibrariesClient() {

@@ -8,9 +8,9 @@ import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO
 import com.level11data.databricks.client.entities.libraries.RCranLibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
-import com.level11data.databricks.util.FileUtils;
+import com.level11data.databricks.util.ResourceConfigException;
+import com.level11data.databricks.util.ResourceUtils;
 import org.quartz.Trigger;
 
 import java.io.File;
@@ -23,7 +23,7 @@ import java.util.TimeZone;
 
 public abstract class InteractiveJobBuilder extends JobBuilder {
     private final JobsClient _client;
-    private ArrayList<LibraryDTO> _libraries = new ArrayList<LibraryDTO>();
+    private ArrayList<LibraryDTO> _libraries = new ArrayList<>();
     private Map<URI, File> _libraryFileMap = new HashMap<URI, File>();
 
     public final InteractiveCluster Cluster;
@@ -201,9 +201,17 @@ public abstract class InteractiveJobBuilder extends JobBuilder {
         _libraryFileMap.put(destination, libraryFile);
     }
 
-    protected void uploadLibraryFiles() throws HttpException, IOException, LibraryConfigException {
+    protected void uploadLibraryFiles() throws LibraryConfigException {
         for (URI uri : _libraryFileMap.keySet()) {
-            FileUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
+            try {
+                ResourceUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
+            } catch (HttpException e) {
+                throw new LibraryConfigException(e);
+            } catch (ResourceConfigException e) {
+                throw new LibraryConfigException(e);
+            } catch (IOException e) {
+                throw new LibraryConfigException(e);
+            }
         }
     }
 

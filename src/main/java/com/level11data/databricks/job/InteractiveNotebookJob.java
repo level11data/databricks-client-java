@@ -37,7 +37,7 @@ public class InteractiveNotebookJob extends InteractiveJob {
 
         _client = client;
 
-        //Validate that the DTO represents an InteractiveNotebookJob
+        //Validate DTO for this Job Type
         JobValidation.validateInteractiveNotebookJob(jobSettingsDTO);
 
         Notebook = notebook;
@@ -61,7 +61,7 @@ public class InteractiveNotebookJob extends InteractiveJob {
             throws JobConfigException, ClusterConfigException, HttpException, URISyntaxException, LibraryConfigException {
         super(client, client.Session.getCluster(jobDTO.Settings.ExistingClusterId), jobDTO.JobId, jobDTO.Settings);
 
-        //Validate that the DTO represents an InteractiveNotebookJob
+        //Validate DTO for this Job Type
         JobValidation.validateInteractiveNotebookJob(jobDTO);
 
         Notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);

@@ -7,9 +7,7 @@ import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
 import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.JobConfigException;
-import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
-import com.level11data.databricks.util.FileUtils;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
 

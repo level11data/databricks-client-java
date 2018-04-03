@@ -2,9 +2,7 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
-import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
-import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryFullStatusDTO;
 import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;

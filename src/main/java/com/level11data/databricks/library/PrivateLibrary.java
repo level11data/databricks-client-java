@@ -2,7 +2,8 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.LibrariesClient;
-import com.level11data.databricks.util.FileUtils;
+import com.level11data.databricks.util.ResourceConfigException;
+import com.level11data.databricks.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,27 +22,22 @@ public abstract class PrivateLibrary extends Library {
     }
 
     private void validate(URI uri) throws LibraryConfigException {
-        String scheme = uri.getScheme();
-        boolean isValid = false;
-
-        if(scheme == null) {
-            throw new LibraryConfigException("Library must be stored in dbfs or s3. Make sure the URI begins with 'dbfs:' or 's3:'");
-        } else if(scheme.equals("dbfs")) {
-            isValid = true;
-        } else if(scheme.equals("s3")) {
-            isValid = true;
-        } else if(scheme.equals("s3a")) {
-            isValid = true;
-        } else if(scheme.equals("s3n")) {
-            isValid = true;
-        }
-
-        if(!isValid) {
-            throw new LibraryConfigException(scheme + " is NOT a valid URI scheme");
+        try {
+            ResourceUtils.validate(uri);
+        } catch (ResourceConfigException e) {
+            throw new LibraryConfigException(e);
         }
     }
 
-    public void upload(File file) throws HttpException, IOException, LibraryConfigException {
-        FileUtils.uploadFile(_client.Session, file, Uri);
+    public void upload(File file) throws LibraryConfigException {
+        try {
+            ResourceUtils.uploadFile(_client.Session, file, Uri);
+        } catch(ResourceConfigException e) {
+            throw new LibraryConfigException(e);
+        } catch(HttpException e) {
+            throw new LibraryConfigException(e);
+        } catch(IOException e) {
+            throw new LibraryConfigException(e);
+        }
     }
 }

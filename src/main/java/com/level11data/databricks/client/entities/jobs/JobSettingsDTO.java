@@ -85,7 +85,7 @@ public class JobSettingsDTO {
     public boolean isJarJob() { return SparkJarTask != null; }
 
     @JsonIgnore
-    public boolean isEggJob() { return SparkPythonTask != null; }
+    public boolean isPythonJob() { return SparkPythonTask != null; }
 
     @JsonIgnore
     public boolean isSparkSubmitJob() {return SparkSubmitTask != null; }

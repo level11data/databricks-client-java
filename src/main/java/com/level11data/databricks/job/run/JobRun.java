@@ -10,17 +10,15 @@ import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.library.util.LibraryHelper;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 abstract public class JobRun {
     private String _sparkContextId;
     private Long _setupDuration;
     private Long _executionDuration;
     private Long _cleanupDuration;
-    private JobsClient _client;
+    private final JobsClient _client;
+    private final RunDTO _runDTO;
 
     public final long JobId;
     public final long RunId;
@@ -34,6 +32,7 @@ abstract public class JobRun {
 
     protected JobRun(JobsClient client, RunDTO runDTO) throws LibraryConfigException, URISyntaxException {
         _client = client;
+        _runDTO = runDTO;
         JobId = runDTO.JobId;
         RunId = runDTO.RunId;
         CreatorUserName = runDTO.CreatorUserName;
@@ -49,7 +48,7 @@ abstract public class JobRun {
             }
             Libraries = Collections.unmodifiableList(libraries);
         } else {
-            Libraries = Collections.unmodifiableList(new ArrayList<Library>());
+            Libraries = Collections.unmodifiableList(new ArrayList<>());
         }
 
     }
@@ -94,5 +93,93 @@ abstract public class JobRun {
             _cleanupDuration = run.CleanupDuration;
         }
         return _cleanupDuration;
+    }
+
+    private String[] getBaseParametersFromDTOAsArray() {
+        if(this instanceof AutomatedPythonJobRun) {
+            return _runDTO.Task.SparkPythonTask.Parameters;
+        } else if(this instanceof InteractivePythonJobRun) {
+            return _runDTO.Task.SparkPythonTask.Parameters;
+        } else if(this instanceof AutomatedJarJobRun) {
+            return _runDTO.Task.SparkJarTask.Parameters;
+        } else if(this instanceof InteractiveJarJobRun) {
+            return _runDTO.Task.SparkJarTask.Parameters;
+        } else {
+            return null;  //TODO include remaining JobRun types
+        }
+    }
+
+    private String[] getOverridingParametersFromDTOAsArray() {
+        if(_runDTO.OverridingParameters == null) return null;
+
+        if(this instanceof AutomatedPythonJobRun) {
+            return _runDTO.OverridingParameters.PythonParams;
+        } else if(this instanceof InteractivePythonJobRun) {
+            return _runDTO.OverridingParameters.PythonParams;
+        } else if(this instanceof AutomatedJarJobRun) {
+            return _runDTO.OverridingParameters.JarParams;
+        } else if(this instanceof InteractiveJarJobRun) {
+            return _runDTO.OverridingParameters.JarParams;
+        } else {
+            return null;  //TODO include remaining JobRun types
+        }
+    }
+
+    private Map<String,String> getBaseParametersFromDTOAsMap() {
+        if(this instanceof AutomatedNotebookJobRun) {
+            return _runDTO.Task.NotebookTask.BaseParameters;
+        } else if(this instanceof InteractiveNotebookJobRun) {
+            return _runDTO.Task.NotebookTask.BaseParameters;
+        } else {
+            return null;
+        }
+    }
+
+    private Map<String,String> getOverridingParametersFromDTOAsMap() {
+        if(_runDTO.OverridingParameters == null) return null;
+
+        if(this instanceof AutomatedNotebookJobRun) {
+            return _runDTO.OverridingParameters.NotebookParams;
+        } else if(this instanceof InteractiveNotebookJobRun) {
+            return _runDTO.OverridingParameters.NotebookParams;
+        } else {
+            return null;
+        }
+    }
+
+    protected List<String> getBaseParametersAsList() {
+        if(getBaseParametersFromDTOAsArray() != null) {
+            ArrayList<String> params = new ArrayList<>();
+            Collections.addAll(params, getBaseParametersFromDTOAsArray());
+            return Collections.unmodifiableList(params);
+        } else {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+    }
+
+    protected List<String> getOverridingParametersAsList() {
+        if(getOverridingParametersFromDTOAsArray() != null) {
+            ArrayList<String> params = new ArrayList<>();
+            Collections.addAll(params, getOverridingParametersFromDTOAsArray());
+            return Collections.unmodifiableList(params);
+        } else {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+    }
+
+    protected Map<String, String> getBaseParametersAsMap() {
+        if (getBaseParametersFromDTOAsMap() != null) {
+            return Collections.unmodifiableMap(getBaseParametersFromDTOAsMap());
+        } else {
+            return Collections.unmodifiableMap(new HashMap<>());
+        }
+    }
+
+    protected Map<String, String> getOverridingParametersAsMap() {
+        if (getOverridingParametersFromDTOAsMap() != null) {
+            return Collections.unmodifiableMap(getOverridingParametersFromDTOAsMap());
+        } else {
+            return Collections.unmodifiableMap(new HashMap<>());
+        }
     }
 }
