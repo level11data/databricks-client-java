@@ -175,23 +175,31 @@ public class AutomatedJarJobBuilder extends AutomatedJobWithLibrariesBuilder {
         return (AutomatedJarJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
-    public AutomatedJarJob create() throws HttpException, IOException, LibraryConfigException, JobConfigException, URISyntaxException {
-        //no validation to perform
-        JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
-        jobSettingsDTO = super.applySettings(jobSettingsDTO);
+    public AutomatedJarJob create() throws JobConfigException {
+        try {
+            //upload library files first
+            uploadLibraryFiles();
 
-        SparkJarTaskDTO jarTaskDTO = new SparkJarTaskDTO();
-        jarTaskDTO.MainClassName = _mainClassName;
+            //no validation to perform
+            JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
+            jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
-        if(_baseParameters != null) {
-            jarTaskDTO.Parameters = _baseParameters.toArray(new String[_baseParameters.size()]);
+            SparkJarTaskDTO jarTaskDTO = new SparkJarTaskDTO();
+            jarTaskDTO.MainClassName = _mainClassName;
+
+            if(_baseParameters != null) {
+                jarTaskDTO.Parameters = _baseParameters.toArray(new String[_baseParameters.size()]);
+            }
+
+            jobSettingsDTO.SparkJarTask = jarTaskDTO;
+
+            return new AutomatedJarJob(_client, jobSettingsDTO, getLibraries());
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        } catch(LibraryConfigException e) {
+            throw new JobConfigException(e);
+        } catch(URISyntaxException e) {
+            throw new JobConfigException(e);
         }
-
-        jobSettingsDTO.SparkJarTask = jarTaskDTO;
-
-        //upload library files first
-        uploadLibraryFiles();
-
-        return new AutomatedJarJob(_client, jobSettingsDTO, getLibraries());
     }
 }

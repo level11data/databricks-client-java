@@ -7,6 +7,7 @@ import com.level11data.databricks.client.entities.jobs.SparkJarTaskDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.InteractiveJarJob;
 import com.level11data.databricks.job.JobConfigException;
+import com.level11data.databricks.library.JarLibrary;
 import com.level11data.databricks.library.LibraryConfigException;
 import org.quartz.Trigger;
 
@@ -25,30 +26,30 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
-                                    URI jarLibraryLocation,  //TODO replace this with JarLibrary
+                                    JarLibrary jarLibrary,
                                     String mainClassName) {
-        this(client, cluster, jarLibraryLocation, null, mainClassName,new ArrayList<String>());
+        this(client, cluster, jarLibrary, null, mainClassName,new ArrayList<String>());
     }
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
-                                    URI jarLibraryLocation,
+                                    JarLibrary jarLibrary,
                                     String mainClassName,
                                     List<String> baseParameters) {
-        this(client, cluster, jarLibraryLocation, null, mainClassName, baseParameters);
+        this(client, cluster, jarLibrary, null, mainClassName, baseParameters);
     }
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
-                                    URI jarLibraryLocation,
+                                    JarLibrary jarLibrary,
                                     File jarLibraryFile,
                                     String mainClassName) {
-        this(client, cluster, jarLibraryLocation, jarLibraryFile, mainClassName, new ArrayList<String>());
+        this(client, cluster, jarLibrary, jarLibraryFile, mainClassName, new ArrayList<String>());
     }
 
     public InteractiveJarJobBuilder(JobsClient client,
                                     InteractiveCluster cluster,
-                                    URI jarLibraryLocation,
+                                    JarLibrary jarLibrary,
                                     File jarLibraryFile,
                                     String mainClassName,
                                     List<String> baseParameters) {
@@ -58,9 +59,9 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
         _baseParameters = baseParameters;
 
         if(jarLibraryFile != null) {
-            withJarLibrary(jarLibraryLocation, jarLibraryFile);
+            withJarLibrary(jarLibrary.Uri, jarLibraryFile);
         } else {
-            withJarLibrary(jarLibraryLocation);
+            withJarLibrary(jarLibrary.Uri);
         }
     }
 
@@ -175,22 +176,31 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
     }
 
 
-    public InteractiveJarJob create() throws HttpException, IOException, LibraryConfigException, URISyntaxException, JobConfigException {
-        JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
-        jobSettingsDTO = super.applySettings(jobSettingsDTO);
+    public InteractiveJarJob create() throws JobConfigException {
+        try {
+            //upload library files
+            uploadLibraryFiles();
 
-        SparkJarTaskDTO jarTaskDTO = new SparkJarTaskDTO();
-        jarTaskDTO.MainClassName = _mainClassName;
+            JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
+            jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
-        if(_baseParameters.size() > 0) {
-            jarTaskDTO.Parameters = _baseParameters.toArray(new String[_baseParameters.size()]);
+            SparkJarTaskDTO jarTaskDTO = new SparkJarTaskDTO();
+            jarTaskDTO.MainClassName = _mainClassName;
+
+            if(_baseParameters.size() > 0) {
+                jarTaskDTO.Parameters = _baseParameters.toArray(new String[_baseParameters.size()]);
+            }
+            jobSettingsDTO.SparkJarTask = jarTaskDTO;
+
+            return new InteractiveJarJob(_client, this.Cluster, jobSettingsDTO);
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        } catch(LibraryConfigException e) {
+            throw new JobConfigException(e);
+        } catch(URISyntaxException e) {
+            throw new JobConfigException(e);
         }
-        jobSettingsDTO.SparkJarTask = jarTaskDTO;
 
-        //upload library files
-        uploadLibraryFiles();
-
-        return new InteractiveJarJob(_client, this.Cluster, jobSettingsDTO);
     }
 
 

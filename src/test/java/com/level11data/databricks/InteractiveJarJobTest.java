@@ -5,6 +5,7 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.InteractiveJarJob;
 import com.level11data.databricks.job.run.InteractiveJarJobRun;
+import com.level11data.databricks.library.JarLibrary;
 import org.junit.Test;
 
 import java.io.File;
@@ -69,10 +70,12 @@ public class InteractiveJarJobTest {
         baseParams.add("hello");
         baseParams.add("world");
 
+        JarLibrary jarLibrary = _databricks.getJarLibrary(new URI(dbfsPath));
+
         //Create Job
-        InteractiveJarJob job = cluster.createJob(new URI(dbfsPath),
-                jarFile,
+        InteractiveJarJob job = cluster.createJob(jarLibrary,
                 "com.level11data.example.scala.simpleapp.SimpleApp",
+                jarFile,
                 baseParams)
                 .withName(clusterName)
                 .create();

@@ -24,7 +24,7 @@ public class InteractiveCluster extends Cluster{
     private LibrariesClient _librariesClient;
     private Boolean _isAutoScaling = false;
     private JobsClient _jobsClient;
-    private ArrayList<ClusterLibrary> _libraries = new ArrayList<ClusterLibrary>();
+    private ArrayList<ClusterLibrary> _libraries = new ArrayList<>();
 
     public final String Name;
     public final Integer NumWorkers;
@@ -130,25 +130,22 @@ public class InteractiveCluster extends Cluster{
         return new InteractiveNotebookJobBuilder(getOrCreateJobsClient(), this, notebook, baseParameters);
     }
 
-    //TODO change this from URI to JarLibrary
-    public InteractiveJarJobBuilder createJob(URI jarLibrary, String mainClassName) {
+    public InteractiveJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, mainClassName);
     }
 
-    //TODO change this from URI to JarLibrary
-    public InteractiveJarJobBuilder createJob(URI jarLibrary, File jarFile, String mainClassName) {
+    public InteractiveJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName,
+                                              File jarFile) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, jarFile, mainClassName);
     }
 
-    //TODO change this from URI to JarLibrary
-    public InteractiveJarJobBuilder createJob(URI jarLibrary, String mainClassName,
+    public InteractiveJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName,
                                               List<String> baseParameters) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, mainClassName, baseParameters);
     }
 
-    //TODO change this from URI to JarLibrary
-    public InteractiveJarJobBuilder createJob(URI jarLibrary, File jarFile,
-                                              String mainClassName,
+    public InteractiveJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName,
+                                              File jarFile,
                                               List<String> baseParameters) {
         return new InteractiveJarJobBuilder(getOrCreateJobsClient(), this, jarLibrary, jarFile, mainClassName, baseParameters);
     }
