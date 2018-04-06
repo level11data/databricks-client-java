@@ -1,6 +1,7 @@
 package com.level11data.databricks.job.run;
 
 import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.cluster.ICluster;
 
 public interface IJobRun {
 
@@ -13,9 +14,8 @@ public interface IJobRun {
     Long getExecutionDuration() throws HttpException;
 
     Long getCleanupDuration() throws HttpException;
-
-    //TODO change this to return an Interface; ICluster
-    //Cluster getCluster() throws JobRunException;
+    
+    ICluster getCluster() throws JobRunException;
 
     String getOutput() throws JobRunException;
 }

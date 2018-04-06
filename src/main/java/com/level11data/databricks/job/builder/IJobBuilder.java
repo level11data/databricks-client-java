@@ -32,7 +32,7 @@ public interface IJobBuilder {
 
     IJob create() throws JobConfigException;
 
-    //TODO change this to return an Interface IClusterBuilder
+    //TODO drop this since it's just for AutomatedJobBuilder
     //This is only for AutomatedJobBuilder subclasses
     //AutomatedClusterBuilder withClusterSpec(int numWorkers);
 

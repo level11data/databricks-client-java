@@ -4,7 +4,6 @@ import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.clusters.SparkNodeDTO;
-import com.level11data.databricks.client.entities.clusters.TerminationReasonDTO;
 
 import java.math.BigInteger;
 import java.util.*;
