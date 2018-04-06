@@ -35,7 +35,7 @@ public class AutomatedCluster extends Cluster {
             throw new ClusterConfigException("ClusterInfoDTO Must Have Name");
         }
 
-        /** Autoscaling is not yet supported on automated clusters
+        /** TODO Autoscaling is not yet supported on automated clusters
         if(info.NumWorkers == null && info.AutoScale == null)  {
             throw new ClusterConfigException("ClusterInfoDTO Must Have either NumWorkers OR AutoScaleDTO");
         }

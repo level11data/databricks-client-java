@@ -1,31 +1,28 @@
 package com.level11data.databricks.cluster;
 
-import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.client.entities.clusters.TerminationReasonDTO;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 
 public interface ICluster {
 
-    ClusterState getState() throws HttpException;
+    ClusterState getState() throws ClusterConfigException;
 
-    String getStateMessage() throws HttpException;
+    String getStateMessage() throws ClusterConfigException;
 
-    ArrayList<SparkNode> getExecutors() throws HttpException, ClusterConfigException;
+    ArrayList<SparkNode> getExecutors() throws ClusterConfigException;
 
-    BigInteger getTerminatedTime() throws HttpException;
+    BigInteger getTerminatedTime() throws ClusterConfigException;
 
-    BigInteger getLastStateLossType() throws HttpException;
+    BigInteger getLastStateLossType() throws ClusterConfigException;
 
-    BigInteger getLastActivityTime() throws HttpException;
+    BigInteger getLastActivityTime() throws ClusterConfigException;
 
-    BigInteger getClusterMemoryMb() throws HttpException;
+    BigInteger getClusterMemoryMb() throws ClusterConfigException;
 
-    BigInteger getClusterCores() throws HttpException;
+    BigInteger getClusterCores() throws ClusterConfigException;
 
-    LogSyncStatus getLogStatus() throws HttpException;
+    LogSyncStatus getLogStatus() throws ClusterConfigException;
 
-    TerminationReasonDTO getTerminationReason() throws HttpException;
+    TerminationReason getTerminationReason() throws ClusterConfigException;
 
 }

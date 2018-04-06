@@ -23,7 +23,7 @@ public abstract class Cluster extends BaseCluster {
     public final Integer JdbcPort;
     public final Date StartTime;
 
-    protected Cluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
+    protected Cluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException {
         super(client, info);
 
         _client = client;
@@ -71,7 +71,7 @@ public abstract class Cluster extends BaseCluster {
         }
     }
 
-    private SparkNode initDriver() throws HttpException, ClusterConfigException {
+    private SparkNode initDriver() throws ClusterConfigException {
         NodeType driverNodeType = _client.Session.getNodeTypeById(getClusterInfo().DriverNodeTypeId);
         if(getClusterInfo().Driver == null) {
             return null;
@@ -94,63 +94,104 @@ public abstract class Cluster extends BaseCluster {
         return new Date(startTime.longValue());
     }
 
-    public ClusterState getState() throws HttpException {
-        //Always make client request for this
-        return ClusterState.valueOf(_client.getCluster(Id).State);
-    }
-
-    public String getStateMessage() throws HttpException {
-        //Always make client request for this
-        return _client.getCluster(Id).StateMessage;
-    }
-
-    public ArrayList<SparkNode> getExecutors() throws HttpException, ClusterConfigException {
-        //Always make client request for this
-        SparkNodeDTO[] nodeInfos =  _client.getCluster(Id).Executors;
-
-        ArrayList<SparkNode> nodeList = new ArrayList<>();
-
-        if(nodeInfos != null) {
-            for(SparkNodeDTO nodeInfo : nodeInfos) {
-                nodeList.add(new SparkNode(nodeInfo, initNodeType()));
-            }
+    public ClusterState getState() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return ClusterState.valueOf(_client.getCluster(Id).State);
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
         }
-        return nodeList;
     }
 
-    public BigInteger getTerminatedTime() throws HttpException  {
-        //Always make client request for this
-        return _client.getCluster((Id)).TerminatedTime;
+    public String getStateMessage() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return _client.getCluster(Id).StateMessage;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
-    public BigInteger getLastStateLossType() throws HttpException {
-        //Always make client request for this
-        return _client.getCluster((Id)).LastStateLossTime;
+    public ArrayList<SparkNode> getExecutors() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            SparkNodeDTO[] nodeInfos =  _client.getCluster(Id).Executors;
+
+            ArrayList<SparkNode> nodeList = new ArrayList<>();
+
+            if(nodeInfos != null) {
+                for(SparkNodeDTO nodeInfo : nodeInfos) {
+                    nodeList.add(new SparkNode(nodeInfo, initNodeType()));
+                }
+            }
+            return nodeList;
+        } catch(HttpException e) {
+           throw new ClusterConfigException(e);
+        }
     }
 
-    public BigInteger getLastActivityTime() throws HttpException  {
-        //Always make client request for this
-        return _client.getCluster((Id)).LastActivityTime;
+    public BigInteger getTerminatedTime() throws ClusterConfigException  {
+        try {
+            //Always make client request for this
+            return _client.getCluster((Id)).TerminatedTime;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
-    public BigInteger getClusterMemoryMb() throws HttpException {
-        //Always make client request for this
-        return _client.getCluster((Id)).ClusterMemoryMb;
+    public BigInteger getLastStateLossType() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return _client.getCluster((Id)).LastStateLossTime;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
-    public BigInteger getClusterCores() throws HttpException {
-        //Always make client request for this
-        return _client.getCluster((Id)).ClusterCores;
+    public BigInteger getLastActivityTime() throws ClusterConfigException  {
+        try {
+            //Always make client request for this
+            return _client.getCluster((Id)).LastActivityTime;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
-    public LogSyncStatus getLogStatus() throws HttpException {
-        //Always make client request for this
-        return new LogSyncStatus(_client.getCluster(Id).ClusterLogStatus);
+    public BigInteger getClusterMemoryMb() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return _client.getCluster((Id)).ClusterMemoryMb;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
-    public TerminationReasonDTO getTerminationReason() throws HttpException {
-        //Always make client request for this
-        return _client.getCluster(Id).TerminationReason;
+    public BigInteger getClusterCores() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return _client.getCluster((Id)).ClusterCores;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
+    }
+
+    public LogSyncStatus getLogStatus() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return new LogSyncStatus(_client.getCluster(Id).ClusterLogStatus);
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
+    }
+
+    public TerminationReason getTerminationReason() throws ClusterConfigException {
+        try {
+            //Always make client request for this
+            return new TerminationReason(_client.getCluster(Id).TerminationReason);
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
+
     }
 
 }
