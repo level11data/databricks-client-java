@@ -46,16 +46,20 @@ public class MavenLibrary extends PublishedLibrary {
         DependencyExclusions = exclusions;
     }
 
-    public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws HttpException, LibraryConfigException {
-        ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
+    public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException {
+        try {
+            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
 
-        //find library status for this library
-        for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
-            if(libStat.Library.Maven != null) {
-                if(libStat.Library.Maven.Coordinates.equals(this.Coordinates)) {
-                    return new LibraryStatus(libStat);
+            //find library status for this library
+            for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
+                if(libStat.Library.Maven != null) {
+                    if(libStat.Library.Maven.Coordinates.equals(this.Coordinates)) {
+                        return new LibraryStatus(libStat);
+                    }
                 }
             }
+        } catch(HttpException e) {
+            throw new LibraryConfigException(e);
         }
         throw new LibraryConfigException("Maven Library " + this.Coordinates +
                 " Not Associated With Cluster Id " + cluster.Id);

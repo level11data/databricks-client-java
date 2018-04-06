@@ -203,8 +203,6 @@ public class AutomatedPythonJobBuilder extends AutomatedJobWithLibrariesBuilder 
             throw new JobConfigException(e);
         } catch (LibraryConfigException e) {
             throw new JobConfigException(e);
-        } catch (URISyntaxException e) {
-            throw new JobConfigException(e);
         } catch (ResourceConfigException e) {
             throw new JobConfigException(e);
         }

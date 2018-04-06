@@ -42,19 +42,19 @@ public abstract class Cluster extends BaseCluster {
         StartTime = initStartTime();
     }
 
-    private SparkVersion initSparkVersion() throws HttpException, ClusterConfigException {
+    private SparkVersion initSparkVersion() throws ClusterConfigException {
         return _client.Session.getSparkVersionByKey(getClusterInfo().SparkVersionKey);
     }
 
-    private NodeType initNodeType() throws HttpException, ClusterConfigException {
+    private NodeType initNodeType() throws ClusterConfigException {
         return _client.Session.getNodeTypeById(getClusterInfo().NodeTypeId);
     }
 
-    private String initCreatorUserName() throws HttpException {
+    private String initCreatorUserName() throws ClusterConfigException {
         return getClusterInfo().CreatorUserName;
     }
 
-    private ServiceType initCreatedBy() throws HttpException {
+    private ServiceType initCreatedBy() throws ClusterConfigException {
         //Looks like this has been deprecated; possibly in favor of ClusterSource
         if(getClusterInfo().ClusterCreatedBy != null) {
             return ServiceType.valueOf(getClusterInfo().ClusterCreatedBy);
@@ -63,7 +63,7 @@ public abstract class Cluster extends BaseCluster {
         }
     }
 
-    private ClusterSource initClusterSource() throws HttpException {
+    private ClusterSource initClusterSource() throws ClusterConfigException {
         if(getClusterInfo().ClusterSource != null) {
             return ClusterSource.valueOf(getClusterInfo().ClusterSource);
         } else {
@@ -80,15 +80,15 @@ public abstract class Cluster extends BaseCluster {
         }
     }
 
-    private Long initSparkContextId() throws HttpException {
+    private Long initSparkContextId() throws ClusterConfigException {
         return getClusterInfo().SparkContextId;
     }
 
-    private Integer initJdbcPort() throws HttpException {
+    private Integer initJdbcPort() throws ClusterConfigException {
         return getClusterInfo().JdbcPort;
     }
 
-    private Date initStartTime() throws HttpException  {
+    private Date initStartTime() throws ClusterConfigException  {
         Long startTime;
         startTime = getClusterInfo().StartTime;
         return new Date(startTime.longValue());

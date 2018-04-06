@@ -8,9 +8,6 @@ import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.library.LibraryConfigException;
-
-import java.net.URISyntaxException;
 
 public abstract class AutomatedJobRun extends JobRun {
     private AutomatedCluster _cluster;
@@ -19,7 +16,7 @@ public abstract class AutomatedJobRun extends JobRun {
 
     public final ClusterSpec NewClusterSpec;
 
-    protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException, LibraryConfigException, URISyntaxException {
+    protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         _client = client;
 
@@ -27,14 +24,20 @@ public abstract class AutomatedJobRun extends JobRun {
         NewClusterSpec = new ClusterSpec(runDTO.ClusterSpec.NewCluster);
     }
 
-    public AutomatedCluster getCluster() throws HttpException, ClusterConfigException, JobRunException {
+    public AutomatedCluster getCluster() throws JobRunException {
         if (_cluster == null) {
-            RunDTO run = _client.getRun(this.RunId);
-            validateJobRun(run);
-            if(_clusterCreated) {
-                ClustersClient clusterClient = new ClustersClient(_client.Session);
-                ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);
-                _cluster = new AutomatedCluster(clusterClient, clusterInfo);
+            try {
+                RunDTO run = _client.getRun(this.RunId);
+                validateJobRun(run);
+                if(_clusterCreated) {
+                    ClustersClient clusterClient = new ClustersClient(_client.Session);
+                    ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);
+                    _cluster = new AutomatedCluster(clusterClient, clusterInfo);
+                }
+            } catch(HttpException e) {
+                throw new JobRunException(e);
+            } catch(ClusterConfigException e) {
+                throw new JobRunException(e);
             }
         }
         return _cluster;

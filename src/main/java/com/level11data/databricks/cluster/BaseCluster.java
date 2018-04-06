@@ -65,7 +65,7 @@ public abstract class BaseCluster {
         SparkEnvironmentVariables = Collections.unmodifiableMap(sparkEnvVarMap);
     }
 
-    protected BaseCluster(ClustersClient client, ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException, HttpException {
+    protected BaseCluster(ClustersClient client, ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(clusterInfoDTO);
 
@@ -91,21 +91,26 @@ public abstract class BaseCluster {
         }
     }
 
-    protected ClusterInfoDTO getClusterInfo() throws HttpException {
-        if(_client == null) {
-            return _clusterInfoDTO;
-        } else {
-            if(!_clusterInfoRequested) {
-                _clusterInfoDTO = _client.getCluster(_clusterId);
-                _clusterInfoRequested = true;
+    protected ClusterInfoDTO getClusterInfo() throws ClusterConfigException {
+        try {
+            if(_client == null) {
                 return _clusterInfoDTO;
             } else {
-                return _clusterInfoDTO;
+                if(!_clusterInfoRequested) {
+                    _clusterInfoDTO = _client.getCluster(_clusterId);
+                    _clusterInfoRequested = true;
+                    return _clusterInfoDTO;
+                } else {
+                    return _clusterInfoDTO;
+                }
             }
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
         }
+
     }
 
-    private AwsAttributes initAwsAttributes() throws HttpException {
+    private AwsAttributes initAwsAttributes() throws ClusterConfigException {
         if(getClusterInfo().AwsAttributes == null) {
             return null;
         } else {
@@ -113,11 +118,11 @@ public abstract class BaseCluster {
         }
     }
 
-    private Boolean initElasticDiskEnabled() throws HttpException {
+    private Boolean initElasticDiskEnabled() throws ClusterConfigException {
         return getClusterInfo().EnableElasticDisk;
     }
 
-    private Map<String, String> initSparkConf() throws HttpException {
+    private Map<String, String> initSparkConf() throws ClusterConfigException {
         if(getClusterInfo().SparkConf == null) {
             return new HashMap<String,String>();
         } else {
@@ -125,7 +130,7 @@ public abstract class BaseCluster {
         }
     }
 
-    private List<String> initSshPublicKeys() throws HttpException {
+    private List<String> initSshPublicKeys() throws ClusterConfigException {
         if(getClusterInfo().SshPublicKeys == null) {
             return new ArrayList<>();
         } else {
@@ -137,7 +142,7 @@ public abstract class BaseCluster {
         }
     }
 
-    private Map<String, String> initCustomTags() throws HttpException {
+    private Map<String, String> initCustomTags() throws ClusterConfigException {
         if(getClusterInfo().CustomTags == null) {
             return new HashMap<>();
         } else {
@@ -145,7 +150,7 @@ public abstract class BaseCluster {
         }
     }
 
-    private ClusterLogConf initLogConf() throws HttpException {
+    private ClusterLogConf initLogConf() throws ClusterConfigException {
         if(getClusterInfo().ClusterLogConf == null) {
             return null;
         } else {
@@ -153,7 +158,7 @@ public abstract class BaseCluster {
         }
     }
 
-    private Map<String, String> initSparkEnvironmentVariables() throws HttpException {
+    private Map<String, String> initSparkEnvironmentVariables() throws ClusterConfigException {
         if(getClusterInfo().SparkEnvironmentVariables == null) {
             return new HashMap<>();
         } else {
@@ -161,7 +166,7 @@ public abstract class BaseCluster {
         }
     }
 
-    private Map<String, String> initDefaultTags() throws HttpException {
+    private Map<String, String> initDefaultTags() throws ClusterConfigException {
         if(getClusterInfo().DefaultTags == null) {
             return new HashMap<>();
         } else {

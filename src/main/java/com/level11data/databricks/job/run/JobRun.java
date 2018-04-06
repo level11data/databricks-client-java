@@ -8,8 +8,6 @@ import com.level11data.databricks.job.TriggerType;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.library.util.LibraryHelper;
-
-import java.net.URISyntaxException;
 import java.util.*;
 
 abstract public class JobRun {
@@ -30,7 +28,7 @@ abstract public class JobRun {
     public final Date StartTime;
     public final List<Library> Libraries;
 
-    protected JobRun(JobsClient client, RunDTO runDTO) throws LibraryConfigException, URISyntaxException {
+    protected JobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         _client = client;
         _runDTO = runDTO;
         JobId = runDTO.JobId;
@@ -44,7 +42,11 @@ abstract public class JobRun {
         if(runDTO.ClusterSpec.Libraries != null) {
             ArrayList<Library> libraries = new ArrayList<>();
             for (LibraryDTO libraryDTO : runDTO.ClusterSpec.Libraries) {
-                libraries.add(LibraryHelper.createLibrary(_client.Session.getLibrariesClient(), libraryDTO));
+                try {
+                    libraries.add(LibraryHelper.createLibrary(_client.Session.getLibrariesClient(), libraryDTO));
+                } catch (LibraryConfigException e) {
+                    throw new JobRunException(e);
+                }
             }
             Libraries = Collections.unmodifiableList(libraries);
         } else {

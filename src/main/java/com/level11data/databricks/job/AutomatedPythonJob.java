@@ -9,8 +9,6 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.job.run.AutomatedPythonJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
-import com.level11data.databricks.library.LibraryConfigException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class AutomatedPythonJob extends AutomatedJob {
@@ -21,9 +19,15 @@ public class AutomatedPythonJob extends AutomatedJob {
 
     public AutomatedPythonJob(JobsClient client,
                               PythonScript pythonScript,
+                              JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        this(client, pythonScript, jobSettingsDTO, null);
+    }
+
+    public AutomatedPythonJob(JobsClient client,
+                              PythonScript pythonScript,
                               JobSettingsDTO jobSettingsDTO,
-                              List<Library> libraries) throws HttpException, JobConfigException, URISyntaxException, LibraryConfigException  {
-        super(client, client.createJob(jobSettingsDTO), jobSettingsDTO, libraries);
+                              List<Library> libraries) throws JobConfigException {
+        super(client, null, jobSettingsDTO, libraries);
         _client = client;
 
         //Validate DTO for this Job Type
@@ -33,20 +37,24 @@ public class AutomatedPythonJob extends AutomatedJob {
         Parameters = jobSettingsDTO.SparkPythonTask.Parameters;
     }
 
-    public AutomatedPythonJobRun run() throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
+    public AutomatedPythonJobRun run() throws JobRunException {
         return run(null);
     }
 
-    public AutomatedPythonJobRun run(List<String> overrideParameters) throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
-        RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-        runRequestDTO.JobId = this.Id;
+    public AutomatedPythonJobRun run(List<String> overrideParameters) throws JobRunException {
+        try {
+            RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
+            runRequestDTO.JobId = this.Id;
 
-        if(overrideParameters != null) {
-            runRequestDTO.PythonParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            if(overrideParameters != null) {
+                runRequestDTO.PythonParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            }
+            RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
+            RunDTO jobRun = _client.getRun(response.RunId);
+            return new AutomatedPythonJobRun(_client, PythonScript, jobRun);
+        } catch(HttpException e) {
+            throw new JobRunException(e);
         }
-        RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
-        RunDTO jobRun = _client.getRun(response.RunId);
-        return new AutomatedPythonJobRun(_client, PythonScript, jobRun);
     }
 
 

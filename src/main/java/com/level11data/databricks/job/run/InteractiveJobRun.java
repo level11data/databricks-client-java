@@ -7,29 +7,32 @@ import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.library.LibraryConfigException;
-
-import java.net.URISyntaxException;
 
 abstract public class InteractiveJobRun extends JobRun {
     private InteractiveCluster _cluster;
     private JobsClient _client;
     private boolean _clusterCreated = false;
 
-    protected InteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException, LibraryConfigException, URISyntaxException {
+    protected InteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         _client = client;
 
         validateJobRun(runDTO);
     }
 
-    public InteractiveCluster getCluster() throws HttpException, ClusterConfigException, JobRunException {
+    public InteractiveCluster getCluster() throws JobRunException {
         if (_cluster == null) {
-            RunDTO run = _client.getRun(this.RunId);
-            validateJobRun(run);
-            ClustersClient clusterClient = new ClustersClient(_client.Session);
-            ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);
-            _cluster = new InteractiveCluster(clusterClient, clusterInfo);
+            try {
+                RunDTO run = _client.getRun(this.RunId);
+                validateJobRun(run);
+                ClustersClient clusterClient = new ClustersClient(_client.Session);
+                ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);
+                _cluster = new InteractiveCluster(clusterClient, clusterInfo);
+            } catch (HttpException e) {
+                throw new JobRunException(e);
+            } catch (ClusterConfigException e) {
+                throw new JobRunException(e);
+            }
         }
         return _cluster;
     }

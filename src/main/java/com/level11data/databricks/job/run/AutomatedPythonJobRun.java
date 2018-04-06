@@ -4,9 +4,6 @@ package com.level11data.databricks.job.run;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.PythonScript;
-import com.level11data.databricks.library.LibraryConfigException;
-
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class AutomatedPythonJobRun extends AutomatedJobRun {
@@ -16,7 +13,7 @@ public class AutomatedPythonJobRun extends AutomatedJobRun {
     public final List<String> BaseParameters;
     public final List<String> OverridingParameters;
 
-    public AutomatedPythonJobRun(JobsClient client, PythonScript pythonScript, RunDTO runDTO) throws JobRunException, URISyntaxException, LibraryConfigException {
+    public AutomatedPythonJobRun(JobsClient client, PythonScript pythonScript, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         _client = client;
         PythonScript = pythonScript;

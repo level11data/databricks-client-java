@@ -15,7 +15,6 @@ import com.level11data.databricks.library.util.LibraryHelper;
 import com.level11data.databricks.workspace.Notebook;
 
 import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -76,7 +75,7 @@ public class InteractiveCluster extends Cluster{
         }
     }
 
-    private Integer initAutoTerminationMinutes() throws HttpException  {
+    private Integer initAutoTerminationMinutes() throws ClusterConfigException  {
         return getClusterInfo().AutoTerminationMinutes;
     }
 

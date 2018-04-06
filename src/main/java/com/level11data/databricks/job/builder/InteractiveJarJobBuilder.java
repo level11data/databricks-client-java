@@ -12,7 +12,6 @@ import com.level11data.databricks.library.LibraryConfigException;
 import org.quartz.Trigger;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -193,11 +192,7 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
             jobSettingsDTO.SparkJarTask = jarTaskDTO;
 
             return new InteractiveJarJob(_client, this.Cluster, jobSettingsDTO);
-        } catch(HttpException e) {
-            throw new JobConfigException(e);
         } catch(LibraryConfigException e) {
-            throw new JobConfigException(e);
-        } catch(URISyntaxException e) {
             throw new JobConfigException(e);
         }
 

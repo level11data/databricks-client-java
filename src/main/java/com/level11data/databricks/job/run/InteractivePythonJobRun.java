@@ -3,8 +3,6 @@ package com.level11data.databricks.job.run;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.PythonScript;
-import com.level11data.databricks.library.LibraryConfigException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class InteractivePythonJobRun extends InteractiveJobRun {
@@ -12,7 +10,7 @@ public class InteractivePythonJobRun extends InteractiveJobRun {
     public final List<String> BaseParameters;
     public final List<String> OverridingParameters;
 
-    public InteractivePythonJobRun(JobsClient client, PythonScript pythonScript, RunDTO runDTO) throws JobRunException, LibraryConfigException, URISyntaxException {
+    public InteractivePythonJobRun(JobsClient client, PythonScript pythonScript, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         PythonScript = pythonScript;
 

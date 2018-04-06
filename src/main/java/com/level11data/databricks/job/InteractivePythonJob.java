@@ -9,8 +9,6 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.run.InteractivePythonJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.LibraryConfigException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class InteractivePythonJob extends InteractiveJob {
@@ -22,9 +20,8 @@ public class InteractivePythonJob extends InteractiveJob {
     public InteractivePythonJob(JobsClient client,
                                 InteractiveCluster cluster,
                                 PythonScript pythonScript,
-                                JobSettingsDTO jobSettingsDTO)
-            throws HttpException, JobConfigException, LibraryConfigException, URISyntaxException {
-        super(client, cluster, client.createJob(jobSettingsDTO), jobSettingsDTO);
+                                JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super(client, cluster, null, jobSettingsDTO);
         _client = client;
         PythonScript = pythonScript;
 
@@ -34,20 +31,24 @@ public class InteractivePythonJob extends InteractiveJob {
         Parameters = jobSettingsDTO.SparkPythonTask.Parameters;
     }
 
-    public InteractivePythonJobRun run() throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
+    public InteractivePythonJobRun run() throws JobRunException {
         return run(null);
     }
 
-    public InteractivePythonJobRun run(List<String> overrideParameters) throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
-        RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-        runRequestDTO.JobId = this.Id;
+    public InteractivePythonJobRun run(List<String> overrideParameters) throws JobRunException {
+        try {
+            RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
+            runRequestDTO.JobId = this.Id;
 
-        if(overrideParameters != null) {
-            runRequestDTO.PythonParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            if(overrideParameters != null) {
+                runRequestDTO.PythonParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            }
+            RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
+            RunDTO jobRun = _client.getRun(response.RunId);
+            return new InteractivePythonJobRun(_client, PythonScript, jobRun);
+        } catch(HttpException e) {
+            throw new JobRunException(e);
         }
-        RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
-        RunDTO jobRun = _client.getRun(response.RunId);
-        return new InteractivePythonJobRun(_client, PythonScript, jobRun);
     }
 
 

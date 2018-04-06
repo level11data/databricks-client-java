@@ -29,8 +29,8 @@ public class AutomatedNotebookJob extends AutomatedJob {
      */
     public AutomatedNotebookJob(JobsClient client,
                                 JobSettingsDTO jobSettingsDTO,
-                                Notebook notebook) throws HttpException, JobConfigException, URISyntaxException, LibraryConfigException {
-        super(client, client.createJob(jobSettingsDTO), jobSettingsDTO);
+                                Notebook notebook) throws JobConfigException {
+        super(client, null, jobSettingsDTO);
         _client = client;
 
         //Validate DTO for this Job Type
@@ -51,11 +51,9 @@ public class AutomatedNotebookJob extends AutomatedJob {
      * @param client
      * @param jobDTO
      * @throws JobConfigException
-     * @throws ClusterConfigException
-     * @throws HttpException
      */
     public AutomatedNotebookJob(JobsClient client, JobDTO jobDTO)
-            throws JobConfigException, ClusterConfigException, HttpException, URISyntaxException, LibraryConfigException {
+            throws JobConfigException {
         super(client, jobDTO.JobId, jobDTO.Settings);
 
         _client = client;
@@ -72,24 +70,22 @@ public class AutomatedNotebookJob extends AutomatedJob {
         }
     }
 
-    public AutomatedNotebookJobRun run() throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
-        //simple run request with no parameter overrides
-        RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-        runRequestDTO.JobId = this.Id;
-        RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
-        RunDTO jobRun = _client.getRun(response.RunId);
-        return new AutomatedNotebookJobRun(_client, jobRun);
+    public AutomatedNotebookJobRun run() throws JobRunException {
+        return run(null);
     }
 
-    public AutomatedNotebookJobRun run(Map<String,String> overrideParameters) throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
-        //simple run request with no parameter overrides
-        RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-        runRequestDTO.JobId = this.Id;
-        runRequestDTO.NotebookParams = overrideParameters;
+    public AutomatedNotebookJobRun run(Map<String,String> overrideParameters) throws JobRunException {
+        try {
+            RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
+            runRequestDTO.JobId = this.Id;
+            runRequestDTO.NotebookParams = overrideParameters;
 
-        RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
-        RunDTO jobRun = _client.getRun(response.RunId);
-        return new AutomatedNotebookJobRun(_client, jobRun);
+            RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
+            RunDTO jobRun = _client.getRun(response.RunId);
+            return new AutomatedNotebookJobRun(_client, jobRun);
+        } catch(HttpException e) {
+            throw new JobRunException(e);
+        }
     }
 
 }

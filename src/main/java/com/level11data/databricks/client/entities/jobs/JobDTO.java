@@ -50,7 +50,7 @@ public class JobDTO {
     public boolean isJarJob() { return Settings.SparkJarTask != null; }
 
     @JsonIgnore
-    public boolean isEggJob() { return Settings.SparkPythonTask != null; }
+    public boolean isPythonJob() { return Settings.SparkPythonTask != null; }
 
     @JsonIgnore
     public boolean isSparkSubmitJob() {return Settings.SparkSubmitTask != null; }

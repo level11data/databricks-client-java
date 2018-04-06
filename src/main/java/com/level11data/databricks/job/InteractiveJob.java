@@ -15,9 +15,8 @@ public abstract class InteractiveJob extends Job {
 
     protected InteractiveJob(JobsClient client,
                              InteractiveCluster cluster,
-                             long jobId,
-                             JobSettingsDTO jobSettingsDTO)
-            throws LibraryConfigException, URISyntaxException{
+                             Long jobId,
+                             JobSettingsDTO jobSettingsDTO) throws JobConfigException{
         super(client, jobId, jobSettingsDTO);
         Cluster = cluster;
     }

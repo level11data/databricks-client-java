@@ -20,11 +20,11 @@ import com.level11data.databricks.library.*;
 import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.workspace.Notebook;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -133,12 +133,16 @@ public class DatabricksSession {
         return _sparkVersions;
     }
 
-    public SparkVersion getSparkVersionByKey(String key) throws HttpException, ClusterConfigException {
-        List<SparkVersion> sparkVersions = getSparkVersions();
-        for (SparkVersion sv : sparkVersions) {
-            if(sv.Key.equals(key)) {
-                return sv;
+    public SparkVersion getSparkVersionByKey(String key) throws ClusterConfigException {
+        try {
+            List<SparkVersion> sparkVersions = getSparkVersions();
+            for (SparkVersion sv : sparkVersions) {
+                if(sv.Key.equals(key)) {
+                    return sv;
+                }
             }
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
         }
         throw new ClusterConfigException("No SparkVersion Found For Key "+key);
     }
@@ -158,26 +162,30 @@ public class DatabricksSession {
         return getNodeTypeById(getOrRequestNodeTypesDTO().DefaultNodeTypeId);
     }
 
-    private void initNodeTypes() throws HttpException {
-        List<NodeTypeDTO> nodeTypesInfoListDTO
-                = getClustersClient().getNodeTypes().NodeTypes;
+    private void initNodeTypes() throws ClusterConfigException {
+        try {
+            List<NodeTypeDTO> nodeTypesInfoListDTO
+                    = getClustersClient().getNodeTypes().NodeTypes;
 
-        ArrayList<NodeType> nodeTypesList = new ArrayList<NodeType>();
+            ArrayList<NodeType> nodeTypesList = new ArrayList<NodeType>();
 
-        for(NodeTypeDTO nt : nodeTypesInfoListDTO) {
-            nodeTypesList.add(new NodeType(nt));
+            for(NodeTypeDTO nt : nodeTypesInfoListDTO) {
+                nodeTypesList.add(new NodeType(nt));
+            }
+            _nodeTypes = nodeTypesList;
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
         }
-        _nodeTypes = nodeTypesList;
     }
 
-    public List<NodeType> getNodeTypes() throws HttpException  {
+    public List<NodeType> getNodeTypes() throws ClusterConfigException  {
         if(_nodeTypes == null) {
             initNodeTypes();
         }
         return _nodeTypes;
     }
 
-    public NodeType getNodeTypeById(String id) throws HttpException, ClusterConfigException {
+    public NodeType getNodeTypeById(String id) throws ClusterConfigException {
         List<NodeType> nodeTypes = getNodeTypes();
 
         for (NodeType nt : nodeTypes) {
@@ -204,27 +212,55 @@ public class DatabricksSession {
         return new ClusterIter(client, clusterInfoDTOs);
     }
 
-    public InteractiveCluster getCluster(String id) throws ClusterConfigException, HttpException {
-        ClustersClient client = getClustersClient();
-        ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
-        return new InteractiveCluster(client, clusterInfoDTO);
-    }
-
-    //TODO make return type generic
-    public Job getJob(long jobId) throws HttpException, ClusterConfigException, Exception {
-        JobsClient client = getJobsClient();
-        JobDTO jobDTO = client.getJob(jobId);
-
-        if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
-            return new InteractiveNotebookJob(client, jobDTO);
-        } else if(jobDTO.isAutomated() && jobDTO.isNotebookJob()) {
-            return new AutomatedNotebookJob(client, jobDTO);
-        } else {
-            throw new Exception("Unsupported Job Type");  //TODO keep this?
+    public InteractiveCluster getCluster(String id) throws ClusterConfigException {
+        try {
+            ClustersClient client = getClustersClient();
+            ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
+            return new InteractiveCluster(client, clusterInfoDTO);
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
         }
     }
 
-    //TODO make return type generic
+    public Job getJob(long jobId) throws JobConfigException {
+        try {
+            JobsClient client = getJobsClient();
+            JobDTO jobDTO = client.getJob(jobId);
+
+            if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
+                InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
+                Notebook notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);
+                return new InteractiveNotebookJob(client, cluster, jobDTO.Settings,notebook);
+            } else if(jobDTO.isAutomated() && jobDTO.isNotebookJob()) {
+                return new AutomatedNotebookJob(client, jobDTO);
+            } else if(jobDTO.isInteractive() && jobDTO.isJarJob()) {
+                InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
+                return new InteractiveJarJob(client,cluster, jobDTO.Settings);
+            } else if(jobDTO.isAutomated() && jobDTO.isJarJob()) {
+                return new AutomatedJarJob(client, jobDTO.Settings);
+            } else if(jobDTO.isInteractive() && jobDTO.isPythonJob()) {
+                InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
+                PythonScript pythonScript = getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
+                return new InteractivePythonJob(client, cluster, pythonScript, jobDTO.Settings);
+            } else if(jobDTO.isAutomated() && jobDTO.isPythonJob()) {
+                PythonScript pythonScript = getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
+                return new AutomatedPythonJob(client, pythonScript, jobDTO.Settings);
+            } else if(jobDTO.isAutomated() && jobDTO.isSparkSubmitJob()) {
+                //TODO implement SparkSubmitJob type
+            }
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        } catch(ClusterConfigException e) {
+            throw new JobConfigException(e);
+        } catch(URISyntaxException e) {
+            throw new JobConfigException(e);
+        } catch(ResourceConfigException e) {
+            throw new JobConfigException(e);
+        }
+        //No valid Job Type was found
+        throw new JobConfigException("Unsupported Job Type");
+    }
+
     public JobRun getRun(long runId) throws HttpException, Exception {
         JobsClient client = getJobsClient();
         RunDTO runDTO = client.getRun(runId);
@@ -233,7 +269,7 @@ public class DatabricksSession {
             JobRun run = new InteractiveNotebookJobRun(client, runDTO);
             return run;
         } else {
-            throw new Exception("Unsupported Job Type");  //TODO keep this?
+            throw new Exception("Unsupported Job Type");  //TODO add better exception handling
         }
     }
 

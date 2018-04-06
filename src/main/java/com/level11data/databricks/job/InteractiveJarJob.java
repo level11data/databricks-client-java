@@ -21,33 +21,42 @@ public class InteractiveJarJob extends InteractiveJob {
 
     public InteractiveJarJob(JobsClient client,
                              InteractiveCluster cluster,
-                             JobSettingsDTO jobSettingsDTO)
-            throws HttpException, JobConfigException, LibraryConfigException, URISyntaxException {
-        super(client, cluster, client.createJob(jobSettingsDTO), jobSettingsDTO);
-        _client = client;
+                             JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+            super(client, cluster, null, jobSettingsDTO);
+            _client = client;
 
-        //Validate that the DTO represents an InteractiveJarJob
-        JobValidation.validateInteractiveJarJob(jobSettingsDTO);
+            //Validate that the DTO represents an InteractiveJarJob
+            JobValidation.validateInteractiveJarJob(jobSettingsDTO);
 
-        MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
-        Parameters = jobSettingsDTO.SparkJarTask.Parameters;
+            MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
+            Parameters = jobSettingsDTO.SparkJarTask.Parameters;
     }
 
-    public InteractiveJarJobRun run() throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
+    public InteractiveJarJobRun run() throws JobRunException {
         return run(null);
     }
 
-    public InteractiveJarJobRun run(List<String> overrideParameters) throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
-        RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-        runRequestDTO.JobId = this.Id;
+    public InteractiveJarJobRun run(List<String> overrideParameters) throws JobRunException {
+        try {
+            RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
+            runRequestDTO.JobId = this.Id;
 
-        if(overrideParameters != null) {
-            runRequestDTO.JarParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            if(overrideParameters != null) {
+                runRequestDTO.JarParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            }
+            RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
+            RunDTO jobRun = _client.getRun(response.RunId);
+            return new InteractiveJarJobRun(_client, jobRun);
+        } catch(HttpException e) {
+            throw new JobRunException(e);
         }
-        RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
-        RunDTO jobRun = _client.getRun(response.RunId);
-        return new InteractiveJarJobRun(_client, jobRun);
     }
 
-
+    private long createJob(JobsClient client, JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        try {
+            return client.createJob(jobSettingsDTO);
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        }
+    }
 }

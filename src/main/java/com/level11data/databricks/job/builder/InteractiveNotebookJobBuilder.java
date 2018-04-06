@@ -12,7 +12,6 @@ import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -150,23 +149,29 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
         return (InteractiveNotebookJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
-    public InteractiveNotebookJob create() throws HttpException, LibraryConfigException, IOException, URISyntaxException, JobConfigException {
-        JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
-        jobSettingsDTO = super.applySettings(jobSettingsDTO);
+    public InteractiveNotebookJob create() throws JobConfigException {
+        try {
+            JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
+            jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
-        NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
-        notebookTaskDTO.NotebookPath = _notebook.Path;
-        notebookTaskDTO.BaseParameters = _baseParameters;
-        jobSettingsDTO.NotebookTask = notebookTaskDTO;
+            NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
+            notebookTaskDTO.NotebookPath = _notebook.Path;
+            notebookTaskDTO.BaseParameters = _baseParameters;
+            jobSettingsDTO.NotebookTask = notebookTaskDTO;
 
-        //upload any library files
-        uploadLibraryFiles();
+            //upload any library files
+            uploadLibraryFiles();
 
-        //create job via client
-        long jobId = _client.createJob(jobSettingsDTO);
+            //create job via client
+            long jobId = _client.createJob(jobSettingsDTO);
 
-        //create InteractiveNotebookJob from jobSettingsDTO and jobId
-        return new InteractiveNotebookJob(_client, this.Cluster, jobSettingsDTO, _notebook);
+            //create InteractiveNotebookJob from jobSettingsDTO and jobId
+            return new InteractiveNotebookJob(_client, this.Cluster, jobSettingsDTO, _notebook);
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        } catch(LibraryConfigException e) {
+            throw new JobConfigException(e);
+        }
     }
 
 

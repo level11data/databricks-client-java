@@ -2,7 +2,6 @@ package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
 import com.level11data.databricks.job.AutomatedNotebookJob;
@@ -152,21 +151,25 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
         return (AutomatedNotebookJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
-    public AutomatedNotebookJob create() throws HttpException, IOException, LibraryConfigException, JobConfigException, URISyntaxException {
-        //no validation to perform
-        JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
-        jobSettingsDTO = super.applySettings(jobSettingsDTO);
+    public AutomatedNotebookJob create() throws JobConfigException {
+        try {
+            //no validation to perform
+            JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
+            jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
-        NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
-        notebookTaskDTO.NotebookPath = _notebook.Path;
-        notebookTaskDTO.BaseParameters = _baseParameters;
-        jobSettingsDTO.NotebookTask = notebookTaskDTO;
+            NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
+            notebookTaskDTO.NotebookPath = _notebook.Path;
+            notebookTaskDTO.BaseParameters = _baseParameters;
+            jobSettingsDTO.NotebookTask = notebookTaskDTO;
 
-        //upload any library files
-        uploadLibraryFiles();
+            //upload any library files
+            uploadLibraryFiles();
 
-        //create InteractiveNotebookJob from jobSettingsDTO and jobId
-        return new AutomatedNotebookJob(_client, jobSettingsDTO, _notebook);
+            //create InteractiveNotebookJob from jobSettingsDTO and jobId
+            return new AutomatedNotebookJob(_client, jobSettingsDTO, _notebook);
+        } catch(LibraryConfigException e) {
+            throw new JobConfigException(e);
+        }
     }
 
 

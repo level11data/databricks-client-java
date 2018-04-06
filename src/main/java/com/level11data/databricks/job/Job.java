@@ -9,8 +9,6 @@ import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.libraries.LibraryDTO;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.library.util.LibraryHelper;
-
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -35,14 +33,31 @@ public abstract class Job {
     public final Integer MaxConcurrentRuns;
     public final Integer TimeoutSeconds;
 
-    protected Job(JobsClient client, long jobId, JobSettingsDTO jobSettingsDTO) throws LibraryConfigException, URISyntaxException {
+    protected Job(JobsClient client, JobDTO jobDTO, List<Library> libraries) throws JobConfigException {
+        this(client, new Long(jobDTO.JobId), jobDTO.Settings, libraries);
+    }
+
+    protected Job(JobsClient client, JobDTO jobDTO) throws JobConfigException {
+        this(client, new Long(jobDTO.JobId), jobDTO.Settings, null);
+    }
+
+    protected Job(JobsClient client, Long jobId, JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         this(client, jobId, jobSettingsDTO, null);
     }
 
-    protected Job(JobsClient client, long jobId, JobSettingsDTO jobSettingsDTO, List<Library> libraries) throws LibraryConfigException, URISyntaxException {
+    protected Job(JobsClient client, Long jobId, JobSettingsDTO jobSettingsDTO, List<Library> libraries) throws JobConfigException {
         _client = client;
 
-        Id = jobId;
+        try {
+            if(jobId == null) {
+                Id = client.createJob(jobSettingsDTO);
+            } else {
+                Id = jobId.longValue();
+            }
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        }
+
         Name = jobSettingsDTO.Name;
         MaxRetries = jobSettingsDTO.MaxRetries;
         MinRetryIntervalMillis = jobSettingsDTO.MinRetryIntervalMillis;
@@ -50,16 +65,20 @@ public abstract class Job {
         MaxConcurrentRuns = jobSettingsDTO.MaxConcurrentRuns;
         TimeoutSeconds = jobSettingsDTO.TimeoutSeconds;
 
-        List<Library> libraryList = libraries == null ? new ArrayList<Library>() : libraries;
-        if(jobSettingsDTO.Libraries != null) {
-            for (LibraryDTO libraryDTO : jobSettingsDTO.Libraries) {
-                //maintain object reference for passed in Libraries
-                if(!isInList(libraryDTO, libraryList)) {
-                    libraryList.add(LibraryHelper.createLibrary(getLibrariesClient(), libraryDTO));
+        try {
+            List<Library> libraryList = libraries == null ? new ArrayList<Library>() : libraries;
+            if(jobSettingsDTO.Libraries != null) {
+                for (LibraryDTO libraryDTO : jobSettingsDTO.Libraries) {
+                    //maintain object reference for passed in Libraries
+                    if(!isInList(libraryDTO, libraryList)) {
+                        libraryList.add(LibraryHelper.createLibrary(getLibrariesClient(), libraryDTO));
+                    }
                 }
             }
+            Libraries = Collections.unmodifiableList(libraryList);
+        } catch(LibraryConfigException e) {
+            throw new JobConfigException(e);
         }
-        Libraries = Collections.unmodifiableList(libraryList);
 
         //Schedule = TODO Add in Schedule
 
@@ -75,16 +94,6 @@ public abstract class Job {
             }
         }
         return false;
-    }
-
-    protected Job(JobsClient client, JobDTO jobDTO)
-            throws LibraryConfigException, URISyntaxException {
-        this(client, jobDTO.JobId, jobDTO.Settings);
-    }
-
-    protected Job(JobsClient client, JobDTO jobDTO, List<Library> libraries)
-            throws LibraryConfigException, URISyntaxException {
-        this(client, jobDTO.JobId, jobDTO.Settings);
     }
 
     private EmailNotification initOnStartNotification(JobEmailNotificationsDTO emailNotifications) {

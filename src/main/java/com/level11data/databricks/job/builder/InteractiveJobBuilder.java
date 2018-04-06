@@ -8,6 +8,7 @@ import com.level11data.databricks.client.entities.libraries.PythonPyPiLibraryDTO
 import com.level11data.databricks.client.entities.libraries.RCranLibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.util.ResourceUtils;

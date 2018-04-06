@@ -27,16 +27,20 @@ public class CranLibrary extends PublishedLibrary {
         RepoOverride = repo;
     }
 
-    public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws HttpException, LibraryConfigException {
-        ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
+    public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException {
+        try {
+            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
 
-        //find library status for this library
-        for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
-            if(libStat.Library.Cran != null) {
-                if(libStat.Library.Cran.Package.equals(this.PackageName)) {
-                    return new LibraryStatus(libStat);
+            //find library status for this library
+            for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
+                if(libStat.Library.Cran != null) {
+                    if(libStat.Library.Cran.Package.equals(this.PackageName)) {
+                        return new LibraryStatus(libStat);
+                    }
                 }
             }
+        } catch (HttpException e) {
+            throw new LibraryConfigException(e);
         }
         throw new LibraryConfigException("CRAN Library " + this.PackageName +
                 " Not Associated With Cluster Id " + cluster.Id);

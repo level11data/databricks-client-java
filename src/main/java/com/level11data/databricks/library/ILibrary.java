@@ -6,7 +6,7 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 
 public interface ILibrary {
 
-    LibraryStatus getClusterStatus(InteractiveCluster cluster) throws HttpException, LibraryConfigException;
+    LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException;
 
     ClusterLibrary install(InteractiveCluster cluster) throws HttpException;
 

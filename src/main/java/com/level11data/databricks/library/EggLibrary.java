@@ -18,17 +18,22 @@ public class EggLibrary extends PrivateLibrary {
         _client = client;
     }
 
-    public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws HttpException, LibraryConfigException {
-        ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
+    public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException {
+        try{
+            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
 
-        //find library status for this library
-        for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
-            if(libStat.Library.Egg != null) {
-                if(libStat.Library.Egg.equals(this.Uri.toString())) {
-                    return new LibraryStatus(libStat);
+            //find library status for this library
+            for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
+                if(libStat.Library.Egg != null) {
+                    if(libStat.Library.Egg.equals(this.Uri.toString())) {
+                        return new LibraryStatus(libStat);
+                    }
                 }
             }
+        } catch(HttpException e) {
+            throw new LibraryConfigException(e);
         }
+
         throw new LibraryConfigException("Egg Library " + this.Uri.toString() +
                 " Not Associated With Cluster Id " + cluster.Id);
     }

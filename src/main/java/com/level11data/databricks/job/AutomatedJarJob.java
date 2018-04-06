@@ -9,9 +9,6 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
-import com.level11data.databricks.library.LibraryConfigException;
-
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class AutomatedJarJob extends AutomatedJob {
@@ -20,33 +17,41 @@ public class AutomatedJarJob extends AutomatedJob {
     public final String MainClassName;
     public final String[] Parameters;
 
+    public AutomatedJarJob(JobsClient client, JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        this(client, jobSettingsDTO, null);
+    }
+
     public AutomatedJarJob(JobsClient client,
                            JobSettingsDTO jobSettingsDTO,
-                           List<Library> libraries) throws HttpException, JobConfigException, URISyntaxException, LibraryConfigException  {
-        super(client, client.createJob(jobSettingsDTO), jobSettingsDTO, libraries);
+                           List<Library> libraries) throws JobConfigException {
+        super(client, null, jobSettingsDTO, libraries);
         _client = client;
 
-        //Validate that the DTO represents an AutomatedNotebookJob
+        //Validate the DTO for this Job Type
         JobValidation.validateAutomatedJarJob(jobSettingsDTO);
 
         MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
         Parameters = jobSettingsDTO.SparkJarTask.Parameters;
     }
 
-    public AutomatedJarJobRun run() throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
+    public AutomatedJarJobRun run() throws JobRunException {
         return run(null);
     }
 
-    public AutomatedJarJobRun run(List<String> overrideParameters) throws HttpException, JobRunException, LibraryConfigException, URISyntaxException {
-        RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-        runRequestDTO.JobId = this.Id;
+    public AutomatedJarJobRun run(List<String> overrideParameters) throws JobRunException {
+        try {
+            RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
+            runRequestDTO.JobId = this.Id;
 
-        if(overrideParameters != null) {
-            runRequestDTO.JarParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            if(overrideParameters != null) {
+                runRequestDTO.JarParams = overrideParameters.toArray(new String[overrideParameters.size()]);
+            }
+            RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
+            RunDTO jobRun = _client.getRun(response.RunId);
+            return new AutomatedJarJobRun(_client, jobRun);
+        } catch (HttpException e) {
+            throw new JobRunException(e);
         }
-        RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
-        RunDTO jobRun = _client.getRun(response.RunId);
-        return new AutomatedJarJobRun(_client, jobRun);
     }
 
 
