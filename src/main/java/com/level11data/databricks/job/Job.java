@@ -139,22 +139,34 @@ public abstract class Job {
         }
     }
 
-    public Date getCreatedTime() throws HttpException {
-        if(!_jobInfoRequested) {
-            initJobInfo();
+    public Date getCreatedTime() throws JobConfigException {
+        try{
+            if(!_jobInfoRequested) {
+                initJobInfo();
+            }
+            return new Date(_jobDTO.CreatedTime);
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
         }
-        return new Date(_jobDTO.CreatedTime);
     }
 
-    public String getCreatorUserName() throws HttpException {
-        if(!_jobInfoRequested) {
-            initJobInfo();
+    public String getCreatorUserName() throws JobConfigException {
+        try {
+            if(!_jobInfoRequested) {
+                initJobInfo();
+            }
+            return _jobDTO.CreatorUserName;
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
         }
-        return _jobDTO.CreatorUserName;
     }
 
-    public void delete() throws HttpException {
-        _client.deleteJob(this.Id);
+    public void delete() throws JobConfigException {
+        try {
+            _client.deleteJob(this.Id);
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        }
     }
 
     private LibrariesClient getLibrariesClient() {

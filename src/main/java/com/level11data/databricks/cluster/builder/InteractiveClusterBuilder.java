@@ -20,7 +20,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
     private Integer _autoscaleMinWorkers;
     private Integer _autoscaleMaxWorkers;
     private Integer _autoTerminationMinutes;
-    private ArrayList<Library> _libraries = new ArrayList<Library>();
+    private ArrayList<Library> _libraries = new ArrayList<>();
 
     public InteractiveClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
         _client = client;
@@ -154,48 +154,50 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
         return this;
     }
 
-    public InteractiveCluster create() throws ClusterConfigException, HttpException {
+    public InteractiveCluster create() throws ClusterConfigException {
         validateLogConf();
 
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
         clusterInfoDTO = applySettings(clusterInfoDTO);
 
         //create cluster via client
-        clusterInfoDTO.ClusterId = _client.create(clusterInfoDTO);
-        InteractiveCluster cluster = new InteractiveCluster(_client, clusterInfoDTO);
+        try {
+            clusterInfoDTO.ClusterId = _client.create(clusterInfoDTO);
+            InteractiveCluster cluster = new InteractiveCluster(_client, clusterInfoDTO);
 
-        if(_libraries.size() > 0) {
-            //TODO include wait step in future on Library.install
-            ClusterState clusterState = cluster.getState();
-            if(!clusterState.isFinal()) {
-                while(!cluster.getState().equals(ClusterState.RUNNING)) {
-                    try {
-                        Thread.sleep(5000); //wait 5 seconds
-                    } catch (InterruptedException e){
-                        //swallow
+            if(_libraries.size() > 0) {
+                //TODO include wait step in future on Library.install
+                ClusterState clusterState = cluster.getState();
+                if(!clusterState.isFinal()) {
+                    while(!cluster.getState().equals(ClusterState.RUNNING)) {
+                        try {
+                            Thread.sleep(5000); //wait 5 seconds
+                        } catch (InterruptedException e){
+                            //swallow
+                        }
                     }
+                } else {
+                    throw new ClusterConfigException("Library cannot be attached to cluster because it is "+clusterState.toString());
                 }
-            } else {
-                throw new ClusterConfigException("Library cannot be attached to cluster because it is "+clusterState.toString());
             }
-        }
-
-        //install libraries
-        for (Library library : _libraries) {
-            if(library instanceof JarLibrary) {
-                cluster.installLibrary((JarLibrary) library);
-            } else if (library instanceof EggLibrary) {
-                cluster.installLibrary((EggLibrary) library);
-            } else if (library instanceof MavenLibrary) {
-                cluster.installLibrary((MavenLibrary) library);
-            } else if (library instanceof PyPiLibrary) {
-                cluster.installLibrary((PyPiLibrary) library);
-            } else if (library instanceof CranLibrary) {
-                cluster.installLibrary((CranLibrary) library);
+            //install libraries
+            for (Library library : _libraries) {
+                if(library instanceof JarLibrary) {
+                    cluster.installLibrary((JarLibrary) library);
+                } else if (library instanceof EggLibrary) {
+                    cluster.installLibrary((EggLibrary) library);
+                } else if (library instanceof MavenLibrary) {
+                    cluster.installLibrary((MavenLibrary) library);
+                } else if (library instanceof PyPiLibrary) {
+                    cluster.installLibrary((PyPiLibrary) library);
+                } else if (library instanceof CranLibrary) {
+                    cluster.installLibrary((CranLibrary) library);
+                }
             }
+            return cluster;
+        } catch (HttpException e) {
+            throw new ClusterConfigException(e);
         }
-
-        return cluster;
     }
 
 }

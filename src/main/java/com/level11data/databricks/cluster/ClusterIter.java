@@ -25,8 +25,6 @@ public class ClusterIter implements Iterator<InteractiveCluster> {
             InteractiveCluster cluster = new InteractiveCluster(_client, _clusterInfoDTOs[_clusterInfoIndex]);
             _clusterInfoIndex++;
             return cluster;
-        } catch (HttpException e) {
-            throw(new RuntimeException(e));
         } catch (ClusterConfigException e) {
             throw(new RuntimeException(e));
         }
@@ -35,8 +33,6 @@ public class ClusterIter implements Iterator<InteractiveCluster> {
     public InteractiveCluster first() throws RuntimeException {
         try {
             return new InteractiveCluster(_client, _clusterInfoDTOs[0]);
-        } catch (HttpException e) {
-            throw(new RuntimeException(e));
         } catch (ClusterConfigException e) {
             throw(new RuntimeException(e));
         }

@@ -3,7 +3,6 @@ package com.level11data.databricks.cluster.builder;
 import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.*;
-import com.level11data.databricks.library.Library;
 
 import java.util.ArrayList;
 import java.util.HashMap;

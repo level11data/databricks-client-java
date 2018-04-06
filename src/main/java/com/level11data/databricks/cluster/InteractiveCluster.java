@@ -43,7 +43,7 @@ public class InteractiveCluster extends Cluster{
      * @param info Databricks ClusterInfoDTO POJO
      * @throws ClusterConfigException
      */
-    public InteractiveCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
+    public InteractiveCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException {
         super(client, info);
         _client = client;
 
@@ -168,12 +168,21 @@ public class InteractiveCluster extends Cluster{
         return _librariesClient;
     }
 
-    public void installLibrary(Library library) throws HttpException {
-        _libraries.add(library.install(this));
+    public void installLibrary(Library library) throws ClusterConfigException {
+        try {
+            _libraries.add(library.install(this));
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
+
     }
 
-    public void uninstallLibrary(Library library) throws HttpException {
-        library.uninstall(this);
+    public void uninstallLibrary(Library library) throws ClusterConfigException {
+        try {
+            library.uninstall(this);
+        } catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
     public List<ClusterLibrary> getLibraries() throws LibraryConfigException, HttpException, URISyntaxException {
@@ -214,8 +223,7 @@ public class InteractiveCluster extends Cluster{
         return null;
     }
 
-    private Library getLibraryFromDTO(ClusterLibraryStatusesDTO remoteLibStatuses,
-                                      Library library) throws HttpException {
+    private Library getLibraryFromDTO(ClusterLibraryStatusesDTO remoteLibStatuses, Library library) throws HttpException {
         for (LibraryFullStatusDTO remoteLibStatus : remoteLibStatuses.LibraryStatuses) {
             if (library.equals(remoteLibStatus.Library)) {
                 return library;
