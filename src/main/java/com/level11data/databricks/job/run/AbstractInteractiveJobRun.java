@@ -8,12 +8,12 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 
-abstract public class InteractiveJobRun extends JobRun {
+abstract public class AbstractInteractiveJobRun extends AbstractJobRun {
     private InteractiveCluster _cluster;
     private JobsClient _client;
     private boolean _clusterCreated = false;
 
-    protected InteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
+    protected AbstractInteractiveJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         _client = client;
 
@@ -47,7 +47,7 @@ abstract public class InteractiveJobRun extends JobRun {
         } else {
             _clusterCreated = true;
             if(runDTO.ClusterSpec.ExistingClusterId == null) {
-                throw new JobRunException("JobRun is not associated with an interactive cluster");
+                throw new JobRunException("AbstractJobRun is not associated with an interactive cluster");
             } else {
                 return;
             }

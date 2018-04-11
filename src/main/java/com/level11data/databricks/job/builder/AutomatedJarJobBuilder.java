@@ -6,7 +6,7 @@ import com.level11data.databricks.client.entities.jobs.SparkJarTaskDTO;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedJarJob;
 import com.level11data.databricks.job.JobConfigException;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.JarLibrary;
 import com.level11data.databricks.library.LibraryConfigException;
 import org.quartz.Trigger;
@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
 
-public class AutomatedJarJobBuilder extends AutomatedJobWithLibrariesBuilder {
+public class AutomatedJarJobBuilder extends AbstractAutomatedJobWithLibrariesBuilder {
 
     private final JobsClient _client;
     private final String _mainClassName;
@@ -109,7 +109,7 @@ public class AutomatedJarJobBuilder extends AutomatedJobWithLibrariesBuilder {
     }
 
     @Override
-    public AutomatedJarJobBuilder withLibrary(ILibrary library) {
+    public AutomatedJarJobBuilder withLibrary(Library library) {
         return (AutomatedJarJobBuilder)super.withLibrary(library);
     }
 

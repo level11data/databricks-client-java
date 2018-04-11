@@ -5,7 +5,7 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import java.util.List;
 
-public class AutomatedJarJobRun extends AutomatedJobRun implements IJobRun {
+public class AutomatedJarJobRun extends AbstractAutomatedJobRun implements JobRun {
     private JobsClient _client;
 
     public final List<String> BaseParameters;
@@ -16,7 +16,7 @@ public class AutomatedJarJobRun extends AutomatedJobRun implements IJobRun {
         _client = client;
 
         if(!runDTO.isJarJob()) {
-            throw new JobRunException("Job Run is not configured as a JAR Job");
+            throw new JobRunException("AbstractJob Run is not configured as a JAR AbstractJob");
         }
 
         //Set Base Parameters of Run

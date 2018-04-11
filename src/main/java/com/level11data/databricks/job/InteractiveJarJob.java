@@ -9,11 +9,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.run.InteractiveJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 
 import java.util.List;
 
-public class InteractiveJarJob extends InteractiveJob implements IStandardJob {
+public class InteractiveJarJob extends AbstractInteractiveJob implements StandardJob {
     private JobsClient _client;
 
     public final String MainClassName;
@@ -28,7 +28,7 @@ public class InteractiveJarJob extends InteractiveJob implements IStandardJob {
     public InteractiveJarJob(JobsClient client,
                     InteractiveCluster cluster,
                     JobSettingsDTO jobSettingsDTO,
-                    List < ILibrary > libraries) throws JobConfigException {
+                    List <Library> libraries) throws JobConfigException {
             super(client, cluster, null, jobSettingsDTO, libraries);
             _client = client;
 

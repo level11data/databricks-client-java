@@ -82,11 +82,11 @@ public class DatabricksSession {
         return _dbfsClient;
     }
 
-    public InteractiveClusterBuilder createCluster(String name, Integer numWorkers)  {
+    public InteractiveClusterBuilder createInteractiveCluster(String name, Integer numWorkers)  {
         return new InteractiveClusterBuilder(getClustersClient(), name, numWorkers);
     }
 
-    public InteractiveClusterBuilder createCluster(String name, Integer minWorkers, Integer maxWorkers) {
+    public InteractiveClusterBuilder createInteractiveCluster(String name, Integer minWorkers, Integer maxWorkers) {
         return new InteractiveClusterBuilder(getClustersClient(), name, minWorkers, maxWorkers);
     }
 
@@ -276,7 +276,7 @@ public class DatabricksSession {
         RunDTO runDTO = client.getRun(runId);
 
         if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
-            JobRun run = new InteractiveNotebookJobRun(client, runDTO);
+            InteractiveNotebookJobRun run = new InteractiveNotebookJobRun(client, runDTO);
             return run;
         } else {
             throw new Exception("Unsupported Job Type");  //TODO add better exception handling

@@ -43,8 +43,8 @@ public class InteractiveNotebookJobTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
-        //Create Interactive Cluster
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
+        //Create Interactive AbstractCluster
+        InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
@@ -65,24 +65,24 @@ public class InteractiveNotebookJobTest {
                 .withName("testSimpleInteractiveNotebookJob "+now)
                 .create();
 
-        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
+        Assert.assertEquals("AbstractJob CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
                 _databricksConfig.getClientUsername(), job.getCreatorUserName());
 
-        Assert.assertEquals("Job Parameters is not zero", 0, job.BaseParameters.size());
+        Assert.assertEquals("AbstractJob Parameters is not zero", 0, job.BaseParameters.size());
 
         //run job
         InteractiveNotebookJobRun jobRun = job.run();
 
-        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
+        Assert.assertEquals("AbstractJob Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
                 _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
 
-        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
+        Assert.assertEquals("AbstractJob Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
         while(!jobRun.getRunState().LifeCycleState.isFinal()) {
             Thread.sleep(5000); //wait 5 seconds
         }
 
-        Assert.assertEquals("Job Run Output Does Not Match", "2", jobRun.getOutput());
+        Assert.assertEquals("AbstractJob Run Output Does Not Match", "2", jobRun.getOutput());
 
         //cleanup
         job.delete();
@@ -99,8 +99,8 @@ public class InteractiveNotebookJobTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
-        //Create Interactive Cluster
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
+        //Create Interactive AbstractCluster
+        InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
@@ -125,18 +125,18 @@ public class InteractiveNotebookJobTest {
                 .withName("testSimpleInteractiveNotebookJobWithParams "+now)
                 .create();
 
-        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
+        Assert.assertEquals("AbstractJob CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
                 _databricksConfig.getClientUsername(), job.getCreatorUserName());
 
-        Assert.assertEquals("Job Parameters is not 2", 2, job.BaseParameters.size());
+        Assert.assertEquals("AbstractJob Parameters is not 2", 2, job.BaseParameters.size());
 
         //run job
         InteractiveNotebookJobRun jobRun = job.run();
 
-        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
+        Assert.assertEquals("AbstractJob Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
                 _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
 
-        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
+        Assert.assertEquals("AbstractJob Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
         Assert.assertEquals("Parameter 1 was not set", "Hello",
                 jobRun.BaseParameters.get("parameter1"));
@@ -148,7 +148,7 @@ public class InteractiveNotebookJobTest {
             Thread.sleep(5000); //wait 5 seconds
         }
 
-        Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Hello, and this is Parameter 2: World",
+        Assert.assertEquals("AbstractJob Output Does Not Match", "This is Parameter 1: Hello, and this is Parameter 2: World",
                 jobRun.getOutput());
 
         HashMap<String,String> parameterOverride = new HashMap<String,String>();
@@ -167,7 +167,7 @@ public class InteractiveNotebookJobTest {
             Thread.sleep(5000); //wait 5 seconds
         }
 
-        Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Override One, and this is Parameter 2: Override Two",
+        Assert.assertEquals("AbstractJob Output Does Not Match", "This is Parameter 1: Override One, and this is Parameter 2: Override Two",
                 jobRunWithParamOverride.getOutput());
 
         //cleanup

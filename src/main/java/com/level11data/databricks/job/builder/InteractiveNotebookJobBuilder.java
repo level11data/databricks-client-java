@@ -13,12 +13,11 @@ import org.quartz.Trigger;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
+public class InteractiveNotebookJobBuilder extends AbstractInteractiveJobBuilder {
     private final Notebook _notebook;
     private final JobsClient _client;
     private final Map<String,String> _baseParameters;
@@ -172,7 +171,7 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
             //create job via client
             long jobId = _client.createJob(jobSettingsDTO);
 
-            //create Job from jobSettingsDTO and jobId
+            //create AbstractJob from jobSettingsDTO and jobId
             return new InteractiveNotebookJob(_client, this.Cluster, jobSettingsDTO, _notebook, getLibraries());
         } catch(HttpException e) {
             throw new JobConfigException(e);

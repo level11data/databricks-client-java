@@ -5,9 +5,9 @@ import com.level11data.databricks.library.*;
 
 public class ClusterLibrary {
     public final InteractiveCluster Cluster;
-    public final Library Library;
+    public final AbstractLibrary Library;
 
-    public ClusterLibrary(InteractiveCluster cluster, Library library) {
+    public ClusterLibrary(InteractiveCluster cluster, AbstractLibrary library) {
         Cluster = cluster;
         Library = library;
     }
@@ -24,7 +24,7 @@ public class ClusterLibrary {
         } else if (Library instanceof CranLibrary) {
             return ((CranLibrary) Library).getClusterStatus(Cluster);
         } else {
-            throw new LibraryConfigException("Unknown Library Type " + Library.getClass().getTypeName());
+            throw new LibraryConfigException("Unknown AbstractLibrary Type " + Library.getClass().getTypeName());
         }
     }
 

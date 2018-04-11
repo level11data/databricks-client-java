@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 
 public class LibraryHelper {
 
-    public static Library createLibrary(LibrariesClient librariesClient, LibraryDTO libraryDTO) throws LibraryConfigException {
+    public static AbstractLibrary createLibrary(LibrariesClient librariesClient, LibraryDTO libraryDTO) throws LibraryConfigException {
         try {
             if(libraryDTO.Jar != null) {
                 return new JarLibrary(librariesClient, new URI(libraryDTO.Jar));
@@ -32,7 +32,7 @@ public class LibraryHelper {
                         libraryDTO.Cran.Package,
                         libraryDTO.Cran.Repo);
             } else {
-                throw new LibraryConfigException("Unknown Library Type");
+                throw new LibraryConfigException("Unknown AbstractLibrary Type");
             }
         } catch (URISyntaxException e) {
             throw new LibraryConfigException(e);
@@ -104,7 +104,7 @@ public class LibraryHelper {
         return libraryDTO;
     }
 
-    public static LibraryDTO createLibraryDTO(Library library) {
+    public static LibraryDTO createLibraryDTO(AbstractLibrary library) {
         LibraryDTO libraryDTO = new LibraryDTO();
 
         if(library instanceof JarLibrary) {

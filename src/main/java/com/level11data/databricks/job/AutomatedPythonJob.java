@@ -8,11 +8,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.job.run.AutomatedPythonJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.Library;
+
 import java.util.List;
 
-public class AutomatedPythonJob extends AutomatedJob implements IStandardJob {
+public class AutomatedPythonJob extends AbstractAutomatedJob implements StandardJob {
 
     private JobsClient _client;
     public final PythonScript PythonScript;
@@ -27,11 +27,11 @@ public class AutomatedPythonJob extends AutomatedJob implements IStandardJob {
     public AutomatedPythonJob(JobsClient client,
                               PythonScript pythonScript,
                               JobSettingsDTO jobSettingsDTO,
-                              List<ILibrary> libraries) throws JobConfigException {
+                              List<Library> libraries) throws JobConfigException {
         super(client, null, jobSettingsDTO, libraries);
         _client = client;
 
-        //Validate DTO for this Job Type
+        //Validate DTO for this AbstractJob Type
         JobValidation.validateAutomatedPythonJob(jobSettingsDTO);
 
         PythonScript = pythonScript; //maintain object reference from builder

@@ -1,20 +1,19 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.job.JobConfigException;
 
-public abstract class AutomatedJobBuilder extends JobBuilder {
+public abstract class AbstractAutomatedJobBuilder extends AbstractJobBuilder {
     private AutomatedClusterBuilder _clusterBuilder ;
     private ClusterSpec _clusterSpec;
 
-    public AutomatedJobBuilder() {
+    public AbstractAutomatedJobBuilder() {
         super();
     }
 
-    public AutomatedJobBuilder withClusterSpec(ClusterSpec clusterSpec) {
+    public AbstractAutomatedJobBuilder withClusterSpec(ClusterSpec clusterSpec) {
         _clusterSpec = clusterSpec;
         return this;
     }
@@ -30,7 +29,7 @@ public abstract class AutomatedJobBuilder extends JobBuilder {
     @Override
     protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         if(jobSettingsDTO.NewCluster == null) {
-            throw new JobConfigException("No ClusterSpec was supplied for Automated Job");
+            throw new JobConfigException("No ClusterSpec was supplied for Automated AbstractJob");
         }
     }
 }

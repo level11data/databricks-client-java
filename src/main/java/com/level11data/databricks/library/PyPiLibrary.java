@@ -7,7 +7,7 @@ import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.library.util.LibraryHelper;
 
-public class PyPiLibrary extends PublishedLibrary {
+public class PyPiLibrary extends AbstractPublishedLibrary {
     private final LibrariesClient _client;
 
     public final String PackageName;
@@ -42,8 +42,8 @@ public class PyPiLibrary extends PublishedLibrary {
         } catch (HttpException e) {
             throw new LibraryConfigException(e);
         }
-        throw new LibraryConfigException("PyPi Library " + this.PackageName +
-                " Not Associated With Cluster Id " + cluster.Id);
+        throw new LibraryConfigException("PyPi AbstractLibrary " + this.PackageName +
+                " Not Associated With AbstractCluster Id " + cluster.Id);
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {

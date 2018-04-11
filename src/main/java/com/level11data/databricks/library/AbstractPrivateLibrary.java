@@ -9,12 +9,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-public abstract class PrivateLibrary extends Library {
+public abstract class AbstractPrivateLibrary extends AbstractLibrary {
     private final LibrariesClient _client;
 
     public final URI Uri;
 
-    public PrivateLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
+    public AbstractPrivateLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
         super(client);
         _client = client;
         validate(uri);

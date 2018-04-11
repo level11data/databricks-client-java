@@ -4,7 +4,7 @@ import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 
-public class AutomatedCluster extends Cluster implements ICluster {
+public class AutomatedCluster extends AbstractCluster implements Cluster {
 
     public AutomatedCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
         super(client, info);

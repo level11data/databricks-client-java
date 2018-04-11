@@ -7,7 +7,7 @@ import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.library.util.LibraryHelper;
 
-public class CranLibrary extends PublishedLibrary {
+public class CranLibrary extends AbstractPublishedLibrary {
     private final LibrariesClient _client;
 
     public final String PackageName;
@@ -42,8 +42,8 @@ public class CranLibrary extends PublishedLibrary {
         } catch (HttpException e) {
             throw new LibraryConfigException(e);
         }
-        throw new LibraryConfigException("CRAN Library " + this.PackageName +
-                " Not Associated With Cluster Id " + cluster.Id);
+        throw new LibraryConfigException("CRAN AbstractLibrary " + this.PackageName +
+                " Not Associated With AbstractCluster Id " + cluster.Id);
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {

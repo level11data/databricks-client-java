@@ -6,7 +6,7 @@ import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.util.JobRunHelper;
 import java.util.Map;
 
-public class InteractiveNotebookJobRun extends InteractiveJobRun implements INotebookJobRun {
+public class InteractiveNotebookJobRun extends AbstractInteractiveJobRun implements NotebookJobRun {
     private JobsClient _client;
     private String _jobRunOutputResult;
 
@@ -18,7 +18,7 @@ public class InteractiveNotebookJobRun extends InteractiveJobRun implements INot
         super(client, runDTO);
         _client = client;
         if(!runDTO.isNotebookJob()) {
-            throw new JobRunException("Job Run is not configured as a Notebook Job");
+            throw new JobRunException("AbstractJob Run is not configured as a Notebook AbstractJob");
         }
         NotebookPath = runDTO.Task.NotebookTask.NotebookPath;
 

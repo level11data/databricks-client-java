@@ -8,7 +8,7 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.InteractivePythonJob;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.job.PythonScript;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.util.ResourceConfigException;
 import org.quartz.Trigger;
@@ -16,11 +16,10 @@ import org.quartz.Trigger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.TimeZone;
 
-public class InteractivePythonJobBuilder extends InteractiveJobBuilder {
+public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
     private final JobsClient _client;
     private final PythonScript _pythonScript;
     private final File _pythonFile;
@@ -109,7 +108,7 @@ public class InteractivePythonJobBuilder extends InteractiveJobBuilder {
     }
 
     @Override
-    public InteractivePythonJobBuilder withLibrary(ILibrary library) {
+    public InteractivePythonJobBuilder withLibrary(Library library) {
         return (InteractivePythonJobBuilder)super.withLibrary(library);
     }
 

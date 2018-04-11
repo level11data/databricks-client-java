@@ -1,6 +1,5 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.SparkJarTaskDTO;
@@ -13,12 +12,11 @@ import org.quartz.Trigger;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
+public class InteractiveJarJobBuilder extends AbstractInteractiveJobBuilder {
     private final JobsClient _client;
     private final String _mainClassName;
     private final List<String> _baseParameters;

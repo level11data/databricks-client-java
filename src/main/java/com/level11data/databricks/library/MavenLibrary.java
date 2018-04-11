@@ -7,7 +7,7 @@ import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.library.util.LibraryHelper;
 
-public class MavenLibrary extends PublishedLibrary {
+public class MavenLibrary extends AbstractPublishedLibrary {
     private final LibrariesClient _client;
 
     public final String Coordinates;
@@ -61,8 +61,8 @@ public class MavenLibrary extends PublishedLibrary {
         } catch(HttpException e) {
             throw new LibraryConfigException(e);
         }
-        throw new LibraryConfigException("Maven Library " + this.Coordinates +
-                " Not Associated With Cluster Id " + cluster.Id);
+        throw new LibraryConfigException("Maven AbstractLibrary " + this.Coordinates +
+                " Not Associated With AbstractCluster Id " + cluster.Id);
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {

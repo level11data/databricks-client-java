@@ -60,8 +60,8 @@ public class InteractivePythonJobTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
-        //Create Interactive Cluster
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
+        //Create Interactive AbstractCluster
+        InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("4.0.x-scala2.11")
                 .withNodeType("i3.xlarge")
@@ -71,12 +71,12 @@ public class InteractivePythonJobTest {
         baseParams.add("hello");
         baseParams.add("world");
 
-        //Create Job
+        //Create AbstractJob
         InteractivePythonJob job = cluster.createJob(pythonScript, pythonFile, baseParams)
                 .withName(clusterName)
                 .create();
 
-        //Run Job
+        //Run AbstractJob
         InteractivePythonJobRun run = job.run();
 
         while(!run.getRunState().LifeCycleState.isFinal()) {

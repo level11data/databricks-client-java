@@ -10,7 +10,7 @@ import com.level11data.databricks.library.util.LibraryHelper;
 
 import java.net.URI;
 
-public class EggLibrary extends PrivateLibrary {
+public class EggLibrary extends AbstractPrivateLibrary {
     private final LibrariesClient _client;
 
     public EggLibrary(LibrariesClient client, URI uri) throws LibraryConfigException {
@@ -34,8 +34,8 @@ public class EggLibrary extends PrivateLibrary {
             throw new LibraryConfigException(e);
         }
 
-        throw new LibraryConfigException("Egg Library " + this.Uri.toString() +
-                " Not Associated With Cluster Id " + cluster.Id);
+        throw new LibraryConfigException("Egg AbstractLibrary " + this.Uri.toString() +
+                " Not Associated With AbstractCluster Id " + cluster.Id);
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {

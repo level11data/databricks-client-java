@@ -4,16 +4,16 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 import java.util.List;
 
-public abstract class AutomatedJob extends Job {
+public abstract class AbstractAutomatedJob extends AbstractJob {
     public final ClusterSpec ClusterSpec;
 
-    protected AutomatedJob(JobsClient client,
-                           Long jobId,
-                           JobSettingsDTO jobSettingsDTO,
-                           List<ILibrary> libraries) throws JobConfigException {
+    protected AbstractAutomatedJob(JobsClient client,
+                                   Long jobId,
+                                   JobSettingsDTO jobSettingsDTO,
+                                   List<Library> libraries) throws JobConfigException {
         super(client, jobId, jobSettingsDTO, libraries);
         try {
             ClusterSpec = new ClusterSpec(jobSettingsDTO.NewCluster);
@@ -23,9 +23,9 @@ public abstract class AutomatedJob extends Job {
 
     }
 
-    protected AutomatedJob(JobsClient client,
-                           Long jobId,
-                           JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+    protected AbstractAutomatedJob(JobsClient client,
+                                   Long jobId,
+                                   JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         super(client, jobId, jobSettingsDTO, null);
         try {
             ClusterSpec = new ClusterSpec(jobSettingsDTO.NewCluster);

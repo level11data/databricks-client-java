@@ -9,14 +9,14 @@ import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 
-public abstract class AutomatedJobRun extends JobRun {
+public abstract class AbstractAutomatedJobRun extends AbstractJobRun {
     private AutomatedCluster _cluster;
     private JobsClient _client;
     private boolean _clusterCreated = false;
 
     public final ClusterSpec NewClusterSpec;
 
-    protected AutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
+    protected AbstractAutomatedJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         super(client, runDTO);
         _client = client;
 
@@ -58,7 +58,7 @@ public abstract class AutomatedJobRun extends JobRun {
         } else {
             _clusterCreated = true;
             if(runDTO.ClusterSpec.NewCluster == null) {
-                throw new JobRunException("JobRun is not associated with an automated cluster");
+                throw new JobRunException("AbstractJobRun is not associated with an automated cluster");
             } else {
                 return;
             }

@@ -13,7 +13,7 @@ public class ResourceUtils {
         boolean isValid = false;
 
         if(scheme == null) {
-            throw new ResourceConfigException("Library must be stored in dbfs or s3. Make sure the URI begins with 'dbfs:' or 's3:'");
+            throw new ResourceConfigException("AbstractLibrary must be stored in dbfs or s3. Make sure the URI begins with 'dbfs:' or 's3:'");
         } else if(scheme.equals("dbfs")) {
             isValid = true;
         } else if(scheme.equals("s3")) {

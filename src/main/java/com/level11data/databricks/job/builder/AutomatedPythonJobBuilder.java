@@ -8,7 +8,7 @@ import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedPythonJob;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.job.PythonScript;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.util.ResourceConfigException;
 import org.quartz.Trigger;
@@ -19,7 +19,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
 
-public class AutomatedPythonJobBuilder extends AutomatedJobWithLibrariesBuilder {
+public class AutomatedPythonJobBuilder extends AbstractAutomatedJobWithLibrariesBuilder {
 
     private final JobsClient _client;
     private final PythonScript _pythonScript;
@@ -109,7 +109,7 @@ public class AutomatedPythonJobBuilder extends AutomatedJobWithLibrariesBuilder 
     }
 
     @Override
-    public AutomatedPythonJobBuilder withLibrary(ILibrary library) {
+    public AutomatedPythonJobBuilder withLibrary(Library library) {
         return (AutomatedPythonJobBuilder)super.withLibrary(library);
     }
 

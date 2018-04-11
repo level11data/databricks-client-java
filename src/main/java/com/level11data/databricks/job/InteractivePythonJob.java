@@ -9,11 +9,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.run.InteractivePythonJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 
 import java.util.List;
 
-public class InteractivePythonJob extends InteractiveJob implements IStandardJob {
+public class InteractivePythonJob extends AbstractInteractiveJob implements StandardJob {
     private JobsClient _client;
 
     public final PythonScript PythonScript;
@@ -30,12 +30,12 @@ public class InteractivePythonJob extends InteractiveJob implements IStandardJob
                                 InteractiveCluster cluster,
                                 PythonScript pythonScript,
                                 JobSettingsDTO jobSettingsDTO,
-                                List<ILibrary> libraries) throws JobConfigException {
+                                List<Library> libraries) throws JobConfigException {
         super(client, cluster, null, jobSettingsDTO, libraries);
         _client = client;
         PythonScript = pythonScript;
 
-        //Validate DTO for this Job Type
+        //Validate DTO for this AbstractJob Type
         JobValidation.validateInteractivePythonJob(jobSettingsDTO);
 
         Parameters = jobSettingsDTO.SparkPythonTask.Parameters;

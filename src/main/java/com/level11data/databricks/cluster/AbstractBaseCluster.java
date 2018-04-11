@@ -7,7 +7,7 @@ import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 
 import java.util.*;
 
-public abstract class BaseCluster {
+public abstract class AbstractBaseCluster {
     private Boolean _clusterInfoRequested = false;
     private ClusterInfoDTO _clusterInfoDTO;
     private ClustersClient _client;
@@ -28,7 +28,7 @@ public abstract class BaseCluster {
     public final Map<String, String> SparkEnvironmentVariables;
 
     //This signature is used by ClusterSpec
-    protected BaseCluster(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
+    protected AbstractBaseCluster(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(clusterInfoDTO);
 
@@ -78,7 +78,7 @@ public abstract class BaseCluster {
         SparkEnvironmentVariables = Collections.unmodifiableMap(sparkEnvVarMap);
     }
 
-    protected BaseCluster(ClustersClient client, ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
+    protected AbstractBaseCluster(ClustersClient client, ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(clusterInfoDTO);
 

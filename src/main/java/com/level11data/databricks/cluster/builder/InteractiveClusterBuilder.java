@@ -13,11 +13,11 @@ import com.level11data.databricks.library.*;
 
 import java.util.ArrayList;
 
-public class InteractiveClusterBuilder extends ClusterBuilder implements IClusterBuilder {
+public class InteractiveClusterBuilder extends AbstractClusterBuilder implements ClusterBuilder {
     protected ClustersClient _client;
 
     private Integer _autoTerminationMinutes;
-    private ArrayList<Library> _libraries = new ArrayList<>();
+    private ArrayList<AbstractLibrary> _libraries = new ArrayList<>();
 
     public InteractiveClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
         super(client, clusterName, numWorkers);
@@ -150,7 +150,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder implements ICluste
         return this;
     }
 
-    public InteractiveClusterBuilder withLibrary(Library library) {
+    public InteractiveClusterBuilder withLibrary(AbstractLibrary library) {
         _libraries.add(library);
         return this;
     }
@@ -167,7 +167,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder implements ICluste
             InteractiveCluster cluster = new InteractiveCluster(_client, clusterInfoDTO);
 
             if(_libraries.size() > 0) {
-                //TODO include wait step in FUTURE on Library.install
+                //TODO include wait step in FUTURE on AbstractLibrary.install
                 ClusterState clusterState = cluster.getState();
                 if(!clusterState.isFinal()) {
                     while(!cluster.getState().equals(ClusterState.RUNNING)) {
@@ -178,11 +178,11 @@ public class InteractiveClusterBuilder extends ClusterBuilder implements ICluste
                         }
                     }
                 } else {
-                    throw new ClusterConfigException("Library cannot be attached to cluster because it is "+clusterState.toString());
+                    throw new ClusterConfigException("AbstractLibrary cannot be attached to cluster because it is "+clusterState.toString());
                 }
             }
             //install libraries
-            for (Library library : _libraries) {
+            for (AbstractLibrary library : _libraries) {
                 if(library instanceof JarLibrary) {
                     cluster.installLibrary((JarLibrary) library);
                 } else if (library instanceof EggLibrary) {

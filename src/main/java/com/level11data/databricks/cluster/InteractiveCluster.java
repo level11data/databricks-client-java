@@ -18,7 +18,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public class InteractiveCluster extends Cluster implements ICluster {
+public class InteractiveCluster extends AbstractCluster implements Cluster {
     private ClustersClient _client;
     private LibrariesClient _librariesClient;
     private JobsClient _jobsClient;
@@ -151,7 +151,7 @@ public class InteractiveCluster extends Cluster implements ICluster {
         return _librariesClient;
     }
 
-    public void installLibrary(Library library) throws ClusterConfigException {
+    public void installLibrary(AbstractLibrary library) throws ClusterConfigException {
         try {
             _libraries.add(library.install(this));
         } catch(HttpException e) {
@@ -160,7 +160,7 @@ public class InteractiveCluster extends Cluster implements ICluster {
 
     }
 
-    public void uninstallLibrary(Library library) throws ClusterConfigException {
+    public void uninstallLibrary(AbstractLibrary library) throws ClusterConfigException {
         try {
             library.uninstall(this);
         } catch(HttpException e) {
@@ -177,7 +177,7 @@ public class InteractiveCluster extends Cluster implements ICluster {
             _libraries = new ArrayList<ClusterLibrary>();
         } else {
             for (LibraryFullStatusDTO libStat : remoteLibStatuses.LibraryStatuses) {
-                Library library = LibraryHelper.createLibrary(getLibrariesClient(), libStat.Library);
+                AbstractLibrary library = LibraryHelper.createLibrary(getLibrariesClient(), libStat.Library);
                 ClusterLibrary clusterLibrary = getClusterLibraryFromCache(library);
                 if(clusterLibrary == null) {
                     _libraries.add(new ClusterLibrary(this, library));
@@ -196,7 +196,7 @@ public class InteractiveCluster extends Cluster implements ICluster {
         return Collections.unmodifiableList(_libraries);
     }
 
-    private ClusterLibrary getClusterLibraryFromCache(Library library) throws HttpException {
+    private ClusterLibrary getClusterLibraryFromCache(AbstractLibrary library) throws HttpException {
         for (ClusterLibrary clusterLibrary : _libraries) {
             if(clusterLibrary.Library.equals(library)) {
                 return clusterLibrary;
@@ -206,13 +206,13 @@ public class InteractiveCluster extends Cluster implements ICluster {
         return null;
     }
 
-    private Library getLibraryFromDTO(ClusterLibraryStatusesDTO remoteLibStatuses, Library library) throws HttpException {
+    private AbstractLibrary getLibraryFromDTO(ClusterLibraryStatusesDTO remoteLibStatuses, AbstractLibrary library) throws HttpException {
         for (LibraryFullStatusDTO remoteLibStatus : remoteLibStatuses.LibraryStatuses) {
             if (library.equals(remoteLibStatus.Library)) {
                 return library;
             }
         }
-        //Library could not be found in DTO
+        //AbstractLibrary could not be found in DTO
         return null;
     }
 }

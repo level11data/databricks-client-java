@@ -4,10 +4,8 @@ import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedJarJob;
-import com.level11data.databricks.job.IJob;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
 import com.level11data.databricks.job.run.RunResultState;
-import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.library.JarLibrary;
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,7 +80,7 @@ public class AutomatedJarJobTest {
             Thread.sleep(10000); //sleep 10 seconds
         }
 
-        Assert.assertEquals("Job Run was NOT Successful", RunResultState.SUCCESS,
+        Assert.assertEquals("AbstractJob Run was NOT Successful", RunResultState.SUCCESS,
                 run.getRunState().ResultState);
 
         //cleanup

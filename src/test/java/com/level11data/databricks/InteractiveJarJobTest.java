@@ -59,8 +59,8 @@ public class InteractiveJarJobTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
-        //Create Interactive Cluster
-        InteractiveCluster cluster = _databricks.createCluster(clusterName, 1)
+        //Create Interactive AbstractCluster
+        InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("4.0.x-scala2.11") //must be a Spark 1.6.x cluster
                 .withNodeType("i3.xlarge")
@@ -72,7 +72,7 @@ public class InteractiveJarJobTest {
 
         JarLibrary jarLibrary = _databricks.getJarLibrary(new URI(dbfsPath));
 
-        //Create Job
+        //Create AbstractJob
         InteractiveJarJob job = cluster.createJob(jarLibrary,
                 "com.level11data.example.scala.simpleapp.SimpleApp",
                 jarFile,
@@ -80,7 +80,7 @@ public class InteractiveJarJobTest {
                 .withName(clusterName)
                 .create();
 
-        //Run Job
+        //Run AbstractJob
         InteractiveJarJobRun run = job.run();
 
         while(!run.getRunState().LifeCycleState.isFinal()) {

@@ -10,14 +10,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AutomatedNotebookJob extends AutomatedJob implements INotebookJob {
+public class AutomatedNotebookJob extends AbstractAutomatedJob implements NotebookJob {
 
     private JobsClient _client;
     public final com.level11data.databricks.workspace.Notebook Notebook;
     public final Map<String,String> BaseParameters;
 
     /**
-     * Create a Notebook Job on an Automated Cluster
+     * Create a Notebook AbstractJob on an Automated AbstractCluster
      *
      * @param client
      * @param jobSettingsDTO
@@ -29,7 +29,7 @@ public class AutomatedNotebookJob extends AutomatedJob implements INotebookJob {
         super(client, null, jobSettingsDTO);
         _client = client;
 
-        //Validate DTO for this Job Type
+        //Validate DTO for this AbstractJob Type
         JobValidation.validateAutomatedNotebookJob(jobSettingsDTO);
 
         Notebook = notebook;
@@ -42,7 +42,7 @@ public class AutomatedNotebookJob extends AutomatedJob implements INotebookJob {
     }
 
     /**
-     * Create a Notebook Job on an Automated Cluster using a Job DTO object
+     * Create a Notebook AbstractJob on an Automated AbstractCluster using a AbstractJob DTO object
      *
      * @param client
      * @param jobDTO
@@ -54,7 +54,7 @@ public class AutomatedNotebookJob extends AutomatedJob implements INotebookJob {
 
         _client = client;
 
-        //Validate DTO for this Job Type
+        //Validate DTO for this AbstractJob Type
         JobValidation.validateAutomatedNotebookJob(jobDTO);
 
         Notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);

@@ -6,7 +6,7 @@ import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedNotebookJob;
 import com.level11data.databricks.job.JobConfigException;
-import com.level11data.databricks.library.ILibrary;
+import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilder {
+public class AutomatedNotebookJobBuilder extends AbstractAutomatedJobWithLibrariesBuilder {
     private final Notebook _notebook;
     private final JobsClient _client;
     private final Map<String,String> _baseParameters;
@@ -85,7 +85,7 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
     }
 
     @Override
-    public AutomatedNotebookJobBuilder withLibrary(ILibrary library) {
+    public AutomatedNotebookJobBuilder withLibrary(Library library) {
         return (AutomatedNotebookJobBuilder)super.withLibrary(library);
     }
 

@@ -5,7 +5,7 @@ import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.PythonScript;
 import java.util.List;
 
-public class InteractivePythonJobRun extends InteractiveJobRun implements IJobRun {
+public class InteractivePythonJobRun extends AbstractInteractiveJobRun implements JobRun {
     public final PythonScript PythonScript;
     public final List<String> BaseParameters;
     public final List<String> OverridingParameters;
@@ -15,7 +15,7 @@ public class InteractivePythonJobRun extends InteractiveJobRun implements IJobRu
         PythonScript = pythonScript;
 
         if(!runDTO.isPythonJob()) {
-            throw new JobRunException("Job Run is not configured as a Python Job");
+            throw new JobRunException("AbstractJob Run is not configured as a Python AbstractJob");
         }
 
         //Set Base Parameters of Run

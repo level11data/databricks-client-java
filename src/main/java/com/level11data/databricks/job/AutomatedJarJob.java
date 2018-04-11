@@ -8,11 +8,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.Library;
+
 import java.util.List;
 
-public class AutomatedJarJob extends AutomatedJob implements IStandardJob {
+public class AutomatedJarJob extends AbstractAutomatedJob implements StandardJob {
 
     private JobsClient _client;
     public final String MainClassName;
@@ -24,11 +24,11 @@ public class AutomatedJarJob extends AutomatedJob implements IStandardJob {
 
     public AutomatedJarJob(JobsClient client,
                            JobSettingsDTO jobSettingsDTO,
-                           List<ILibrary> libraries) throws JobConfigException {
+                           List<Library> libraries) throws JobConfigException {
         super(client, null, jobSettingsDTO, libraries);
         _client = client;
 
-        //Validate the DTO for this Job Type
+        //Validate the DTO for this AbstractJob Type
         JobValidation.validateAutomatedJarJob(jobSettingsDTO);
 
         MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;

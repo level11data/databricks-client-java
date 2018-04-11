@@ -2,7 +2,7 @@ package com.level11data.databricks.cluster;
 
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 
-public class ClusterSpec extends BaseCluster {
+public class ClusterSpec extends AbstractBaseCluster {
 
     private ClusterInfoDTO _clusterInfoDTO;
 
@@ -17,7 +17,7 @@ public class ClusterSpec extends BaseCluster {
     //DTO will just have node type key (if any); so no way to create a NodeType obj without Value
     public final String DriverNodeTypeId;
 
-    //AutomatedCluster cannot specify AutoTerminationMinutes; which is why this isn't on BaseCluster
+    //AutomatedCluster cannot specify AutoTerminationMinutes; which is why this isn't on AbstractBaseCluster
     public final Integer AutoTerminationMinutes;
 
     public ClusterSpec(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {

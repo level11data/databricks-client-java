@@ -6,10 +6,10 @@ import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.cluster.ClusterSpec;
-import com.level11data.databricks.job.builder.AutomatedJobBuilder;
+import com.level11data.databricks.job.builder.AbstractAutomatedJobBuilder;
 
-public class AutomatedClusterBuilder extends ClusterBuilder {
-    private AutomatedJobBuilder _jobBuilder;
+public class AutomatedClusterBuilder extends AbstractClusterBuilder implements ClusterBuilder {
+    private AbstractAutomatedJobBuilder _jobBuilder;
 
     public AutomatedClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
         super(client, clusterName, numWorkers);

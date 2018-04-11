@@ -2,9 +2,9 @@ package com.level11data.databricks.library;
 
 import com.level11data.databricks.client.LibrariesClient;
 
-public abstract class PublishedLibrary extends Library {
+public abstract class AbstractPublishedLibrary extends AbstractLibrary {
 
-    public PublishedLibrary(LibrariesClient client) {
+    public AbstractPublishedLibrary(LibrariesClient client) {
         super(client);
     }
 

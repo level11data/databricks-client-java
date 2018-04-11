@@ -19,7 +19,7 @@ public class JobRunHelper {
             throw new JobRunException(jobRunOutput.Error);
         }
 
-        //No Job Run Output was found; Nor was an error
+        //No AbstractJob Run Output was found; Nor was an error
         return null;
     }
 }
