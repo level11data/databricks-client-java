@@ -1,5 +1,6 @@
 package com.level11data.databricks.cluster.builder;
 
+import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.*;
@@ -9,6 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 abstract public class ClusterBuilder {
+    protected ClustersClient _client;
+
+    private String _clusterName;
+    private Integer _numWorkers;
+    private Integer _autoscaleMinWorkers;
+    private Integer _autoscaleMaxWorkers;
     private String _sparkVersion;
     private String _nodeType;
     private String _driverNodeType;
@@ -34,6 +41,35 @@ abstract public class ClusterBuilder {
     private String _logConfS3CannedAcl;
     private Map<String, String> _sparkEnvironmentVariables = new HashMap<String, String>();
 
+    //autoscaling; with Name
+    public ClusterBuilder(ClustersClient client, String clusterName, Integer minWorkers, Integer maxWorkers) {
+        _client = client;
+        _clusterName = clusterName;
+        _autoscaleMinWorkers = minWorkers;
+        _autoscaleMaxWorkers = maxWorkers;
+    }
+
+    //fixed; with Name
+    public ClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
+        _client = client;
+        _clusterName = clusterName;
+        _numWorkers = numWorkers;
+    }
+
+    //fixed; No Name
+    public ClusterBuilder(ClustersClient client, Integer numWorkers) {
+        this(client, (String)null, numWorkers);
+    }
+
+    //autoscaling; No Name
+    public ClusterBuilder(ClustersClient client, Integer minWorkers, Integer maxWorkers) {
+        this(client, null, minWorkers, maxWorkers);
+    }
+
+    protected ClusterBuilder withName(String clusterName) {
+        _clusterName = clusterName;
+        return this;
+    }
 
     protected ClusterBuilder withSparkVersion(String sparkVersion) {
         _sparkVersion = sparkVersion;
@@ -133,7 +169,17 @@ abstract public class ClusterBuilder {
         return this;
     }
 
-    protected void validateLogConf() throws ClusterConfigException {
+    protected void validateBuilder(boolean clusterNameRequired) throws ClusterConfigException {
+        validateLogConf();
+
+        if(clusterNameRequired) {
+            if(_clusterName == null) {
+                throw new ClusterConfigException("Cluster Name is Required");
+            }
+        }
+    }
+
+    private void validateLogConf() throws ClusterConfigException {
         //check that either s3 or dbfs log conf is set (but not both)
         //It is permissible for no log configuration to be set
         if(_logConfDbfsDestination != null && _logConfS3Destination !=null){
@@ -155,6 +201,16 @@ abstract public class ClusterBuilder {
     }
 
     protected ClusterInfoDTO applySettings(ClusterInfoDTO clusterInfoDTO) {
+        clusterInfoDTO.ClusterName = _clusterName;
+        clusterInfoDTO.NumWorkers = _numWorkers;
+
+        if(_autoscaleMinWorkers != null && _autoscaleMaxWorkers != null) {
+            AutoScaleDTO autoScaleDTO = new AutoScaleDTO();
+            autoScaleDTO.MinWorkers = _autoscaleMinWorkers;
+            autoScaleDTO.MaxWorkers = _autoscaleMaxWorkers;
+            clusterInfoDTO.AutoScale = autoScaleDTO;
+        }
+
         if(_awsAvailability != null ||
                 _awsEbsVolumeCount != null ||
                 _awsEbsVolumeSize != null ||

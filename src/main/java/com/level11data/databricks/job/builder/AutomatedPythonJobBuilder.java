@@ -4,10 +4,11 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.PythonTaskDTO;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedPythonJob;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.job.PythonScript;
-import com.level11data.databricks.library.Library;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.util.ResourceConfigException;
 import org.quartz.Trigger;
@@ -15,7 +16,6 @@ import org.quartz.Trigger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -109,7 +109,7 @@ public class AutomatedPythonJobBuilder extends AutomatedJobWithLibrariesBuilder 
     }
 
     @Override
-    protected AutomatedPythonJobBuilder withLibrary(Library library) {
+    public AutomatedPythonJobBuilder withLibrary(ILibrary library) {
         return (AutomatedPythonJobBuilder)super.withLibrary(library);
     }
 
@@ -173,6 +173,16 @@ public class AutomatedPythonJobBuilder extends AutomatedJobWithLibrariesBuilder 
         return (AutomatedPythonJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
+    @Override
+    public AutomatedPythonJobBuilder withClusterSpec(ClusterSpec clusterSpec) {
+        return (AutomatedPythonJobBuilder)super.withClusterSpec(clusterSpec);
+    }
+
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
+
     public AutomatedPythonJob create() throws JobConfigException {
         try {
             //upload file first, if supplied
@@ -195,6 +205,7 @@ public class AutomatedPythonJobBuilder extends AutomatedJobWithLibrariesBuilder 
             }
 
             jobSettingsDTO.SparkPythonTask = pythonTaskDTO;
+            validate(jobSettingsDTO);
 
             return new AutomatedPythonJob(_client, _pythonScript, jobSettingsDTO, getLibraries());
         } catch (HttpException e) {

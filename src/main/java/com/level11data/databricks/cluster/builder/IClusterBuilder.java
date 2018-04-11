@@ -2,9 +2,10 @@ package com.level11data.databricks.cluster.builder;
 
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
+import com.level11data.databricks.cluster.ClusterConfigException;
+import com.level11data.databricks.cluster.ClusterSpec;
 
 public interface IClusterBuilder {
-
 
     IClusterBuilder withSparkVersion(String sparkVersion);
 
@@ -46,13 +47,5 @@ public interface IClusterBuilder {
 
     IClusterBuilder withSparkEnvironmentVariable(String key, String value);
 
-    //only for InteractiveClusterBuilder
-    //IClusterBuilder withAutoTerminationMinutes(Integer minutes);
-
-    //only for InteractiveClusterBuilder
-    //InteractiveClusterBuilder withLibrary(ILibrary library);
-
-    //only for InteractiveClusterBuilder
-    //ICluster create() throws ClusterConfigException;
-
+    ClusterSpec createClusterSpec() throws ClusterConfigException;
 }

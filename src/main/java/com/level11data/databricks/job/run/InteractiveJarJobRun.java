@@ -2,12 +2,9 @@ package com.level11data.databricks.job.run;
 
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.library.LibraryConfigException;
-
-import java.net.URISyntaxException;
 import java.util.*;
 
-public class InteractiveJarJobRun extends InteractiveJobRun {
+public class InteractiveJarJobRun extends InteractiveJobRun implements IJobRun {
     public final List<String> BaseParameters;
     public final List<String> OverridingParameters;
 

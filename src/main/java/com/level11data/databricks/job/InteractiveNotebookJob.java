@@ -6,22 +6,32 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
 import com.level11data.databricks.job.run.JobRunException;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.workspace.Notebook;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class InteractiveNotebookJob extends InteractiveJob {
+public class InteractiveNotebookJob extends InteractiveJob implements INotebookJob {
 
     private JobsClient _client;
     public final Notebook Notebook;
     public final Map<String,String> BaseParameters;
 
     public InteractiveNotebookJob(JobsClient client,
-                                     InteractiveCluster cluster,
-                                     JobSettingsDTO jobSettingsDTO,
-                                     Notebook notebook) throws JobConfigException {
-        super(client, cluster, null, jobSettingsDTO);
+                                  InteractiveCluster cluster,
+                                  JobSettingsDTO jobSettingsDTO,
+                                  Notebook notebook) throws JobConfigException {
+        this(client, cluster, jobSettingsDTO, notebook, null);
+    }
+
+    public InteractiveNotebookJob(JobsClient client,
+                    InteractiveCluster cluster,
+                    JobSettingsDTO jobSettingsDTO,
+                    Notebook notebook,
+                    List < ILibrary > libraries) throws JobConfigException {
+        super(client, cluster, null, jobSettingsDTO, libraries);
 
         _client = client;
 

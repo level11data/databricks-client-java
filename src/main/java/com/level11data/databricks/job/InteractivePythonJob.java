@@ -9,9 +9,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.run.InteractivePythonJobRun;
 import com.level11data.databricks.job.run.JobRunException;
+import com.level11data.databricks.library.ILibrary;
+
 import java.util.List;
 
-public class InteractivePythonJob extends InteractiveJob {
+public class InteractivePythonJob extends InteractiveJob implements IStandardJob {
     private JobsClient _client;
 
     public final PythonScript PythonScript;
@@ -21,7 +23,15 @@ public class InteractivePythonJob extends InteractiveJob {
                                 InteractiveCluster cluster,
                                 PythonScript pythonScript,
                                 JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        super(client, cluster, null, jobSettingsDTO);
+        this(client, cluster, null, jobSettingsDTO, null);
+    }
+
+    public InteractivePythonJob(JobsClient client,
+                                InteractiveCluster cluster,
+                                PythonScript pythonScript,
+                                JobSettingsDTO jobSettingsDTO,
+                                List<ILibrary> libraries) throws JobConfigException {
+        super(client, cluster, null, jobSettingsDTO, libraries);
         _client = client;
         PythonScript = pythonScript;
 

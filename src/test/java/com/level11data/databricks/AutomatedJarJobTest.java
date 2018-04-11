@@ -1,8 +1,10 @@
 package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedJarJob;
+import com.level11data.databricks.job.IJob;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
 import com.level11data.databricks.job.run.RunResultState;
 import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
@@ -55,6 +57,12 @@ public class AutomatedJarJobTest {
         File jarFile = new File(localPath);
         JarLibrary jarLibrary = _databricks.getJarLibrary(new URI(dbfsPath));
 
+        //create cluster spec
+        ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
+                .createClusterSpec();
+
         //create job
         String jobName = uniqueName;
         String mainClass = "com.level11data.example.scala.simpleapp.SimpleApp";
@@ -62,12 +70,9 @@ public class AutomatedJarJobTest {
         params.add("hello");
         params.add("world");
 
-        AutomatedJarJob job = _databricks.createJob(jarLibrary, mainClass, jarFile, params)
+        AutomatedJarJob job = (AutomatedJarJob)_databricks.createJob(jarLibrary, mainClass, jarFile, params)
                 .withName(jobName)
-                .withClusterSpec(1)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
-                .addToJob(AutomatedJarJobBuilder.class)
+                .withClusterSpec(clusterSpec)
                 .create();
 
         //run job

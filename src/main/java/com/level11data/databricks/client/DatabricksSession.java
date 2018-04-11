@@ -3,6 +3,7 @@ package com.level11data.databricks.client;
 import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
 import com.level11data.databricks.client.entities.dbfs.ListResponseDTO;
 import com.level11data.databricks.cluster.*;
+import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.client.entities.jobs.JobDTO;
@@ -88,6 +89,15 @@ public class DatabricksSession {
     public InteractiveClusterBuilder createCluster(String name, Integer minWorkers, Integer maxWorkers) {
         return new InteractiveClusterBuilder(getClustersClient(), name, minWorkers, maxWorkers);
     }
+
+    public AutomatedClusterBuilder createClusterSpec(Integer numWorkers) {
+        return new AutomatedClusterBuilder(getClustersClient(), numWorkers);
+    }
+
+    public AutomatedClusterBuilder createClusterSpec( Integer minWorkers, Integer maxWorkers) {
+        return new AutomatedClusterBuilder(getClustersClient(), minWorkers, maxWorkers);
+    }
+
 
     private void refreshSparkVersionsDTO() throws HttpException {
         _sparkVersionsDTO = getClustersClient().getSparkVersions();

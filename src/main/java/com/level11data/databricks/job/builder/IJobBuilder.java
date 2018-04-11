@@ -1,6 +1,7 @@
 package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.job.IJob;
+import com.level11data.databricks.job.Job;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.ILibrary;
 import org.quartz.Trigger;
@@ -30,11 +31,11 @@ public interface IJobBuilder {
 
     IJobBuilder withSchedule(Trigger trigger, TimeZone timeZone);
 
-    IJob create() throws JobConfigException;
 
-    //TODO drop this since it's just for AutomatedJobBuilder
-    //This is only for AutomatedJobBuilder subclasses
-    //AutomatedClusterBuilder withClusterSpec(int numWorkers);
+    //IJob create() throws JobConfigException;
+
+    //TODO should this be for both builders???
+    //AutomatedClusterBuilder withClusterSpec(ClusterSpec clusterSpec);
 
     IJobBuilder withLibrary(ILibrary library) throws JobConfigException;
 

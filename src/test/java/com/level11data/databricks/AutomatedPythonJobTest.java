@@ -1,10 +1,10 @@
 package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedPythonJob;
 import com.level11data.databricks.job.PythonScript;
-import com.level11data.databricks.job.builder.AutomatedPythonJobBuilder;
 import com.level11data.databricks.job.run.AutomatedPythonJobRun;
 import com.level11data.databricks.job.run.RunResultState;
 import org.junit.Assert;
@@ -61,12 +61,15 @@ public class AutomatedPythonJobTest {
         params.add("hello");
         params.add("world");
 
-        AutomatedPythonJob job = _databricks.createJob(pythonScript, pythonFile, params)
-                .withName(jobName)
-                .withClusterSpec(1)
+        //create cluster spec
+        ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
-                .addToJob(AutomatedPythonJobBuilder.class)
+                .createClusterSpec();
+
+        AutomatedPythonJob job = _databricks.createJob(pythonScript, pythonFile, params)
+                .withName(jobName)
+                .withClusterSpec(clusterSpec)
                 .create();
 
         //run job

@@ -1,10 +1,10 @@
 package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedNotebookJob;
 import com.level11data.databricks.job.run.AutomatedNotebookJobRun;
-import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 import com.level11data.databricks.workspace.Notebook;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,6 +43,12 @@ public class AutomatedNotebookJobTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
+        //create cluster spec
+        ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
+                .withSparkVersion("3.4.x-scala2.11")
+                .withNodeType("i3.xlarge")
+                .createClusterSpec();
+
         //create job
         //TODO Implement Workspace API to import notebook from resources
         String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook";
@@ -50,10 +56,7 @@ public class AutomatedNotebookJobTest {
 
         AutomatedNotebookJob job = _databricks.createJob(notebook)
                 .withName(jobName)
-                .withClusterSpec(1)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
-                .addToJob(AutomatedNotebookJobBuilder.class)
+                .withClusterSpec(clusterSpec)
                 .create();
 
         Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
@@ -98,12 +101,15 @@ public class AutomatedNotebookJobTest {
         parameters.put("parameter1", "Hello");
         parameters.put("parameter2", "World");
 
-        AutomatedNotebookJob job = _databricks.createJob(notebook, parameters)
-                .withName(jobName)
-                .withClusterSpec(1)
+        //create cluster spec
+        ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
                 .withSparkVersion("3.4.x-scala2.11")
                 .withNodeType("i3.xlarge")
-                .addToJob(AutomatedNotebookJobBuilder.class)
+                .createClusterSpec();
+
+        AutomatedNotebookJob job = _databricks.createJob(notebook, parameters)
+                .withName(jobName)
+                .withClusterSpec(clusterSpec)
                 .create();
 
         Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),

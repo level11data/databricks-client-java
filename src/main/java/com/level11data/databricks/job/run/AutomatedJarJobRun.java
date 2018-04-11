@@ -5,7 +5,7 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import java.util.List;
 
-public class AutomatedJarJobRun extends AutomatedJobRun {
+public class AutomatedJarJobRun extends AutomatedJobRun implements IJobRun {
     private JobsClient _client;
 
     public final List<String> BaseParameters;

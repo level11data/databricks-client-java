@@ -1,26 +1,53 @@
 package com.level11data.databricks.cluster.builder;
 
+import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.builder.AutomatedJobBuilder;
 
 public class AutomatedClusterBuilder extends ClusterBuilder {
     private AutomatedJobBuilder _jobBuilder;
-    private int _numWorkers;
 
-    public AutomatedClusterBuilder(AutomatedJobBuilder jobBuilder, int numWorkers) {
-        _jobBuilder = jobBuilder;
-        _numWorkers = numWorkers;
+    public AutomatedClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
+        super(client, clusterName, numWorkers);
+    }
+
+    public AutomatedClusterBuilder(ClustersClient client, Integer numWorkers) {
+        this(client, (String)null, numWorkers);
+    }
+
+    public AutomatedClusterBuilder(ClustersClient client, String clusterName, Integer minWorkers, Integer maxWorkers) {
+        super(client, clusterName, minWorkers, maxWorkers);
+    }
+
+    public AutomatedClusterBuilder(ClustersClient client, Integer minWorkers, Integer maxWorkers) {
+        this(client, null, minWorkers, maxWorkers);
     }
 
     @Override
     protected ClusterInfoDTO applySettings(ClusterInfoDTO clusterInfoDTO) {
         clusterInfoDTO = super.applySettings(clusterInfoDTO);
-        clusterInfoDTO.NumWorkers = _numWorkers;
+
+        //nothing specific to AutomatedCluster
 
         return clusterInfoDTO;
+    }
+
+    @Override
+    protected void validateBuilder(boolean clusterNameRequired) throws ClusterConfigException {
+        super.validateBuilder(clusterNameRequired);
+    }
+
+    private void validateBuilder() throws ClusterConfigException {
+        validateBuilder(false);
+    }
+
+    @Override
+    protected AutomatedClusterBuilder withName(String clusterName) {
+        return (AutomatedClusterBuilder)super.withName(clusterName);
     }
 
     @Override
@@ -114,12 +141,12 @@ public class AutomatedClusterBuilder extends ClusterBuilder {
         return (AutomatedClusterBuilder)super.withSparkEnvironmentVariable(key, value);
     }
 
-    public <T extends AutomatedJobBuilder> T addToJob(Class<T> type) throws ClusterConfigException {
-        validateLogConf();
+
+    public ClusterSpec createClusterSpec() throws ClusterConfigException {
+        validateBuilder();
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
         clusterInfoDTO = applySettings(clusterInfoDTO);
-        _jobBuilder.withClusterInfo(clusterInfoDTO);
-        return type.cast(_jobBuilder);
+        return new ClusterSpec(clusterInfoDTO);
     }
 
 }

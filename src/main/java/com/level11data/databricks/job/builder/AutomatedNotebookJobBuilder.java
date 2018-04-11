@@ -1,20 +1,18 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedNotebookJob;
 import com.level11data.databricks.job.JobConfigException;
-import com.level11data.databricks.library.Library;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
 import org.quartz.Trigger;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -26,7 +24,7 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
 
 
     public AutomatedNotebookJobBuilder(JobsClient client, Notebook notebook) {
-        this(client, notebook, new HashMap<String,String>());
+        this(client, notebook, new HashMap<>());
     }
 
     public AutomatedNotebookJobBuilder(JobsClient client, Notebook notebook, Map<String,String> baseParameters) {
@@ -87,7 +85,7 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
     }
 
     @Override
-    protected AutomatedNotebookJobBuilder withLibrary(Library library) {
+    public AutomatedNotebookJobBuilder withLibrary(ILibrary library) {
         return (AutomatedNotebookJobBuilder)super.withLibrary(library);
     }
 
@@ -151,9 +149,18 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
         return (AutomatedNotebookJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
+    @Override
+    public AutomatedNotebookJobBuilder withClusterSpec(ClusterSpec clusterSpec) {
+        return (AutomatedNotebookJobBuilder)super.withClusterSpec(clusterSpec);
+    }
+
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
+
     public AutomatedNotebookJob create() throws JobConfigException {
         try {
-            //no validation to perform
             JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
             jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
@@ -161,6 +168,8 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
             notebookTaskDTO.NotebookPath = _notebook.Path;
             notebookTaskDTO.BaseParameters = _baseParameters;
             jobSettingsDTO.NotebookTask = notebookTaskDTO;
+
+            validate(jobSettingsDTO);
 
             //upload any library files
             uploadLibraryFiles();
@@ -171,6 +180,8 @@ public class AutomatedNotebookJobBuilder extends AutomatedJobWithLibrariesBuilde
             throw new JobConfigException(e);
         }
     }
+
+
 
 
 

@@ -174,6 +174,10 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
         return (InteractiveJarJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
 
     public InteractiveJarJob create() throws JobConfigException {
         try {
@@ -191,7 +195,9 @@ public class InteractiveJarJobBuilder extends InteractiveJobBuilder {
             }
             jobSettingsDTO.SparkJarTask = jarTaskDTO;
 
-            return new InteractiveJarJob(_client, this.Cluster, jobSettingsDTO);
+            validate(jobSettingsDTO);
+
+            return new InteractiveJarJob(_client, this.Cluster, jobSettingsDTO, getLibraries());
         } catch(LibraryConfigException e) {
             throw new JobConfigException(e);
         }

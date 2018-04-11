@@ -14,8 +14,6 @@ public interface IJobRun {
     Long getExecutionDuration() throws HttpException;
 
     Long getCleanupDuration() throws HttpException;
-    
-    ICluster getCluster() throws JobRunException;
 
-    String getOutput() throws JobRunException;
+    ICluster getCluster() throws JobRunException;
 }

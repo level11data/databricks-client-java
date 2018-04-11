@@ -6,7 +6,7 @@ import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.PythonScript;
 import java.util.List;
 
-public class AutomatedPythonJobRun extends AutomatedJobRun {
+public class AutomatedPythonJobRun extends AutomatedJobRun implements IJobRun {
     private JobsClient _client;
 
     public final PythonScript PythonScript;

@@ -149,6 +149,11 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
         return (InteractiveNotebookJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
+
     public InteractiveNotebookJob create() throws JobConfigException {
         try {
             JobSettingsDTO jobSettingsDTO = new JobSettingsDTO();
@@ -159,14 +164,16 @@ public class InteractiveNotebookJobBuilder extends InteractiveJobBuilder {
             notebookTaskDTO.BaseParameters = _baseParameters;
             jobSettingsDTO.NotebookTask = notebookTaskDTO;
 
+            validate(jobSettingsDTO);
+
             //upload any library files
             uploadLibraryFiles();
 
             //create job via client
             long jobId = _client.createJob(jobSettingsDTO);
 
-            //create InteractiveNotebookJob from jobSettingsDTO and jobId
-            return new InteractiveNotebookJob(_client, this.Cluster, jobSettingsDTO, _notebook);
+            //create Job from jobSettingsDTO and jobId
+            return new InteractiveNotebookJob(_client, this.Cluster, jobSettingsDTO, _notebook, getLibraries());
         } catch(HttpException e) {
             throw new JobConfigException(e);
         } catch(LibraryConfigException e) {

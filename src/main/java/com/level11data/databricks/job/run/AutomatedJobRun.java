@@ -21,7 +21,12 @@ public abstract class AutomatedJobRun extends JobRun {
         _client = client;
 
         validateJobRun(runDTO);
-        NewClusterSpec = new ClusterSpec(runDTO.ClusterSpec.NewCluster);
+        try{
+            NewClusterSpec = new ClusterSpec(runDTO.ClusterSpec.NewCluster);
+        } catch(ClusterConfigException e) {
+            throw new JobRunException(e);
+        }
+
     }
 
     public AutomatedCluster getCluster() throws JobRunException {

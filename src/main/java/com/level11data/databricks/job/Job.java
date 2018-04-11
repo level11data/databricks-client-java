@@ -22,7 +22,7 @@ public abstract class Job {
 
     public final long Id;
     public final String Name;
-    public final List<Library> Libraries;
+    public final List<ILibrary> Libraries;
     public final EmailNotification NotificationOnStart;
     public final EmailNotification NotificationOnSuccess;
     public final EmailNotification NotificationOnFailure;
@@ -33,7 +33,7 @@ public abstract class Job {
     public final Integer MaxConcurrentRuns;
     public final Integer TimeoutSeconds;
 
-    protected Job(JobsClient client, JobDTO jobDTO, List<Library> libraries) throws JobConfigException {
+    protected Job(JobsClient client, JobDTO jobDTO, List<ILibrary> libraries) throws JobConfigException {
         this(client, new Long(jobDTO.JobId), jobDTO.Settings, libraries);
     }
 
@@ -45,7 +45,7 @@ public abstract class Job {
         this(client, jobId, jobSettingsDTO, null);
     }
 
-    protected Job(JobsClient client, Long jobId, JobSettingsDTO jobSettingsDTO, List<Library> libraries) throws JobConfigException {
+    protected Job(JobsClient client, Long jobId, JobSettingsDTO jobSettingsDTO, List<ILibrary> libraries) throws JobConfigException {
         _client = client;
 
         try {
@@ -66,7 +66,7 @@ public abstract class Job {
         TimeoutSeconds = jobSettingsDTO.TimeoutSeconds;
 
         try {
-            List<Library> libraryList = libraries == null ? new ArrayList<Library>() : libraries;
+            List<ILibrary> libraryList = libraries == null ? new ArrayList<ILibrary>() : libraries;
             if(jobSettingsDTO.Libraries != null) {
                 for (LibraryDTO libraryDTO : jobSettingsDTO.Libraries) {
                     //maintain object reference for passed in Libraries
@@ -88,7 +88,7 @@ public abstract class Job {
     }
 
     private boolean isLibraryDtoInLibraries(LibraryDTO libraryDTO) {
-        for (Library library : Libraries) {
+        for (ILibrary library : Libraries) {
             if(library.equals(libraryDTO)) {
                 return true;
             }
@@ -176,8 +176,8 @@ public abstract class Job {
         return _librariesClient;
     }
 
-    private boolean isInList(LibraryDTO libraryDTO, List<Library> libraries) {
-        for (Library library : libraries) {
+    private boolean isInList(LibraryDTO libraryDTO, List<ILibrary> libraries) {
+        for (ILibrary library : libraries) {
             if(library.equals(libraryDTO)) {
                 return true;
             }

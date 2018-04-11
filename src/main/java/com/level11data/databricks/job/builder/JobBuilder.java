@@ -3,9 +3,10 @@ package com.level11data.databricks.job.builder;
 import java.util.ArrayList;
 import java.util.TimeZone;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
+import com.level11data.databricks.job.JobConfigException;
 import org.quartz.Trigger;
 
-public abstract class JobBuilder {
+public abstract class JobBuilder implements IJobBuilder {
     private String _name;
     private ArrayList<String> _emailNotificationsOnStart = new ArrayList<>();
     private ArrayList<String> _emailNotificationsOnSuccess = new ArrayList<>();
@@ -22,52 +23,52 @@ public abstract class JobBuilder {
 
     }
 
-    protected JobBuilder withName(String name) {
+    public JobBuilder withName(String name) {
         _name = name;
         return this;
     }
 
-    protected JobBuilder withEmailNotificationOnStart(String email) {
+    public JobBuilder withEmailNotificationOnStart(String email) {
         _emailNotificationsOnStart.add(email);
         return this;
     }
 
-    protected JobBuilder withEmailNotificationOnSuccess(String email) {
+    public JobBuilder withEmailNotificationOnSuccess(String email) {
         _emailNotificationsOnSuccess.add(email);
         return this;
     }
 
-    protected JobBuilder withEmailNotificationOnFailure(String email) {
+    public JobBuilder withEmailNotificationOnFailure(String email) {
         _emailNotificationsOnFailure.add(email);
         return this;
     }
 
-    protected JobBuilder withTimeout(int seconds) {
+    public JobBuilder withTimeout(int seconds) {
         _timeoutSeconds = seconds;
         return this;
     }
 
-    protected JobBuilder withMaxRetries(int retries) {
+    public JobBuilder withMaxRetries(int retries) {
         _maxRetries = retries;
         return this;
     }
 
-    protected JobBuilder withMinRetryInterval(int milliseconds) {
+    public JobBuilder withMinRetryInterval(int milliseconds) {
         _minRetryInterval = milliseconds;
         return this;
     }
 
-    protected JobBuilder withRetryOnTimeout(boolean retryOnTimeout) {
+    public JobBuilder withRetryOnTimeout(boolean retryOnTimeout) {
         _retryOnTimeout = retryOnTimeout;
         return this;
     }
 
-    protected JobBuilder withMaxConcurrentRuns(int maxConcurrentRuns) {
+    public JobBuilder withMaxConcurrentRuns(int maxConcurrentRuns) {
         _maxConcurrentRuns = maxConcurrentRuns;
         return this;
     }
 
-    protected JobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
+    public JobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         _scheduleTrigger = trigger;
         _scheduleTimeZone = timeZone;
         return this;
@@ -89,4 +90,7 @@ public abstract class JobBuilder {
         return jobSettingsDTO;
     }
 
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        //no op
+    }
 }

@@ -9,6 +9,7 @@ import com.level11data.databricks.client.entities.libraries.RCranLibraryDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.job.JobConfigException;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.util.ResourceUtils;
@@ -17,15 +18,13 @@ import org.quartz.Trigger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 public abstract class InteractiveJobBuilder extends JobBuilder {
     private final JobsClient _client;
-    private ArrayList<LibraryDTO> _libraries = new ArrayList<>();
-    private Map<URI, File> _libraryFileMap = new HashMap<URI, File>();
+    private ArrayList<ILibrary> _libraries = new ArrayList<>();
+    private ArrayList<LibraryDTO> _libraryDTOs = new ArrayList<>();
+    private Map<URI, File> _libraryFileMap = new HashMap<>();
 
     public final InteractiveCluster Cluster;
 
@@ -36,52 +35,52 @@ public abstract class InteractiveJobBuilder extends JobBuilder {
     }
 
     @Override
-    protected InteractiveJobBuilder withName(String name) {
+    public InteractiveJobBuilder withName(String name) {
         return (InteractiveJobBuilder)super.withName(name);
     }
 
     @Override
-    protected InteractiveJobBuilder withEmailNotificationOnStart(String email) {
+    public InteractiveJobBuilder withEmailNotificationOnStart(String email) {
         return (InteractiveJobBuilder)super.withEmailNotificationOnStart(email);
     }
 
     @Override
-    protected InteractiveJobBuilder withEmailNotificationOnSuccess(String email) {
+    public InteractiveJobBuilder withEmailNotificationOnSuccess(String email) {
         return (InteractiveJobBuilder)super.withEmailNotificationOnSuccess(email);
     }
 
     @Override
-    protected InteractiveJobBuilder withEmailNotificationOnFailure(String email) {
+    public InteractiveJobBuilder withEmailNotificationOnFailure(String email) {
         return (InteractiveJobBuilder)super.withEmailNotificationOnFailure(email);
     }
 
     @Override
-    protected InteractiveJobBuilder withTimeout(int seconds) {
+    public InteractiveJobBuilder withTimeout(int seconds) {
         return (InteractiveJobBuilder)super.withTimeout(seconds);
     }
 
     @Override
-    protected InteractiveJobBuilder withMaxRetries(int retries) {
+    public InteractiveJobBuilder withMaxRetries(int retries) {
         return (InteractiveJobBuilder)super.withMaxRetries(retries);
     }
 
     @Override
-    protected InteractiveJobBuilder withMinRetryInterval(int milliseconds) {
+    public InteractiveJobBuilder withMinRetryInterval(int milliseconds) {
         return (InteractiveJobBuilder)super.withMinRetryInterval(milliseconds);
     }
 
     @Override
-    protected InteractiveJobBuilder withRetryOnTimeout(boolean retryOnTimeout) {
+    public InteractiveJobBuilder withRetryOnTimeout(boolean retryOnTimeout) {
         return (InteractiveJobBuilder)super.withRetryOnTimeout(retryOnTimeout);
     }
 
     @Override
-    protected InteractiveJobBuilder withMaxConcurrentRuns(int maxConcurrentRuns) {
+    public InteractiveJobBuilder withMaxConcurrentRuns(int maxConcurrentRuns) {
         return (InteractiveJobBuilder)super.withMaxConcurrentRuns(maxConcurrentRuns);
     }
 
     @Override
-    protected InteractiveJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
+    public InteractiveJobBuilder withSchedule(Trigger trigger, TimeZone timeZone) {
         return (InteractiveJobBuilder)super.withSchedule(trigger, timeZone);
     }
 
@@ -90,111 +89,121 @@ public abstract class InteractiveJobBuilder extends JobBuilder {
         jobSettingsDTO = super.applySettings(jobSettingsDTO);
         jobSettingsDTO.ExistingClusterId = Cluster.Id;
 
-        if(_libraries.size() > 0) {
-            jobSettingsDTO.Libraries = _libraries.toArray(new LibraryDTO[_libraries.size()]);
+        if(_libraryDTOs.size() > 0) {
+            jobSettingsDTO.Libraries = _libraryDTOs.toArray(new LibraryDTO[_libraryDTOs.size()]);
         }
         return jobSettingsDTO;
     }
 
-    protected InteractiveJobBuilder withJarLibrary(URI uri) {
-        LibraryDTO libraryDTO = new LibraryDTO();
-        libraryDTO.Jar = uri.toString();
-        _libraries.add(libraryDTO);
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
+
+    public InteractiveJobBuilder withLibrary(ILibrary library) {
+        _libraries.add(library);
         return this;
     }
 
-    protected InteractiveJobBuilder withJarLibrary(URI uri, File libraryFile) {
+    public InteractiveJobBuilder withJarLibrary(URI uri) {
+        LibraryDTO libraryDTO = new LibraryDTO();
+        libraryDTO.Jar = uri.toString();
+        _libraryDTOs.add(libraryDTO);
+        return this;
+    }
+
+    public InteractiveJobBuilder withJarLibrary(URI uri, File libraryFile) {
         addLibraryToUpload(uri, libraryFile);
         return this.withJarLibrary(uri);
     }
 
-    protected InteractiveJobBuilder withEggLibrary(URI uri) {
+    public InteractiveJobBuilder withEggLibrary(URI uri) {
         LibraryDTO libraryDTO = new LibraryDTO();
         libraryDTO.Egg = uri.toString();
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withEggLibrary(URI uri, File libraryFile) {
+    public InteractiveJobBuilder withEggLibrary(URI uri, File libraryFile) {
         addLibraryToUpload(uri, libraryFile);
         return this.withEggLibrary(uri);
     }
 
-    protected InteractiveJobBuilder withMavenLibrary(String coordinates) {
+    public InteractiveJobBuilder withMavenLibrary(String coordinates) {
         LibraryDTO libraryDTO = new LibraryDTO();
         MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
         mavenDTO.Coordinates = coordinates;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withMavenLibrary(String coordinates, String repo) {
+    public InteractiveJobBuilder withMavenLibrary(String coordinates, String repo) {
         LibraryDTO libraryDTO = new LibraryDTO();
         MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
         mavenDTO.Coordinates = coordinates;
         mavenDTO.Repo = repo;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withMavenLibrary(String coordinates, String repo, String[] exclusions) {
+    public InteractiveJobBuilder withMavenLibrary(String coordinates, String repo, String[] exclusions) {
         LibraryDTO libraryDTO = new LibraryDTO();
         MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
         mavenDTO.Coordinates = coordinates;
         mavenDTO.Repo = repo;
         mavenDTO.Exclusions = exclusions;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withMavenLibrary(String coordinates, String[] exclusions) {
+    public InteractiveJobBuilder withMavenLibrary(String coordinates, String[] exclusions) {
         LibraryDTO libraryDTO = new LibraryDTO();
         MavenLibraryDTO mavenDTO = new MavenLibraryDTO();
         mavenDTO.Coordinates = coordinates;
         mavenDTO.Exclusions = exclusions;
         libraryDTO.Maven = mavenDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withPyPiLibrary(String packageName)  {
+    public InteractiveJobBuilder withPyPiLibrary(String packageName)  {
         LibraryDTO libraryDTO = new LibraryDTO();
         PythonPyPiLibraryDTO piPyDTO = new PythonPyPiLibraryDTO();
         piPyDTO.Package = packageName;
         libraryDTO.PyPi = piPyDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withPyPiLibrary(String packageName, String repo) {
+    public InteractiveJobBuilder withPyPiLibrary(String packageName, String repo) {
         LibraryDTO libraryDTO = new LibraryDTO();
         PythonPyPiLibraryDTO piPyDTO = new PythonPyPiLibraryDTO();
         piPyDTO.Package = packageName;
         piPyDTO.Repo = repo;
         libraryDTO.PyPi = piPyDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withCranLibrary(String packageName) {
+    public InteractiveJobBuilder withCranLibrary(String packageName) {
         LibraryDTO libraryDTO = new LibraryDTO();
         RCranLibraryDTO cranDTO = new RCranLibraryDTO();
         cranDTO.Package = packageName;
         libraryDTO.Cran = cranDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
-    protected InteractiveJobBuilder withCranLibrary(String packageName, String repo) {
+    public InteractiveJobBuilder withCranLibrary(String packageName, String repo) {
         LibraryDTO libraryDTO = new LibraryDTO();
         RCranLibraryDTO cranDTO = new RCranLibraryDTO();
         cranDTO.Package = packageName;
         cranDTO.Repo = repo;
         libraryDTO.Cran = cranDTO;
-        _libraries.add(libraryDTO);
+        _libraryDTOs.add(libraryDTO);
         return this;
     }
 
@@ -216,4 +225,7 @@ public abstract class InteractiveJobBuilder extends JobBuilder {
         }
     }
 
+    protected List<ILibrary> getLibraries() {
+        return _libraries;
+    }
 }

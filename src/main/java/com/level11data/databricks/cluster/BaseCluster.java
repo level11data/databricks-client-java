@@ -12,7 +12,12 @@ public abstract class BaseCluster {
     private ClusterInfoDTO _clusterInfoDTO;
     private ClustersClient _client;
     private String _clusterId;
+    protected Boolean IsAutoScaling = false;
 
+    public final Integer NumWorkers;
+    public final AutoScale AutoScale;
+
+    public final String Name;
     public final AwsAttributes AwsAttributes;
     public final Boolean ElasticDiskEnabled;
     public final Map<String, String> SparkConf;
@@ -22,9 +27,17 @@ public abstract class BaseCluster {
     public final ClusterLogConf ClusterLogConf;
     public final Map<String, String> SparkEnvironmentVariables;
 
-    protected BaseCluster(ClusterInfoDTO clusterInfoDTO) {
+    //This signature is used by ClusterSpec
+    protected BaseCluster(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
+        //Validate that required fields are populated in the ClusterInfoDTO
+        validateClusterInfo(clusterInfoDTO);
+
         _clusterInfoDTO = clusterInfoDTO;
-        _clusterId = clusterInfoDTO.ClusterId;
+        _clusterId = clusterInfoDTO.ClusterId;  //should this ALWAYS be null??
+
+        Name = clusterInfoDTO.ClusterName; //could be null
+        NumWorkers = clusterInfoDTO.NumWorkers;  //could be null
+        AutoScale = initAutoScale(clusterInfoDTO);  //could be null
 
         AwsAttributes = clusterInfoDTO.AwsAttributes == null ? null : new AwsAttributes(clusterInfoDTO.AwsAttributes);
         ElasticDiskEnabled = clusterInfoDTO.EnableElasticDisk;
@@ -71,10 +84,15 @@ public abstract class BaseCluster {
 
         _client = client;
         _clusterInfoDTO = clusterInfoDTO;
-        _clusterId = clusterInfoDTO.ClusterId;
+        _clusterId = clusterInfoDTO.ClusterId;  //TODO should this ALWAYS be populated?
 
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
+        // therefore they may need to be initialized with an API call to get the ClusterInfo
+        Name = initClusterName();
+        NumWorkers = clusterInfoDTO.NumWorkers;  //could be null
+        AutoScale = initAutoScale(clusterInfoDTO);  //could be null
+
         AwsAttributes = initAwsAttributes();
         ElasticDiskEnabled = initElasticDiskEnabled();
         SparkConf = Collections.unmodifiableMap(initSparkConf());
@@ -85,9 +103,22 @@ public abstract class BaseCluster {
         ClusterLogConf = initLogConf();
     }
 
+    private AutoScale initAutoScale(ClusterInfoDTO clusterInfoDTO) {
+        if(clusterInfoDTO.AutoScale != null){
+            IsAutoScaling = true;
+            return new AutoScale(clusterInfoDTO.AutoScale);
+        } else {
+            return null;
+        }
+    }
+
     private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
-        if(info.ClusterId == null) {
+        if(_clusterId != null && info.ClusterId == null) {
             throw new ClusterConfigException("ClusterInfoDTO Must Have ClusterId");
+        }
+
+        if(info.NumWorkers == null && info.AutoScale == null)  {
+            throw new ClusterConfigException("ClusterInfoDTO Must Have either NumWorkers OR AutoScaleDTO");
         }
     }
 
@@ -110,6 +141,10 @@ public abstract class BaseCluster {
 
     }
 
+    private String initClusterName() throws ClusterConfigException {
+        return getClusterInfo().ClusterName;
+    }
+
     private AwsAttributes initAwsAttributes() throws ClusterConfigException {
         if(getClusterInfo().AwsAttributes == null) {
             return null;
@@ -117,6 +152,8 @@ public abstract class BaseCluster {
             return new AwsAttributes(getClusterInfo().AwsAttributes);
         }
     }
+
+
 
     private Boolean initElasticDiskEnabled() throws ClusterConfigException {
         return getClusterInfo().EnableElasticDisk;

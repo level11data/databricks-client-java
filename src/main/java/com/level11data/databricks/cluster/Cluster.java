@@ -8,7 +8,7 @@ import com.level11data.databricks.client.entities.clusters.SparkNodeDTO;
 import java.math.BigInteger;
 import java.util.*;
 
-public abstract class Cluster extends BaseCluster {
+public abstract class Cluster extends BaseCluster implements ICluster {
     private ClustersClient _client;
 
     public final String Id;
@@ -24,6 +24,7 @@ public abstract class Cluster extends BaseCluster {
 
     protected Cluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException {
         super(client, info);
+        validateClusterInfo(info);
 
         _client = client;
 
@@ -39,6 +40,12 @@ public abstract class Cluster extends BaseCluster {
         SparkContextId = initSparkContextId();
         JdbcPort = initJdbcPort();
         StartTime = initStartTime();
+    }
+
+    private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
+        if (info.ClusterId == null) {
+            throw new ClusterConfigException("ClusterInfoDTO Must Have ClusterId");
+        }
     }
 
     private SparkVersion initSparkVersion() throws ClusterConfigException {

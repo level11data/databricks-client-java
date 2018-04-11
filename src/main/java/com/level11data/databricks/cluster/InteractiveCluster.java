@@ -18,16 +18,13 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public class InteractiveCluster extends Cluster{
+public class InteractiveCluster extends Cluster implements ICluster {
     private ClustersClient _client;
     private LibrariesClient _librariesClient;
-    private Boolean _isAutoScaling = false;
     private JobsClient _jobsClient;
     private ArrayList<ClusterLibrary> _libraries = new ArrayList<>();
 
-    public final String Name;
-    public final Integer NumWorkers;
-    public final AutoScale AutoScale;
+
     public final Integer AutoTerminationMinutes;
 
 
@@ -50,16 +47,6 @@ public class InteractiveCluster extends Cluster{
         //Validate that required fields are populated in the ClusterInfoDTO
         validateClusterInfo(info);
 
-        Name = info.ClusterName;
-        NumWorkers = info.NumWorkers;
-
-        if(info.AutoScale != null){
-            _isAutoScaling = true;
-            AutoScale = new AutoScale(info.AutoScale);
-        } else {
-            AutoScale = null;
-        }
-
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
         AutoTerminationMinutes = initAutoTerminationMinutes();
@@ -68,10 +55,6 @@ public class InteractiveCluster extends Cluster{
     private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
         if(info.ClusterName == null) {
             throw new ClusterConfigException("ClusterInfoDTO Must Have Name");
-        }
-
-        if(info.NumWorkers == null && info.AutoScale == null)  {
-            throw new ClusterConfigException("ClusterInfoDTO Must Have either NumWorkers OR AutoScaleDTO");
         }
     }
 
@@ -92,7 +75,7 @@ public class InteractiveCluster extends Cluster{
     }
 
     public InteractiveCluster resize(Integer numWorkers) throws ClusterConfigException, HttpException {
-        if(_isAutoScaling) {
+        if(IsAutoScaling) {
             throw new ClusterConfigException("Must Include New Min and Max Worker Values when Resizing an Autoscaling InteractiveCluster");
         }
         _client.resize(Id, numWorkers);
@@ -103,7 +86,7 @@ public class InteractiveCluster extends Cluster{
     }
 
     public InteractiveCluster resize(Integer minWorkers, Integer maxWorkers) throws ClusterConfigException, HttpException {
-        if(!_isAutoScaling) {
+        if(!IsAutoScaling) {
             throw new ClusterConfigException("Must Only Include a Single Value When Resizing a Fixed Size InteractiveCluster");
         }
         _client.resize(Id, minWorkers, maxWorkers);

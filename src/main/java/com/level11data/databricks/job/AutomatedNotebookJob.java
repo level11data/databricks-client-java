@@ -2,19 +2,15 @@ package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.AutomatedNotebookJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
-
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AutomatedNotebookJob extends AutomatedJob {
+public class AutomatedNotebookJob extends AutomatedJob implements INotebookJob {
 
     private JobsClient _client;
     public final com.level11data.databricks.workspace.Notebook Notebook;

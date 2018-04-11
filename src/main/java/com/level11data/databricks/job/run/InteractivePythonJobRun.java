@@ -5,7 +5,7 @@ import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.PythonScript;
 import java.util.List;
 
-public class InteractivePythonJobRun extends InteractiveJobRun {
+public class InteractivePythonJobRun extends InteractiveJobRun implements IJobRun {
     public final PythonScript PythonScript;
     public final List<String> BaseParameters;
     public final List<String> OverridingParameters;

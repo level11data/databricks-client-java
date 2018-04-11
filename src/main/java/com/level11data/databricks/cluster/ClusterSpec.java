@@ -4,32 +4,33 @@ import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 
 public class ClusterSpec extends BaseCluster {
 
+    private ClusterInfoDTO _clusterInfoDTO;
+
+    //No Id since this is just a cluster specification
+
+    //DTO will just have version key (if any); so no way to create a SparkVerion obj without Value
     public final String SparkVersionKey;
+
+    //DTO will just have node type key (if any); so no way to create a NodeType obj without Value
     public final String NodeTypeId;
+
+    //DTO will just have node type key (if any); so no way to create a NodeType obj without Value
     public final String DriverNodeTypeId;
 
-    public final String Name;
-    public final Integer NumWorkers;
-    public final AutoScale AutoScale;
+    //AutomatedCluster cannot specify AutoTerminationMinutes; which is why this isn't on BaseCluster
     public final Integer AutoTerminationMinutes;
 
-    //public final List<Library> Libraries;  TODO Add Libraries
-
-    public ClusterSpec(ClusterInfoDTO clusterInfoDTO) {
+    public ClusterSpec(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
         super(clusterInfoDTO);
+        _clusterInfoDTO = clusterInfoDTO;
 
-        SparkVersionKey = clusterInfoDTO.SparkVersionKey;
-        NodeTypeId = clusterInfoDTO.NodeTypeId;
-        DriverNodeTypeId = clusterInfoDTO.DriverNodeTypeId;
+        SparkVersionKey = clusterInfoDTO.SparkVersionKey;  //could be null
+        NodeTypeId = clusterInfoDTO.NodeTypeId;  //could be null
+        DriverNodeTypeId = clusterInfoDTO.DriverNodeTypeId;  //could be null
+        AutoTerminationMinutes = clusterInfoDTO.AutoTerminationMinutes;  //could be null
+    }
 
-        Name = clusterInfoDTO.ClusterName;
-        NumWorkers = clusterInfoDTO.NumWorkers;
-        AutoTerminationMinutes = clusterInfoDTO.AutoTerminationMinutes;
-
-        if(clusterInfoDTO.AutoScale != null) {
-            AutoScale = new AutoScale(clusterInfoDTO.AutoScale);
-        } else {
-            AutoScale = null;
-        }
+    public ClusterInfoDTO getClusterInfo() {
+        return _clusterInfoDTO;
     }
 }

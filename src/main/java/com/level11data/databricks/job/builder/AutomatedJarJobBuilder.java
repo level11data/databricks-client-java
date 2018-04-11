@@ -1,19 +1,18 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.SparkJarTaskDTO;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedJarJob;
 import com.level11data.databricks.job.JobConfigException;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.JarLibrary;
-import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import org.quartz.Trigger;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -110,7 +109,7 @@ public class AutomatedJarJobBuilder extends AutomatedJobWithLibrariesBuilder {
     }
 
     @Override
-    protected AutomatedJarJobBuilder withLibrary(Library library) {
+    public AutomatedJarJobBuilder withLibrary(ILibrary library) {
         return (AutomatedJarJobBuilder)super.withLibrary(library);
     }
 
@@ -174,6 +173,16 @@ public class AutomatedJarJobBuilder extends AutomatedJobWithLibrariesBuilder {
         return (AutomatedJarJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
+    @Override
+    public AutomatedJarJobBuilder withClusterSpec(ClusterSpec clusterSpec) {
+        return (AutomatedJarJobBuilder)super.withClusterSpec(clusterSpec);
+    }
+
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
+
     public AutomatedJarJob create() throws JobConfigException {
         try {
             //upload library files first
@@ -191,6 +200,8 @@ public class AutomatedJarJobBuilder extends AutomatedJobWithLibrariesBuilder {
             }
 
             jobSettingsDTO.SparkJarTask = jarTaskDTO;
+
+            validate(jobSettingsDTO);
 
             return new AutomatedJarJob(_client, jobSettingsDTO, getLibraries());
         } catch(LibraryConfigException e) {

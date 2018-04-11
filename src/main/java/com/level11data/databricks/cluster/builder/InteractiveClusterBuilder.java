@@ -5,51 +5,52 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
+import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
-import com.level11data.databricks.client.entities.clusters.AutoScaleDTO;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.library.*;
 
 import java.util.ArrayList;
 
-public class InteractiveClusterBuilder extends ClusterBuilder {
+public class InteractiveClusterBuilder extends ClusterBuilder implements IClusterBuilder {
     protected ClustersClient _client;
-    private String _clusterName;
-    private Integer _numWorkers;
-    private Integer _autoscaleMinWorkers;
-    private Integer _autoscaleMaxWorkers;
+
     private Integer _autoTerminationMinutes;
     private ArrayList<Library> _libraries = new ArrayList<>();
 
     public InteractiveClusterBuilder(ClustersClient client, String clusterName, Integer numWorkers) {
+        super(client, clusterName, numWorkers);
         _client = client;
-        _clusterName = clusterName;
-        _numWorkers = numWorkers;
     }
 
     public InteractiveClusterBuilder(ClustersClient client, String clusterName, Integer minWorkers, Integer maxWorkers) {
+        super(client, clusterName, minWorkers, maxWorkers);
         _client = client;
-        _clusterName = clusterName;
-        _autoscaleMinWorkers = minWorkers;
-        _autoscaleMaxWorkers = maxWorkers;
+    }
+
+    @Override
+    protected void validateBuilder(boolean clusterNameRequired) throws ClusterConfigException {
+        super.validateBuilder(clusterNameRequired);
+    }
+
+    private void validateBuilder() throws ClusterConfigException {
+        validateBuilder(true);
     }
 
     @Override
     protected ClusterInfoDTO applySettings(ClusterInfoDTO clusterInfoDTO) {
         clusterInfoDTO = super.applySettings(clusterInfoDTO);
 
-        clusterInfoDTO.ClusterName = _clusterName;
-        clusterInfoDTO.NumWorkers = _numWorkers;
+        //specific to InteractiveCluster
         clusterInfoDTO.AutoTerminationMinutes = _autoTerminationMinutes;
 
-        if(_autoscaleMinWorkers != null && _autoscaleMaxWorkers != null) {
-            AutoScaleDTO autoScaleDTO = new AutoScaleDTO();
-            autoScaleDTO.MinWorkers = _autoscaleMinWorkers;
-            autoScaleDTO.MaxWorkers = _autoscaleMaxWorkers;
-            clusterInfoDTO.AutoScale = autoScaleDTO;
-        }
         return clusterInfoDTO;
+    }
+
+    @Override
+    protected InteractiveClusterBuilder withName(String clusterName) {
+        return (InteractiveClusterBuilder)super.withName(clusterName);
     }
 
     @Override
@@ -155,7 +156,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
     }
 
     public InteractiveCluster create() throws ClusterConfigException {
-        validateLogConf();
+        validateBuilder();
 
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
         clusterInfoDTO = applySettings(clusterInfoDTO);
@@ -166,7 +167,7 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
             InteractiveCluster cluster = new InteractiveCluster(_client, clusterInfoDTO);
 
             if(_libraries.size() > 0) {
-                //TODO include wait step in future on Library.install
+                //TODO include wait step in FUTURE on Library.install
                 ClusterState clusterState = cluster.getState();
                 if(!clusterState.isFinal()) {
                     while(!cluster.getState().equals(ClusterState.RUNNING)) {
@@ -198,6 +199,13 @@ public class InteractiveClusterBuilder extends ClusterBuilder {
         } catch (HttpException e) {
             throw new ClusterConfigException(e);
         }
+    }
+
+    public ClusterSpec createClusterSpec() throws ClusterConfigException {
+        validateBuilder();
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
+        clusterInfoDTO = applySettings(clusterInfoDTO);
+        return new ClusterSpec(clusterInfoDTO);
     }
 
 }

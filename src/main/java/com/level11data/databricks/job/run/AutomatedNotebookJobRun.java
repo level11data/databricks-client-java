@@ -6,7 +6,7 @@ import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.util.JobRunHelper;
 import java.util.Map;
 
-public class AutomatedNotebookJobRun extends AutomatedJobRun {
+public class AutomatedNotebookJobRun extends AutomatedJobRun implements INotebookJobRun {
     private JobsClient _client;
     private String _jobRunOutputResult;
 

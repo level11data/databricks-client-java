@@ -9,11 +9,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.run.InteractiveJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.LibraryConfigException;
-import java.net.URISyntaxException;
+import com.level11data.databricks.library.ILibrary;
+
 import java.util.List;
 
-public class InteractiveJarJob extends InteractiveJob {
+public class InteractiveJarJob extends InteractiveJob implements IStandardJob {
     private JobsClient _client;
 
     public final String MainClassName;
@@ -22,7 +22,14 @@ public class InteractiveJarJob extends InteractiveJob {
     public InteractiveJarJob(JobsClient client,
                              InteractiveCluster cluster,
                              JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-            super(client, cluster, null, jobSettingsDTO);
+        this(client, cluster, jobSettingsDTO, null);
+    }
+
+    public InteractiveJarJob(JobsClient client,
+                    InteractiveCluster cluster,
+                    JobSettingsDTO jobSettingsDTO,
+                    List < ILibrary > libraries) throws JobConfigException {
+            super(client, cluster, null, jobSettingsDTO, libraries);
             _client = client;
 
             //Validate that the DTO represents an InteractiveJarJob

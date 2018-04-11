@@ -8,6 +8,7 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.InteractivePythonJob;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.job.PythonScript;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.util.ResourceConfigException;
 import org.quartz.Trigger;
@@ -108,6 +109,11 @@ public class InteractivePythonJobBuilder extends InteractiveJobBuilder {
     }
 
     @Override
+    public InteractivePythonJobBuilder withLibrary(ILibrary library) {
+        return (InteractivePythonJobBuilder)super.withLibrary(library);
+    }
+
+    @Override
     public InteractivePythonJobBuilder withJarLibrary(URI uri) {
         return (InteractivePythonJobBuilder)super.withJarLibrary(uri);
     }
@@ -167,6 +173,10 @@ public class InteractivePythonJobBuilder extends InteractiveJobBuilder {
         return (InteractivePythonJobBuilder)super.withCranLibrary(packageName, repo);
     }
 
+    @Override
+    protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super.validate(jobSettingsDTO);
+    }
 
     public InteractivePythonJob create() throws JobConfigException {
         try {
@@ -190,7 +200,9 @@ public class InteractivePythonJobBuilder extends InteractiveJobBuilder {
             }
             jobSettingsDTO.SparkPythonTask = pythonTaskDTO;
 
-            return new InteractivePythonJob(_client, this.Cluster, _pythonScript, jobSettingsDTO);
+            validate(jobSettingsDTO);
+
+            return new InteractivePythonJob(_client, this.Cluster, _pythonScript, jobSettingsDTO, getLibraries());
         } catch (HttpException e) {
             throw new JobConfigException(e);
         } catch (LibraryConfigException e) {

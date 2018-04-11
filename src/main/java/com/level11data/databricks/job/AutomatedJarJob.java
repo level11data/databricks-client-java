@@ -8,10 +8,11 @@ import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
+import com.level11data.databricks.library.ILibrary;
 import com.level11data.databricks.library.Library;
 import java.util.List;
 
-public class AutomatedJarJob extends AutomatedJob {
+public class AutomatedJarJob extends AutomatedJob implements IStandardJob {
 
     private JobsClient _client;
     public final String MainClassName;
@@ -23,7 +24,7 @@ public class AutomatedJarJob extends AutomatedJob {
 
     public AutomatedJarJob(JobsClient client,
                            JobSettingsDTO jobSettingsDTO,
-                           List<Library> libraries) throws JobConfigException {
+                           List<ILibrary> libraries) throws JobConfigException {
         super(client, null, jobSettingsDTO, libraries);
         _client = client;
 
