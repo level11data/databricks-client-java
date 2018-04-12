@@ -1,6 +1,6 @@
 package com.level11data.databricks.cluster;
 
-public class S3StorageInfo extends StorageInfo {
+public class S3StorageInfo extends AbstractStorageInfo {
     public final String Destination;
     public final String Region;
     public final String Endpoint;

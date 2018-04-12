@@ -31,7 +31,7 @@ public class AutomatedPythonJob extends AbstractAutomatedJob implements Standard
         super(client, null, jobSettingsDTO, libraries);
         _client = client;
 
-        //Validate DTO for this AbstractJob Type
+        //Validate DTO for this Job Type
         JobValidation.validateAutomatedPythonJob(jobSettingsDTO);
 
         PythonScript = pythonScript; //maintain object reference from builder

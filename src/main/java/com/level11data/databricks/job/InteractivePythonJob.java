@@ -35,7 +35,7 @@ public class InteractivePythonJob extends AbstractInteractiveJob implements Stan
         _client = client;
         PythonScript = pythonScript;
 
-        //Validate DTO for this AbstractJob Type
+        //Validate DTO for this Job Type
         JobValidation.validateInteractivePythonJob(jobSettingsDTO);
 
         Parameters = jobSettingsDTO.SparkPythonTask.Parameters;

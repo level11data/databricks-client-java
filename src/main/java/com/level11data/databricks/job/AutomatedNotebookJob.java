@@ -54,7 +54,7 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
 
         _client = client;
 
-        //Validate DTO for this AbstractJob Type
+        //Validate DTO for this Job Type
         JobValidation.validateAutomatedNotebookJob(jobDTO);
 
         Notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);

@@ -7,92 +7,110 @@ public class JobValidation {
 
 
     public static void validateInteractiveNotebookJob(JobDTO jobDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive Notebook AbstractJob or not
+        //Validate if JobDTO is for an Interactive Notebook Job or not
         if(!jobDTO.isInteractive()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Interactive AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobDTO.isNotebookJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Notebook AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Notebook Job");
         }
     }
 
     public static void validateInteractiveNotebookJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive Notebook AbstractJob or not
+        //Validate if JobDTO is for an Interactive Notebook Job or not
         if(!jobSettingsDTO.isInteractive()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Interactive AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobSettingsDTO.isNotebookJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Notebook AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Notebook Job");
         }
     }
 
     public static void validateInteractiveJarJob(JobDTO jobDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive JAR AbstractJob or not
+        //Validate if JobDTO is for an Interactive JAR Job or not
         if(!jobDTO.isInteractive()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Interactive AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobDTO.isJarJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Jar AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Jar Job");
         }
     }
 
     public static void validateInteractiveJarJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive JAR AbstractJob or not
+        //Validate if JobDTO is for an Interactive JAR Job or not
         if(!jobSettingsDTO.isInteractive()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Interactive AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobSettingsDTO.isJarJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Jar AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Jar Job");
         }
     }
 
     public static void validateInteractivePythonJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive JAR AbstractJob or not
+        //Validate if JobDTO is for an Interactive JAR Job or not
         if(!jobSettingsDTO.isInteractive()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Interactive AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobSettingsDTO.isPythonJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Python AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Python Job");
         }
     }
 
     public static void validateAutomatedNotebookJob(JobDTO jobDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated Notebook AbstractJob or not
+        //Validate if JobDTO is for an Automated Notebook Job or not
         if(!jobDTO.isAutomated()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Automated AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobDTO.isNotebookJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Notebook AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Notebook Job");
         }
     }
 
     public static void validateAutomatedNotebookJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated Notebook AbstractJob or not
+        //Validate if JobDTO is for an Automated Notebook Job or not
         if(!jobSettingsDTO.isAutomated()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Automated AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobSettingsDTO.isNotebookJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Notebook AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Notebook Job");
         }
     }
 
     public static void validateAutomatedJarJob(JobDTO jobDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated JAR AbstractJob or not
+        //Validate if JobDTO is for an Automated JAR Job or not
         if(!jobDTO.isAutomated()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Automated AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobDTO.isJarJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Jar AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Jar Job");
+        }
+    }
+
+    public static void validateAutomatedSparkSubmitJob(JobDTO jobDTO) throws JobConfigException {
+        //Validate if JobDTO is for an Automated Spark Submit Job or not
+        if(!jobDTO.isAutomated()) {
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
+        } else if(!jobDTO.isSparkSubmitJob()) {
+            throw new JobConfigException("Job is NOT configured as a Spark Submit Job");
         }
     }
 
     public static void validateAutomatedJarJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated JAR AbstractJob or not
+        //Validate if JobDTO is for an Automated JAR Job or not
         if(!jobSettingsDTO.isAutomated()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Automated AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobSettingsDTO.isJarJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Jar AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Jar Job");
+        }
+    }
+
+    public static void validateAutomatedSparkSubmitJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        //Validate if JobDTO is for an Automated Spark Submit Job or not
+        if(!jobSettingsDTO.isAutomated()) {
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
+        } else if(!jobSettingsDTO.isSparkSubmitJob()) {
+            throw new JobConfigException("Job is NOT configured as a Spark Submit Job");
         }
     }
 
     public static void validateAutomatedPythonJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated Python AbstractJob or not
+        //Validate if JobDTO is for an Automated Python Job or not
         if(!jobSettingsDTO.isAutomated()) {
-            throw new JobConfigException("AbstractJob is NOT configured as an Automated AbstractJob");
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobSettingsDTO.isPythonJob()) {
-            throw new JobConfigException("AbstractJob is NOT configured as a Python AbstractJob");
+            throw new JobConfigException("Job is NOT configured as a Python Job");
         }
     }
 

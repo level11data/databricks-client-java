@@ -35,7 +35,7 @@ public class ClusterLogConf {
         }
     }
 
-    public StorageInfo getStorageInfo() {
+    public AbstractStorageInfo getStorageInfo() {
         if(DbfsInfo != null) {
             return DbfsInfo;
         } else {

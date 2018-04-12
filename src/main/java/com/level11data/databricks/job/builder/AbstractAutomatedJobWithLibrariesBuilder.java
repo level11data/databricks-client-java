@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAutomatedJobWithLibrariesBuilder extends AbstractAutomatedJobBuilder {
+public abstract class AbstractAutomatedJobWithLibrariesBuilder extends AbstractAutomatedJobBuilder implements JobBuilderWithLibraries {
 
     private JobsClient _client;
     private ArrayList<LibraryDTO> _libraryDTOs = new ArrayList<>();

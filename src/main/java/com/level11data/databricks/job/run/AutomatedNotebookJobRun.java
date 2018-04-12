@@ -18,7 +18,7 @@ public class AutomatedNotebookJobRun extends AbstractAutomatedJobRun implements 
         super(client, runDTO);
         _client = client;
         if(!runDTO.isNotebookJob()) {
-            throw new JobRunException("AbstractJob Run is not configured as a Notebook AbstractJob");
+            throw new JobRunException("Job Run is not configured as a Notebook Job");
         }
         NotebookPath = runDTO.Task.NotebookTask.NotebookPath;
 

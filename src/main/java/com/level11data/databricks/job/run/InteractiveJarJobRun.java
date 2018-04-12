@@ -12,7 +12,7 @@ public class InteractiveJarJobRun extends AbstractInteractiveJobRun implements J
         super(client, runDTO);
 
         if(!runDTO.isJarJob()) {
-            throw new JobRunException("AbstractJob Run is not configured as a Jar AbstractJob");
+            throw new JobRunException("Job Run is not configured as a Jar Job");
         }
 
         //Set Base Parameters of Run

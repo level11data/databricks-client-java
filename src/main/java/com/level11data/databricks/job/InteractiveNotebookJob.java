@@ -35,7 +35,7 @@ public class InteractiveNotebookJob extends AbstractInteractiveJob implements No
 
         _client = client;
 
-        //Validate DTO for this AbstractJob Type
+        //Validate DTO for this Job Type
         JobValidation.validateInteractiveNotebookJob(jobSettingsDTO);
 
         Notebook = notebook;

@@ -58,7 +58,7 @@ public abstract class AbstractAutomatedJobRun extends AbstractJobRun {
         } else {
             _clusterCreated = true;
             if(runDTO.ClusterSpec.NewCluster == null) {
-                throw new JobRunException("AbstractJobRun is not associated with an automated cluster");
+                throw new JobRunException("JobRun is not associated with an automated cluster");
             } else {
                 return;
             }

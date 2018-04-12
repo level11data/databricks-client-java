@@ -32,7 +32,7 @@ public class InteractiveJarJob extends AbstractInteractiveJob implements Standar
             super(client, cluster, null, jobSettingsDTO, libraries);
             _client = client;
 
-            //Validate that the DTO represents an InteractiveJarJob
+            //Validate DTO for this Job Type
             JobValidation.validateInteractiveJarJob(jobSettingsDTO);
 
             MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;

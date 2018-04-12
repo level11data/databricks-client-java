@@ -47,7 +47,7 @@ abstract public class AbstractInteractiveJobRun extends AbstractJobRun {
         } else {
             _clusterCreated = true;
             if(runDTO.ClusterSpec.ExistingClusterId == null) {
-                throw new JobRunException("AbstractJobRun is not associated with an interactive cluster");
+                throw new JobRunException("JobRun is not associated with an interactive cluster");
             } else {
                 return;
             }

@@ -15,6 +15,7 @@ import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
 import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
 import com.level11data.databricks.job.builder.AutomatedPythonJobBuilder;
+import com.level11data.databricks.job.builder.AutomatedSparkSubmitJobBuilder;
 import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
 import com.level11data.databricks.job.run.JobRun;
 import com.level11data.databricks.library.*;
@@ -321,6 +322,10 @@ public class DatabricksSession {
 
     public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, List<String> parameters) {
         return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, parameters);
+    }
+
+    public AutomatedSparkSubmitJobBuilder createJob(List<String> parameters) {
+        return new AutomatedSparkSubmitJobBuilder(getJobsClient(), parameters);
     }
 
     public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws FileNotFoundException, IOException, HttpException {

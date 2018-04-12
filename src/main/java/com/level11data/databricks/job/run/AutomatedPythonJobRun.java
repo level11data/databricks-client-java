@@ -19,7 +19,7 @@ public class AutomatedPythonJobRun extends AbstractAutomatedJobRun implements Jo
         PythonScript = pythonScript;
 
         if(!runDTO.isPythonJob()) {
-            throw new JobRunException("AbstractJob Run is not configured as a Python AbstractJob");
+            throw new JobRunException("Job Run is not configured as a Python Job");
         }
 
         //Set Base Parameters of Run

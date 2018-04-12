@@ -6,40 +6,34 @@ import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
 import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
-import com.level11data.databricks.job.run.AutomatedJarJobRun;
+import com.level11data.databricks.job.run.AutomatedSparkSubmitJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
 
 import java.util.List;
 
-public class AutomatedJarJob extends AbstractAutomatedJob implements StandardJob {
+public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements StandardJob {
 
     private JobsClient _client;
-    public final String MainClassName;
     public final String[] Parameters;
 
-    public AutomatedJarJob(JobsClient client, JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        this(client, jobSettingsDTO, null);
-    }
-
-    public AutomatedJarJob(JobsClient client,
-                           JobSettingsDTO jobSettingsDTO,
-                           List<Library> libraries) throws JobConfigException {
-        super(client, null, jobSettingsDTO, libraries);
+    //TODO should include a signature with a single library?
+    public AutomatedSparkSubmitJob(JobsClient client,
+                                   JobSettingsDTO jobSettingsDTO) throws JobConfigException {
+        super(client, null, jobSettingsDTO, null);
         _client = client;
 
         //Validate the DTO for this Job Type
-        JobValidation.validateAutomatedJarJob(jobSettingsDTO);
+        JobValidation.validateAutomatedSparkSubmitJob(jobSettingsDTO);
 
-        MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
-        Parameters = jobSettingsDTO.SparkJarTask.Parameters;
+        Parameters = jobSettingsDTO.SparkSubmitTask.Parameters;
     }
 
-    public AutomatedJarJobRun run() throws JobRunException {
+    public AutomatedSparkSubmitJobRun run() throws JobRunException {
         return run(null);
     }
 
-    public AutomatedJarJobRun run(List<String> overrideParameters) throws JobRunException {
+    public AutomatedSparkSubmitJobRun run(List<String> overrideParameters) throws JobRunException {
         try {
             RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
             runRequestDTO.JobId = this.Id;
@@ -49,7 +43,7 @@ public class AutomatedJarJob extends AbstractAutomatedJob implements StandardJob
             }
             RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
             RunDTO jobRun = _client.getRun(response.RunId);
-            return new AutomatedJarJobRun(_client, jobRun);
+            return new AutomatedSparkSubmitJobRun(_client, jobRun);
         } catch (HttpException e) {
             throw new JobRunException(e);
         }

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
-public abstract class AbstractInteractiveJobBuilder extends AbstractJobBuilder {
+public abstract class AbstractInteractiveJobBuilder extends AbstractJobBuilder implements JobBuilderWithLibraries{
     private final JobsClient _client;
     private ArrayList<Library> _libraries = new ArrayList<>();
     private ArrayList<LibraryDTO> _libraryDTOs = new ArrayList<>();
