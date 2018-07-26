@@ -9,6 +9,7 @@ import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.WorkspaceConfigException;
 import org.quartz.Trigger;
 
 import java.io.File;
@@ -165,7 +166,7 @@ public class AutomatedNotebookJobBuilder extends AbstractAutomatedJobWithLibrari
             jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
             NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
-            notebookTaskDTO.NotebookPath = _notebook.Path;
+            notebookTaskDTO.NotebookPath = _notebook.getWorkspacePath();
             notebookTaskDTO.BaseParameters = _baseParameters;
             jobSettingsDTO.NotebookTask = notebookTaskDTO;
 

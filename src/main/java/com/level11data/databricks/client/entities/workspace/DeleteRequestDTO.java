@@ -21,9 +21,6 @@ public class DeleteRequestDTO {
     @JsonProperty("recursive")
     public boolean Recursive;
 
-    @JsonProperty("direct_download")
-    public boolean DirectDownload;
-
     @Override
     public String toString() {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

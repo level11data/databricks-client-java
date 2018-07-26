@@ -2,6 +2,7 @@ package com.level11data.databricks.job.builder;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
+import com.level11data.databricks.client.entities.jobs.JobDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
@@ -9,6 +10,7 @@ import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.WorkspaceConfigException;
 import org.quartz.Trigger;
 
 import java.io.File;
@@ -159,7 +161,7 @@ public class InteractiveNotebookJobBuilder extends AbstractInteractiveJobBuilder
             jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
             NotebookTaskDTO notebookTaskDTO = new NotebookTaskDTO();
-            notebookTaskDTO.NotebookPath = _notebook.Path;
+            notebookTaskDTO.NotebookPath = _notebook.getWorkspacePath();
             notebookTaskDTO.BaseParameters = _baseParameters;
             jobSettingsDTO.NotebookTask = notebookTaskDTO;
 
@@ -168,13 +170,7 @@ public class InteractiveNotebookJobBuilder extends AbstractInteractiveJobBuilder
             //upload any library files
             uploadLibraryFiles();
 
-            //create job via client
-            long jobId = _client.createJob(jobSettingsDTO);
-
-            //create AbstractJob from jobSettingsDTO and jobId
             return new InteractiveNotebookJob(_client, this.Cluster, jobSettingsDTO, _notebook, getLibraries());
-        } catch(HttpException e) {
-            throw new JobConfigException(e);
         } catch(LibraryConfigException e) {
             throw new JobConfigException(e);
         }

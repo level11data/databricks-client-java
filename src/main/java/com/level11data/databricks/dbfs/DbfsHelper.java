@@ -4,6 +4,7 @@ import com.level11data.databricks.client.DbfsClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
 import com.level11data.databricks.client.entities.dbfs.ReadResponseDTO;
+import com.level11data.databricks.util.ResourceUtils;
 
 import java.io.*;
 import java.util.Base64;
@@ -21,14 +22,12 @@ public class DbfsHelper {
     public static void putFile(DbfsClient client,
                                File file,
                                String dbfsPath,
-                               boolean overwrite) throws FileNotFoundException, IOException, HttpException {
+                               boolean overwrite) throws IOException, HttpException {
 
         FileInputStream fileInputStreamReader = new FileInputStream(file);
         try {
             byte[] fileBytes = new byte[(int)file.length()];
             fileInputStreamReader.read(fileBytes);
-            fileInputStreamReader.close();
-
 
             //encode bytes to Base64
             Base64.Encoder encoder = Base64.getEncoder();
@@ -37,7 +36,7 @@ public class DbfsHelper {
             long bytesLeftToSend = fileBase64Bytes.length;
 
             if(bytesLeftToSend < MAX_BLOCK_SIZE) {
-                client.put(encoder.encodeToString(fileBytes), dbfsPath, overwrite);
+                client.put(ResourceUtils.encodeToBase64(file), dbfsPath, overwrite);
             } else {
                 //open handler to DBFS
                 long dbfsHandle = client.create(dbfsPath, overwrite);

@@ -2,10 +2,7 @@ package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
+import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.AutomatedSparkSubmitJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
@@ -17,7 +14,6 @@ public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements Sta
     private JobsClient _client;
     public final String[] Parameters;
 
-    //TODO should include a signature with a single library?
     public AutomatedSparkSubmitJob(JobsClient client,
                                    JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         super(client, null, jobSettingsDTO, null);
@@ -28,6 +24,18 @@ public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements Sta
 
         Parameters = jobSettingsDTO.SparkSubmitTask.Parameters;
     }
+
+    public AutomatedSparkSubmitJob(JobsClient client,
+                                   JobDTO jobDTO) throws JobConfigException {
+        super(client, jobDTO.JobId, jobDTO.Settings, null);
+        _client = client;
+
+        //Validate the DTO for this Job Type
+        JobValidation.validateAutomatedSparkSubmitJob(jobDTO);
+
+        Parameters = jobDTO.Settings.SparkSubmitTask.Parameters;
+    }
+
 
     public AutomatedSparkSubmitJobRun run() throws JobRunException {
         return run(null);

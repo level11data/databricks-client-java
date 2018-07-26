@@ -1,5 +1,5 @@
 package com.level11data.databricks.workspace;
 
-public enum Language {
+public enum NotebookLanguage {
     SCALA, PYTHON, SQL, R
 }

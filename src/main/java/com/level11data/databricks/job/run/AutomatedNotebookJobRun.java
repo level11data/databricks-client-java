@@ -4,13 +4,16 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.RunDTO;
 import com.level11data.databricks.job.util.JobRunHelper;
+import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.WorkspaceConfigException;
+
 import java.util.Map;
 
 public class AutomatedNotebookJobRun extends AbstractAutomatedJobRun implements NotebookJobRun {
     private JobsClient _client;
     private String _jobRunOutputResult;
 
-    public final String NotebookPath;
+    public final Notebook Notebook;
     public final Map<String,String> BaseParameters;
     public final Map<String,String> OverridingParameters;
 
@@ -18,9 +21,14 @@ public class AutomatedNotebookJobRun extends AbstractAutomatedJobRun implements 
         super(client, runDTO);
         _client = client;
         if(!runDTO.isNotebookJob()) {
-            throw new JobRunException("Job Run is not configured as a Notebook Job");
+            throw new JobRunException("Job Run is not configured as a AbstractNotebook Job");
         }
-        NotebookPath = runDTO.Task.NotebookTask.NotebookPath;
+        try {
+            Notebook = _client.Session.getNotebook(runDTO.Task.NotebookTask.NotebookPath);
+        } catch(WorkspaceConfigException e) {
+            throw new JobRunException(e);
+        }
+
 
         //Set Base Parameters of Run
         BaseParameters = this.getBaseParametersAsMap();

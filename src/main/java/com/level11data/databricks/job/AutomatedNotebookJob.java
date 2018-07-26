@@ -6,6 +6,8 @@ import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.AutomatedNotebookJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.WorkspaceConfigException;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,16 +15,9 @@ import java.util.Map;
 public class AutomatedNotebookJob extends AbstractAutomatedJob implements NotebookJob {
 
     private JobsClient _client;
-    public final com.level11data.databricks.workspace.Notebook Notebook;
+    public final Notebook Notebook;
     public final Map<String,String> BaseParameters;
 
-    /**
-     * Create a Notebook AbstractJob on an Automated AbstractCluster
-     *
-     * @param client
-     * @param jobSettingsDTO
-     * @param notebook
-     */
     public AutomatedNotebookJob(JobsClient client,
                                 JobSettingsDTO jobSettingsDTO,
                                 Notebook notebook) throws JobConfigException {
@@ -41,15 +36,7 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
         }
     }
 
-    /**
-     * Create a Notebook AbstractJob on an Automated AbstractCluster using a AbstractJob DTO object
-     *
-     * @param client
-     * @param jobDTO
-     * @throws JobConfigException
-     */
-    public AutomatedNotebookJob(JobsClient client, JobDTO jobDTO)
-            throws JobConfigException {
+    public AutomatedNotebookJob(JobsClient client, JobDTO jobDTO) throws JobConfigException {
         super(client, jobDTO.JobId, jobDTO.Settings);
 
         _client = client;
@@ -57,7 +44,12 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
         //Validate DTO for this Job Type
         JobValidation.validateAutomatedNotebookJob(jobDTO);
 
-        Notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);
+        try {
+            Notebook = _client.Session.getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
+        } catch(WorkspaceConfigException e) {
+            throw new JobConfigException(e);
+        }
+
 
         if(jobDTO.Settings.NotebookTask.BaseParameters != null) {
             BaseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);

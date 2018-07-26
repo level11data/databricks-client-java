@@ -8,6 +8,7 @@ import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.workspace.Notebook;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +41,36 @@ public class InteractiveNotebookJob extends AbstractInteractiveJob implements No
 
         Notebook = notebook;
         if(jobSettingsDTO.NotebookTask.BaseParameters == null) {
-            BaseParameters = Collections.unmodifiableMap(new HashMap<String, String>());
+            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
         } else {
             BaseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
+        }
+    }
+
+    public InteractiveNotebookJob(JobsClient client,
+                                  InteractiveCluster cluster,
+                                  JobDTO jobDTO,
+                                  Notebook notebook) throws JobConfigException {
+        this(client, cluster, jobDTO, notebook, null);
+    }
+
+    public InteractiveNotebookJob(JobsClient client,
+                    InteractiveCluster cluster,
+                    JobDTO jobDTO,
+                    Notebook notebook,
+                    List < Library > libraries) throws JobConfigException {
+        super(client, cluster, jobDTO.JobId, jobDTO.Settings, libraries);
+
+        _client = client;
+
+        //Validate DTO for this Job Type
+        JobValidation.validateInteractiveNotebookJob(jobDTO);
+
+        Notebook = notebook;
+        if(jobDTO.Settings.NotebookTask.BaseParameters == null) {
+            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
+        } else {
+            BaseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
         }
     }
 

@@ -80,7 +80,7 @@ public class AutomatedJarJobTest {
             Thread.sleep(10000); //sleep 10 seconds
         }
 
-        Assert.assertEquals("AbstractJob Run was NOT Successful", RunResultState.SUCCESS,
+        Assert.assertEquals("Job Run was NOT Successful", RunResultState.SUCCESS,
                 run.getRunState().ResultState);
 
         //cleanup

@@ -41,7 +41,7 @@ public class InteractiveClusterTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
-        //Create Interactive AbstractCluster
+        //Create Interactive Cluster
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
@@ -132,7 +132,7 @@ public class InteractiveClusterTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 " " +now;
 
-        //Create Interactive AbstractCluster
+        //Create Interactive Cluster
         Integer minWorkers = 0;
         Integer maxWorkers = 1;
 

@@ -2,10 +2,7 @@ package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
+import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.AutomatedPythonJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
@@ -36,6 +33,26 @@ public class AutomatedPythonJob extends AbstractAutomatedJob implements Standard
 
         PythonScript = pythonScript; //maintain object reference from builder
         Parameters = jobSettingsDTO.SparkPythonTask.Parameters;
+    }
+
+    public AutomatedPythonJob(JobsClient client,
+                              PythonScript pythonScript,
+                              JobDTO jobDTO) throws JobConfigException {
+        this(client, pythonScript, jobDTO, null);
+    }
+
+    public AutomatedPythonJob(JobsClient client,
+                    PythonScript pythonScript,
+                    JobDTO jobDTO,
+                    List < Library > libraries) throws JobConfigException {
+        super(client, jobDTO.JobId, jobDTO.Settings, libraries);
+        _client = client;
+
+        //Validate DTO for this Job Type
+        JobValidation.validateAutomatedPythonJob(jobDTO);
+
+        PythonScript = pythonScript; //maintain object reference from builder
+        Parameters = jobDTO.Settings.SparkPythonTask.Parameters;
     }
 
     public AutomatedPythonJobRun run() throws JobRunException {

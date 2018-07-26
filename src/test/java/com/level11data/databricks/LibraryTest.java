@@ -7,6 +7,7 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
+import com.level11data.databricks.job.run.RunResultState;
 import com.level11data.databricks.library.JarLibrary;
 import com.level11data.databricks.library.LibraryInstallStatus;
 import com.level11data.databricks.workspace.Notebook;
@@ -52,17 +53,19 @@ public class LibraryTest {
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
                 "-" +now;
 
-        String dbfsPath = "dbfs:/tmp/test/"+uniqueName+"/spark-simpleapp-sbt_2.10-1.0.jar";
+        String dbfsPath = "dbfs:/tmp/test/"+uniqueName+"/"+SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
 
-        //Create AbstractLibrary and Upload to DBFS
+        System.out.println("Library Path: "+dbfsPath);
+
+        //Create Library and Upload to DBFS
         JarLibrary library = _databricks.getJarLibrary(new URI(dbfsPath));
         library.upload(jarFile);
 
         //Set cluster name to ClassName.MethodName-TIMESTAMP
         String clusterName = uniqueName;
 
-        //Create Interactive AbstractCluster
+        //Create Interactive Cluster
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion("3.4.x-scala2.11")
@@ -71,8 +74,8 @@ public class LibraryTest {
                 .create();
 
         while(!cluster.getState().equals(ClusterState.RUNNING)) {
-            //System.out.println("AbstractCluster State        : " + cluster.getState().toString());
-            //System.out.println("AbstractCluster State Message: " + cluster.getStateMessage());
+            //System.out.println("Cluster State        : " + cluster.getState().toString());
+            //System.out.println("Cluster State Message: " + cluster.getStateMessage());
             Thread.sleep(5000); //wait 5 seconds
         }
 
@@ -86,7 +89,7 @@ public class LibraryTest {
                 JarLibrary.class.getTypeName(), clusterLibraries.get(0).Library.getClass().getTypeName());
 
         //test to make sure that the library on the cluster is the same object reference
-        Assert.assertEquals("AbstractLibrary object reference does NOT match",
+        Assert.assertEquals("Library object reference does NOT match",
                 library, clusterLibraries.get(0).Library);
 
         while(!clusterLibraries.get(0).getLibraryStatus().InstallStatus.isFinal()) {
@@ -94,14 +97,14 @@ public class LibraryTest {
         }
 
         //test to make sure cluster library status is INSTALLED
-        Assert.assertEquals("AbstractLibrary Install Status is NOT INSTALLED",
+        Assert.assertEquals("Library Install Status is NOT INSTALLED",
                 LibraryInstallStatus.INSTALLED, clusterLibraries.get(0).getLibraryStatus().InstallStatus);
 
-        //Run an Interactive Notebook AbstractJob (without including library) to see if
+        //Run an Interactive Notebook Job (without including library) to see if
         // the notebook is able to import the library (which is already attached)
         //TODO Implement Workspace API to import notebook from resources
         String notebookPath = "/Users/" + "jason@databricks.com" + "/test-notebook-jar-library";
-        Notebook notebook = new Notebook(notebookPath);
+        Notebook notebook = _databricks.getNotebook(notebookPath);
 
         InteractiveNotebookJob job = cluster.createJob(notebook).withName(clusterName).create();
 
@@ -112,21 +115,23 @@ public class LibraryTest {
             Thread.sleep(5000); //wait 5 seconds
         }
 
-        Assert.assertEquals("AbstractJob Output Does Not Match", "$$ Money Time $$", jobRun.getOutput());
+        Assert.assertEquals("Job Run Was NOT Successful", RunResultState.SUCCESS ,jobRun.getRunState().ResultState);
+
+        Assert.assertEquals("Job Output Does Not Match", "$$ Money Time $$", jobRun.getOutput());
 
         //Uninstall library
         clusterLibraries.get(0).uninstall();
 
         //test to make sure that the library is set to be uninstalled upon restart
-        Assert.assertEquals("AbstractLibrary Install Status is NOT UNINSTALL_ON_RESTART after uninstall",
+        Assert.assertEquals("Library Install Status is NOT UNINSTALL_ON_RESTART after uninstall",
                 LibraryInstallStatus.UNINSTALL_ON_RESTART, clusterLibraries.get(0).getLibraryStatus().InstallStatus);
 
         //restart cluster
         cluster.restart();
 
         while(!cluster.getState().equals(ClusterState.RUNNING)) {
-            System.out.println("AbstractCluster State        : " + cluster.getState().toString());
-            System.out.println("AbstractCluster State Message: " + cluster.getStateMessage());
+            System.out.println("Cluster State        : " + cluster.getState().toString());
+            System.out.println("Cluster State Message: " + cluster.getStateMessage());
             Thread.sleep(5000); //wait 5 seconds
         }
 

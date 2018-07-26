@@ -2,10 +2,7 @@ package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
+import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.job.run.InteractiveJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
@@ -37,6 +34,26 @@ public class InteractiveJarJob extends AbstractInteractiveJob implements Standar
 
             MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
             Parameters = jobSettingsDTO.SparkJarTask.Parameters;
+    }
+
+    public InteractiveJarJob(JobsClient client,
+                             InteractiveCluster cluster,
+                             JobDTO jobDTO) throws JobConfigException {
+        this(client, cluster, jobDTO, null);
+    }
+
+    public InteractiveJarJob(JobsClient client,
+                             InteractiveCluster cluster,
+                             JobDTO jobDTO,
+                             List <Library> libraries) throws JobConfigException {
+        super(client, cluster, jobDTO.JobId, jobDTO.Settings, libraries);
+        _client = client;
+
+        //Validate DTO for this Job Type
+        JobValidation.validateInteractiveJarJob(jobDTO);
+
+        MainClassName = jobDTO.Settings.SparkJarTask.MainClassName;
+        Parameters = jobDTO.Settings.SparkJarTask.Parameters;
     }
 
     public InteractiveJarJobRun run() throws JobRunException {

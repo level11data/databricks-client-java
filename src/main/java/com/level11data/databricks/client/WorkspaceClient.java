@@ -1,6 +1,5 @@
 package com.level11data.databricks.client;
 
-import com.level11data.databricks.client.entities.dbfs.DeleteRequestDTO;
 import com.level11data.databricks.client.entities.workspace.*;
 import org.glassfish.jersey.client.ClientConfig;
 

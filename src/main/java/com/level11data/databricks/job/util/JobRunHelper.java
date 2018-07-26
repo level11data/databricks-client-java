@@ -8,7 +8,6 @@ import com.level11data.databricks.job.run.JobRunException;
 public class JobRunHelper {
 
     public static String getJobRunOutput(JobsClient client, long runId) throws HttpException, JobRunException {
-        //otherwise, get the notebook output, if any
         JobRunOutputDTO jobRunOutput = client.getRunOutput(runId);
 
         if(jobRunOutput.NotebookOutput != null) {
@@ -19,7 +18,7 @@ public class JobRunHelper {
             throw new JobRunException(jobRunOutput.Error);
         }
 
-        //No AbstractJob Run Output was found; Nor was an error
+        //No Job Run Output was found; Nor was an error
         return null;
     }
 }

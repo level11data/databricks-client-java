@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 public class ListResponseDTO {
 
     @JsonProperty("objects")
-    public ObjectInfoDTO Objects;
+    public ObjectInfoDTO[] Objects;
 
     @Override
     public String toString() {

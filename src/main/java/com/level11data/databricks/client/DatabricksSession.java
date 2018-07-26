@@ -2,6 +2,8 @@ package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
 import com.level11data.databricks.client.entities.dbfs.ListResponseDTO;
+import com.level11data.databricks.client.entities.workspace.DeleteRequestDTO;
+import com.level11data.databricks.client.entities.workspace.MkdirsRequestDTO;
 import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
@@ -21,6 +23,10 @@ import com.level11data.databricks.job.run.JobRun;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.ScalaNotebook;
+import com.level11data.databricks.workspace.WorkspaceConfigException;
+import com.level11data.databricks.workspace.builder.ScalaNotebookBuilder;
+import com.level11data.databricks.workspace.util.WorkspaceHelper;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,11 +45,13 @@ public class DatabricksSession {
     private JobsClient _jobsClient;
     private LibrariesClient _librariesClient;
     private DbfsClient _dbfsClient;
+    private WorkspaceClient _workspaceClient;
 
     private SparkVersionsDTO _sparkVersionsDTO;
     private NodeTypesDTO _nodeTypesDTO;
     private List<SparkVersion> _sparkVersions;
     private List<NodeType> _nodeTypes;
+    private WorkspaceHelper _workspaceHelper;
 
     public DatabricksSession(DatabricksClientConfiguration databricksConfig) {
         _databricksClientConfig = databricksConfig;
@@ -83,6 +91,13 @@ public class DatabricksSession {
         return _dbfsClient;
     }
 
+    public WorkspaceClient getWorkspaceClient() {
+        if(_workspaceClient == null) {
+            _workspaceClient = new WorkspaceClient(this);
+        }
+        return _workspaceClient;
+    }
+
     public InteractiveClusterBuilder createInteractiveCluster(String name, Integer numWorkers)  {
         return new InteractiveClusterBuilder(getClustersClient(), name, numWorkers);
     }
@@ -120,7 +135,7 @@ public class DatabricksSession {
         boolean isDefaultKeyInList = false;
 
         List<SparkVersionDTO> sparkVersionsDTO = getOrRequestSparkVersionsDTO().Versions;
-        ArrayList<SparkVersion> sparkVersions = new ArrayList<SparkVersion>();
+        ArrayList<SparkVersion> sparkVersions = new ArrayList<>();
 
         for(SparkVersionDTO svDTO : sparkVersionsDTO) {
             sparkVersions.add(new SparkVersion(svDTO.Key, svDTO.Name));
@@ -178,7 +193,7 @@ public class DatabricksSession {
             List<NodeTypeDTO> nodeTypesInfoListDTO
                     = getClustersClient().getNodeTypes().NodeTypes;
 
-            ArrayList<NodeType> nodeTypesList = new ArrayList<NodeType>();
+            ArrayList<NodeType> nodeTypesList = new ArrayList<>();
 
             for(NodeTypeDTO nt : nodeTypesInfoListDTO) {
                 nodeTypesList.add(new NodeType(nt));
@@ -194,6 +209,13 @@ public class DatabricksSession {
             initNodeTypes();
         }
         return _nodeTypes;
+    }
+
+    private WorkspaceHelper getWorkspaceHelper() {
+        if(_workspaceHelper == null) {
+            _workspaceHelper = new WorkspaceHelper(getWorkspaceClient());
+        }
+        return _workspaceHelper;
     }
 
     public NodeType getNodeTypeById(String id) throws ClusterConfigException {
@@ -240,24 +262,24 @@ public class DatabricksSession {
 
             if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
                 InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
-                Notebook notebook = new Notebook(jobDTO.Settings.NotebookTask.NotebookPath);
-                return new InteractiveNotebookJob(client, cluster, jobDTO.Settings,notebook);
+                Notebook notebook = getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
+                return new InteractiveNotebookJob(client, cluster, jobDTO, notebook);
             } else if(jobDTO.isAutomated() && jobDTO.isNotebookJob()) {
                 return new AutomatedNotebookJob(client, jobDTO);
             } else if(jobDTO.isInteractive() && jobDTO.isJarJob()) {
                 InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
-                return new InteractiveJarJob(client,cluster, jobDTO.Settings);
+                return new InteractiveJarJob(client,cluster, jobDTO);
             } else if(jobDTO.isAutomated() && jobDTO.isJarJob()) {
-                return new AutomatedJarJob(client, jobDTO.Settings);
+                return new AutomatedJarJob(client, jobDTO);
             } else if(jobDTO.isInteractive() && jobDTO.isPythonJob()) {
                 InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
                 PythonScript pythonScript = getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
-                return new InteractivePythonJob(client, cluster, pythonScript, jobDTO.Settings);
+                return new InteractivePythonJob(client, cluster, pythonScript, jobDTO);
             } else if(jobDTO.isAutomated() && jobDTO.isPythonJob()) {
                 PythonScript pythonScript = getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
-                return new AutomatedPythonJob(client, pythonScript, jobDTO.Settings);
+                return new AutomatedPythonJob(client, pythonScript, jobDTO);
             } else if(jobDTO.isAutomated() && jobDTO.isSparkSubmitJob()) {
-                //TODO implement SparkSubmitJob type
+                return new AutomatedSparkSubmitJob(client, jobDTO);
             }
         } catch(HttpException e) {
             throw new JobConfigException(e);
@@ -266,6 +288,8 @@ public class DatabricksSession {
         } catch(URISyntaxException e) {
             throw new JobConfigException(e);
         } catch(ResourceConfigException e) {
+            throw new JobConfigException(e);
+        } catch(WorkspaceConfigException e) {
             throw new JobConfigException(e);
         }
         //No valid Job Type was found
@@ -328,11 +352,11 @@ public class DatabricksSession {
         return new AutomatedSparkSubmitJobBuilder(getJobsClient(), parameters);
     }
 
-    public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws FileNotFoundException, IOException, HttpException {
+    public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws IOException, HttpException {
         DbfsHelper.putFile(getDbfsClient(), file, dbfsPath, overwrite);
     }
 
-    public void putDbfsFile(File file, String dbfsPath) throws FileNotFoundException, IOException, HttpException {
+    public void putDbfsFile(File file, String dbfsPath) throws IOException, HttpException {
         DbfsHelper.putFile(getDbfsClient(), file, dbfsPath);
     }
 
@@ -356,11 +380,9 @@ public class DatabricksSession {
         getDbfsClient().mkdirs(path);
     }
 
-    //TODO add listDbfs(String path) and return iterator
-
     public ArrayList<DbfsFileInfo> listDbfs(String path) throws HttpException {
         ListResponseDTO listResponseDTO = getDbfsClient().list(path);
-        ArrayList<DbfsFileInfo> fileList = new ArrayList<DbfsFileInfo>();
+        ArrayList<DbfsFileInfo> fileList = new ArrayList<>();
 
         for (FileInfoDTO fileInfo : listResponseDTO.Files) {
             fileList.add(new DbfsFileInfo(fileInfo));
@@ -417,5 +439,39 @@ public class DatabricksSession {
         return new PythonScript(this, uri);
     }
 
+    public void mkdirsWorkspace(String workspacePath) throws WorkspaceConfigException {
+        try{
+            MkdirsRequestDTO mkdirsRequestDTO = new MkdirsRequestDTO();
+            mkdirsRequestDTO.Path = workspacePath;
+
+            getWorkspaceClient().mkdirs(mkdirsRequestDTO);
+        } catch(HttpException e) {
+            throw new WorkspaceConfigException(e);
+        }
+    }
+
+    public void deleteWorkspaceObject(String workspacePath, boolean recursive) throws WorkspaceConfigException {
+        try{
+            DeleteRequestDTO deleteRequestDTO = new DeleteRequestDTO();
+            deleteRequestDTO.Path = workspacePath;
+            deleteRequestDTO.Recursive = recursive;
+
+            getWorkspaceClient().delete(deleteRequestDTO);
+        } catch(HttpException e) {
+            throw new WorkspaceConfigException(e);
+        }
+    }
+
+    public Notebook getNotebook(String workspacePath) throws WorkspaceConfigException {
+        return getWorkspaceHelper().getNotebook(workspacePath);
+    }
+
+    public ScalaNotebookBuilder createScalaNotebook() throws WorkspaceConfigException {
+        return new ScalaNotebookBuilder(getWorkspaceClient());
+    }
+
+    public ScalaNotebookBuilder createScalaNotebook(File file) throws WorkspaceConfigException {
+        return new ScalaNotebookBuilder(getWorkspaceClient(), file);
+    }
 }
 

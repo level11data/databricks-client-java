@@ -2,10 +2,7 @@ package com.level11data.databricks.job;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
-import com.level11data.databricks.client.entities.jobs.RunDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowRequestDTO;
-import com.level11data.databricks.client.entities.jobs.RunNowResponseDTO;
+import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
 import com.level11data.databricks.job.run.JobRunException;
 import com.level11data.databricks.library.Library;
@@ -33,6 +30,24 @@ public class AutomatedJarJob extends AbstractAutomatedJob implements StandardJob
 
         MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
         Parameters = jobSettingsDTO.SparkJarTask.Parameters;
+    }
+
+    public AutomatedJarJob(JobsClient client,
+                           JobDTO jobDTO) throws JobConfigException {
+        this(client, jobDTO, null);
+    }
+
+    public AutomatedJarJob(JobsClient client,
+                JobDTO jobDTO,
+                List < Library > libraries) throws JobConfigException {
+        super(client, jobDTO.JobId, jobDTO.Settings, libraries);
+        _client = client;
+
+        //Validate the DTO for this Job Type
+        JobValidation.validateAutomatedJarJob(jobDTO);
+
+        MainClassName = jobDTO.Settings.SparkJarTask.MainClassName;
+        Parameters = jobDTO.Settings.SparkJarTask.Parameters;
     }
 
     public AutomatedJarJobRun run() throws JobRunException {

@@ -7,20 +7,20 @@ public class JobValidation {
 
 
     public static void validateInteractiveNotebookJob(JobDTO jobDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive Notebook Job or not
+        //Validate if JobDTO is for an Interactive AbstractNotebook Job or not
         if(!jobDTO.isInteractive()) {
             throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobDTO.isNotebookJob()) {
-            throw new JobConfigException("Job is NOT configured as a Notebook Job");
+            throw new JobConfigException("Job is NOT configured as a AbstractNotebook Job");
         }
     }
 
     public static void validateInteractiveNotebookJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Interactive Notebook Job or not
+        //Validate if JobDTO is for an Interactive AbstractNotebook Job or not
         if(!jobSettingsDTO.isInteractive()) {
             throw new JobConfigException("Job is NOT configured as an Interactive Job");
         } else if(!jobSettingsDTO.isNotebookJob()) {
-            throw new JobConfigException("Job is NOT configured as a Notebook Job");
+            throw new JobConfigException("Job is NOT configured as a AbstractNotebook Job");
         }
     }
 
@@ -51,21 +51,30 @@ public class JobValidation {
         }
     }
 
+    public static void validateInteractivePythonJob(JobDTO jobDTO) throws JobConfigException {
+        //Validate if JobDTO is for an Interactive JAR Job or not
+        if(!jobDTO.isInteractive()) {
+            throw new JobConfigException("Job is NOT configured as an Interactive Job");
+        } else if(!jobDTO.isPythonJob()) {
+            throw new JobConfigException("Job is NOT configured as a Python Job");
+        }
+    }
+
     public static void validateAutomatedNotebookJob(JobDTO jobDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated Notebook Job or not
+        //Validate if JobDTO is for an Automated AbstractNotebook Job or not
         if(!jobDTO.isAutomated()) {
             throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobDTO.isNotebookJob()) {
-            throw new JobConfigException("Job is NOT configured as a Notebook Job");
+            throw new JobConfigException("Job is NOT configured as a AbstractNotebook Job");
         }
     }
 
     public static void validateAutomatedNotebookJob(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
-        //Validate if JobDTO is for an Automated Notebook Job or not
+        //Validate if JobDTO is for an Automated AbstractNotebook Job or not
         if(!jobSettingsDTO.isAutomated()) {
             throw new JobConfigException("Job is NOT configured as an Automated Job");
         } else if(!jobSettingsDTO.isNotebookJob()) {
-            throw new JobConfigException("Job is NOT configured as a Notebook Job");
+            throw new JobConfigException("Job is NOT configured as a AbstractNotebook Job");
         }
     }
 
@@ -114,5 +123,13 @@ public class JobValidation {
         }
     }
 
+    public static void validateAutomatedPythonJob(JobDTO jobDTO) throws JobConfigException {
+        //Validate if JobDTO is for an Automated Python Job or not
+        if(!jobDTO.isAutomated()) {
+            throw new JobConfigException("Job is NOT configured as an Automated Job");
+        } else if(!jobDTO.isPythonJob()) {
+            throw new JobConfigException("Job is NOT configured as a Python Job");
+        }
+    }
 
 }
