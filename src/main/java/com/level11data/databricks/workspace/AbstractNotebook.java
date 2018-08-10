@@ -2,15 +2,14 @@ package com.level11data.databricks.workspace;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.WorkspaceClient;
-import com.level11data.databricks.client.entities.workspace.DeleteRequestDTO;
-import com.level11data.databricks.client.entities.workspace.MkdirsRequestDTO;
+import com.level11data.databricks.client.entities.workspace.WorkspaceDeleteRequestDTO;
+import com.level11data.databricks.client.entities.workspace.WorkspaceMkdirsRequestDTO;
 import com.level11data.databricks.command.Command;
 import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.util.ResourceUtils;
 import com.level11data.databricks.workspace.util.WorkspaceHelper;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -38,11 +37,11 @@ public abstract class AbstractNotebook implements Notebook {
 
         //mkdir of parent path of notebook
         String workspacePathWithoutNotebook = Paths.get(_workspacePath).getParent().toString();
-        MkdirsRequestDTO mkdirsRequestDTO = new MkdirsRequestDTO();
-        mkdirsRequestDTO.Path = workspacePathWithoutNotebook;
+        WorkspaceMkdirsRequestDTO workspaceMkdirsRequestDTO = new WorkspaceMkdirsRequestDTO();
+        workspaceMkdirsRequestDTO.Path = workspacePathWithoutNotebook;
 
         try {
-            _client.mkdirs(mkdirsRequestDTO);
+            _client.mkdirs(workspaceMkdirsRequestDTO);
         } catch(HttpException e) {
             //swallow RESOURCE_ALREADY_EXISTS
             System.out.println(e);
@@ -63,9 +62,9 @@ public abstract class AbstractNotebook implements Notebook {
 
     public void delete() throws WorkspaceConfigException {
         try{
-            DeleteRequestDTO deleteRequestDTO = new DeleteRequestDTO();
-            deleteRequestDTO.Path = getWorkspacePath();
-            _client.delete(deleteRequestDTO);
+            WorkspaceDeleteRequestDTO workspaceDeleteRequestDTO = new WorkspaceDeleteRequestDTO();
+            workspaceDeleteRequestDTO.Path = getWorkspacePath();
+            _client.delete(workspaceDeleteRequestDTO);
         } catch(HttpException e) {
             throw new WorkspaceConfigException(e);
         }

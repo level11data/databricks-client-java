@@ -12,7 +12,7 @@ public class ClusterLibrary {
         Library = library;
     }
 
-    public LibraryStatus getLibraryStatus() throws HttpException, LibraryConfigException {
+    public LibraryStatus getLibraryStatus() throws LibraryConfigException {
         if(Library instanceof JarLibrary) {
             return ((JarLibrary) Library).getClusterStatus(Cluster);
         } else if(Library instanceof EggLibrary) {
@@ -28,7 +28,7 @@ public class ClusterLibrary {
         }
     }
 
-    public void uninstall() throws HttpException {
+    public void uninstall() throws LibraryConfigException {
         Library.uninstall(Cluster);
     }
 

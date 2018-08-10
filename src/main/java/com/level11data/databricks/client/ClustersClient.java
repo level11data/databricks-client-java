@@ -84,76 +84,44 @@ public class ClustersClient extends DatabricksClient {
         return response.readEntity(ClusterInfoDTO.class);
     }
 
-    public void start(String clusterId) throws HttpException {
-        ClusterInfoDTO cluster = new ClusterInfoDTO();
-        cluster.ClusterId = clusterId;
-
+    public void start(ClusterInfoDTO clusterInfoDTO) throws HttpException {
         Response response = _target.path("start")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(cluster));
+                .post(Entity.json(clusterInfoDTO));
 
         // check response status code
-        checkResponse(response, "InteractiveCluster " + clusterId + " is already started");
+        checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is already started");
     }
 
-    public void reStart(String clusterId) throws HttpException {
-        ClusterInfoDTO cluster = new ClusterInfoDTO();
-        cluster.ClusterId = clusterId;
-
+    public void reStart(ClusterInfoDTO clusterInfoDTO) throws HttpException {
         Response response = _target.path("restart")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(cluster));
+                .post(Entity.json(clusterInfoDTO));
 
         // check response status code
-        checkResponse(response, "InteractiveCluster " + clusterId + " is not in a RUNNING state");
+        checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is not in a RUNNING state");
     }
 
-    public void delete(String clusterId) throws HttpException {
-        ClusterInfoDTO cluster = new ClusterInfoDTO();
-        cluster.ClusterId = clusterId;
-
+    public void delete(ClusterInfoDTO clusterInfoDTO) throws HttpException {
         Response response = _target.path("delete")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(cluster));
+                .post(Entity.json(clusterInfoDTO));
 
         // check response status code
-        checkResponse(response, "InteractiveCluster " + clusterId + " is already TERMINATED or TERMINATING");
+        checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is already TERMINATED or TERMINATING");
     }
 
-    public void resize(String clusterId, Integer numWorkers) throws HttpException {
-        ClusterInfoDTO cluster = new ClusterInfoDTO();
-        cluster.ClusterId = clusterId;
-        cluster.NumWorkers = numWorkers;
-
+    public void resize(ClusterInfoDTO clusterInfoDTO) throws HttpException {
         Response response = _target.path("resize")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(cluster));
+                .post(Entity.json(clusterInfoDTO));
 
         // check response status code
-        checkResponse(response, "InteractiveCluster " + clusterId + " is not in a RUNNING state");
-    }
-
-    public void resize(String clusterId, Integer minWorkers, Integer maxWorkers) throws HttpException {
-        ClusterInfoDTO cluster = new ClusterInfoDTO();
-        cluster.ClusterId = clusterId;
-
-        AutoScaleDTO autoScaleDTOSettings = new AutoScaleDTO();
-        autoScaleDTOSettings.MinWorkers = minWorkers;
-        autoScaleDTOSettings.MaxWorkers = maxWorkers;
-
-        cluster.AutoScale = autoScaleDTOSettings;
-
-        Response response = _target.path("resize")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(cluster));
-
-        // check response status code
-        checkResponse(response, "InteractiveCluster " + clusterId + " is not in a RUNNING state");
+        checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is not in a RUNNING state");
     }
 
     public String create(ClusterInfoDTO clusterInfoDTO) throws HttpException {

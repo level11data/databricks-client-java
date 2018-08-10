@@ -36,11 +36,11 @@ public class WorkspaceClient extends DatabricksClient {
         }
     }
 
-    public void delete(DeleteRequestDTO deleteRequestDTO) throws HttpException {
+    public void delete(WorkspaceDeleteRequestDTO workspaceDeleteRequestDTO) throws HttpException {
         Response response = _target.path("delete")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(deleteRequestDTO));
+                .post(Entity.json(workspaceDeleteRequestDTO));
 
         // check response status code
         checkResponse(response);
@@ -83,7 +83,7 @@ public class WorkspaceClient extends DatabricksClient {
         checkResponse(response);
     }
 
-    public ListResponseDTO list(ListRequestDTO listRequestDTO) throws HttpException {
+    public WorkspaceListResponseDTO list(ListRequestDTO listRequestDTO) throws HttpException {
         Response response = _target.path("list")
                 .register(Session.Authentication)
                 .queryParam("path", listRequestDTO.Path)
@@ -93,14 +93,14 @@ public class WorkspaceClient extends DatabricksClient {
 
         // check response status code
         checkResponse(response);
-        return response.readEntity(ListResponseDTO.class);
+        return response.readEntity(WorkspaceListResponseDTO.class);
     }
 
-    public void mkdirs(MkdirsRequestDTO mkdirsRequestDTO) throws HttpException {
+    public void mkdirs(WorkspaceMkdirsRequestDTO workspaceMkdirsRequestDTO) throws HttpException {
         Response response = _target.path("mkdirs")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(mkdirsRequestDTO));
+                .post(Entity.json(workspaceMkdirsRequestDTO));
 
         // check response status code
         checkResponse(response);

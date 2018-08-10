@@ -4,6 +4,7 @@ import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.LibrariesClient;
+import com.level11data.databricks.client.entities.clusters.AutoScaleDTO;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.client.entities.libraries.*;
 import com.level11data.databricks.job.PythonScript;
@@ -63,22 +64,33 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
     }
 
     public void start() throws HttpException {
-        _client.start(Id);
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
+        clusterInfoDTO.ClusterId = Id;
+        _client.start(clusterInfoDTO);
     }
 
     public void restart() throws HttpException {
-        _client.reStart(Id);
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
+        clusterInfoDTO.ClusterId = Id;
+        _client.reStart(clusterInfoDTO);
     }
 
     public void terminate() throws HttpException {
-        _client.delete(Id);
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
+        clusterInfoDTO.ClusterId = Id;
+        _client.delete(clusterInfoDTO);
     }
 
     public InteractiveCluster resize(Integer numWorkers) throws ClusterConfigException, HttpException {
         if(IsAutoScaling) {
             throw new ClusterConfigException("Must Include New Min and Max Worker Values when Resizing an Autoscaling InteractiveCluster");
         }
-        _client.resize(Id, numWorkers);
+
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
+        clusterInfoDTO.ClusterId = Id;
+        clusterInfoDTO.NumWorkers = numWorkers;
+
+        _client.resize(clusterInfoDTO);
 
         ClusterInfoDTO resizedClusterConfig = getClusterInfo();
         resizedClusterConfig.NumWorkers = numWorkers;
@@ -89,7 +101,18 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
         if(!IsAutoScaling) {
             throw new ClusterConfigException("Must Only Include a Single Value When Resizing a Fixed Size InteractiveCluster");
         }
-        _client.resize(Id, minWorkers, maxWorkers);
+
+        ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
+        clusterInfoDTO.ClusterId = Id;
+
+        AutoScaleDTO autoScaleDTOSettings = new AutoScaleDTO();
+        autoScaleDTOSettings.MinWorkers = minWorkers;
+        autoScaleDTOSettings.MaxWorkers = maxWorkers;
+
+        clusterInfoDTO.AutoScale = autoScaleDTOSettings;
+
+
+        _client.resize(clusterInfoDTO);
 
         ClusterInfoDTO resizedClusterConfig = getClusterInfo();
         resizedClusterConfig.AutoScale.MinWorkers = minWorkers;
@@ -154,7 +177,7 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
     public void installLibrary(AbstractLibrary library) throws ClusterConfigException {
         try {
             _libraries.add(library.install(this));
-        } catch(HttpException e) {
+        } catch(LibraryConfigException e) {
             throw new ClusterConfigException(e);
         }
 
@@ -163,7 +186,7 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
     public void uninstallLibrary(AbstractLibrary library) throws ClusterConfigException {
         try {
             library.uninstall(this);
-        } catch(HttpException e) {
+        } catch(LibraryConfigException e) {
             throw new ClusterConfigException(e);
         }
     }

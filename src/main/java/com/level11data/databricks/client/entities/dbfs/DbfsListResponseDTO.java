@@ -1,4 +1,4 @@
-package com.level11data.databricks.client.entities.workspace;
+package com.level11data.databricks.client.entities.dbfs;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,10 +13,9 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ListResponseDTO {
-
-    @JsonProperty("objects")
-    public ObjectInfoDTO[] Objects;
+public class DbfsListResponseDTO {
+    @JsonProperty("files")
+    public FileInfoDTO[] Files;
 
     @Override
     public String toString() {

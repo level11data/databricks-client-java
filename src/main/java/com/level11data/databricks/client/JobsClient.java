@@ -62,14 +62,11 @@ public class JobsClient extends DatabricksClient {
         return response.readEntity(CreateJobResponseDTO.class).JobId;
     }
 
-    public void deleteJob(long jobId) throws HttpException {
-        JobDTO job = new JobDTO();
-        job.JobId = jobId;
-
+    public void deleteJob(JobDTO jobDTO) throws HttpException {
         Response response = _target.path("delete")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(job));
+                .post(Entity.json(jobDTO));
     }
 
     public void resetJob(ResetJobRequestDTO resetJobRequestDTO) throws HttpException {
@@ -124,14 +121,11 @@ public class JobsClient extends DatabricksClient {
         return response.readEntity(RunDTO.class);
     }
 
-    public void cancelRun(long runId) throws HttpException {
-        RunDTO run = new RunDTO();
-        run.RunId = runId;
-
+    public void cancelRun(RunDTO runDTO) throws HttpException {
         Response response = _target.path("runs/cancel")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(run));
+                .post(Entity.json(runDTO));
     }
 
     public JobRunOutputDTO getRunOutput(long runId) throws HttpException {

@@ -13,9 +13,9 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ListResponseDTO {
-    @JsonProperty("files")
-    public FileInfoDTO[] Files;
+public class DbfsMkdirsRequestDTO {
+    @JsonProperty("path")
+    public String Path;
 
     @Override
     public String toString() {

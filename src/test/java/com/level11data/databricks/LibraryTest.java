@@ -22,6 +22,7 @@ import java.util.List;
 public class LibraryTest {
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
     public static final String SIMPLE_JAR_RESOURCE_NAME = "simple-scala-library_2.11-1.0.jar";
+    public static final String DBR_VERSION = "4.3.x-scala2.11";
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
@@ -68,7 +69,7 @@ public class LibraryTest {
         //Create Interactive Cluster
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
-                .withSparkVersion("3.4.x-scala2.11")
+                .withSparkVersion(DBR_VERSION)
                 .withNodeType("i3.xlarge")
                 .withLibrary(library)  //THIS IS WHAT I'm TESTING
                 .create();

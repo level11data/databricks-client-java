@@ -2,8 +2,7 @@ package com.level11data.databricks.dbfs;
 
 import com.level11data.databricks.client.DbfsClient;
 import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
-import com.level11data.databricks.client.entities.dbfs.ReadResponseDTO;
+import com.level11data.databricks.client.entities.dbfs.*;
 import com.level11data.databricks.util.ResourceUtils;
 
 import java.io.*;
@@ -36,10 +35,17 @@ public class DbfsHelper {
             long bytesLeftToSend = fileBase64Bytes.length;
 
             if(bytesLeftToSend < MAX_BLOCK_SIZE) {
-                client.put(ResourceUtils.encodeToBase64(file), dbfsPath, overwrite);
+                PutRequestDTO putRequestDTO = new PutRequestDTO();
+                putRequestDTO.Path = dbfsPath;
+                putRequestDTO.Contents = ResourceUtils.encodeToBase64(file);
+                putRequestDTO.Overwrite = overwrite;
+                client.put(putRequestDTO);
             } else {
                 //open handler to DBFS
-                long dbfsHandle = client.create(dbfsPath, overwrite);
+                CreateRequestDTO createRequestDTO = new CreateRequestDTO();
+                createRequestDTO.Path = dbfsPath;
+                createRequestDTO.Overwrite = overwrite;
+                long dbfsHandle = client.create(createRequestDTO);
 
                 //reset the reader to begin reading from the start again
                 fileInputStreamReader = new FileInputStream(file);
@@ -54,12 +60,17 @@ public class DbfsHelper {
                     //TODO add retry logic; inside or outside the client?
 
                     //add block to DBFS
-                    client.addBlock(dbfsHandle, encoder.encodeToString(bytesToSend));
+                    AddBlockRequestDTO addBlockRequestDTO = new AddBlockRequestDTO();
+                    addBlockRequestDTO.Handle = dbfsHandle;
+                    addBlockRequestDTO.Data = encoder.encodeToString(bytesToSend);
+                    client.addBlock(addBlockRequestDTO);
 
                     bytesLeftToSend = bytesLeftToSend - numBytesToSend;
                 }
                 //close handler to DBFS
-                client.close(dbfsHandle);
+                CloseRequestDTO closeRequestDTO = new CloseRequestDTO();
+                closeRequestDTO.Handle = dbfsHandle;
+                client.close(closeRequestDTO);
             }
         } catch (Throwable e) {
           throw e;

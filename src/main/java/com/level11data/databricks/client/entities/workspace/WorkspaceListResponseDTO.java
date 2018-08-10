@@ -13,13 +13,10 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DeleteRequestDTO {
+public class WorkspaceListResponseDTO {
 
-    @JsonProperty("path")
-    public String Path;
-
-    @JsonProperty("recursive")
-    public boolean Recursive;
+    @JsonProperty("objects")
+    public ObjectInfoDTO[] Objects;
 
     @Override
     public String toString() {

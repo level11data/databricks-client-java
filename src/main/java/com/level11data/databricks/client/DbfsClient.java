@@ -2,19 +2,13 @@ package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.dbfs.*;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientResponse;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Base64;
 
 public class DbfsClient extends DatabricksClient {
 
@@ -46,55 +40,35 @@ public class DbfsClient extends DatabricksClient {
         return response.readEntity(FileInfoDTO.class);
     }
 
-    public long create(String path, boolean overwrite) throws HttpException {
-        CreateRequestDTO requestDTO = new CreateRequestDTO();
-        requestDTO.Path = path;
-        requestDTO.Overwrite = overwrite;
-
+    public long create(CreateRequestDTO createRequestDTO) throws HttpException {
         Response response = _target.path("create")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(requestDTO));
+                .post(Entity.json(createRequestDTO));
 
         checkResponse(response);
         return response.readEntity(CreateResponseDTO.class).Handle;
     }
 
-    public void close(long handle) throws HttpException {
-        CloseRequestDTO requestDTO = new CloseRequestDTO();
-        requestDTO.Handle = handle;
-
+    public void close(CloseRequestDTO closeRequestDTO) throws HttpException {
         Response response = _target.path("close")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(requestDTO));
+                .post(Entity.json(closeRequestDTO));
 
         checkResponse(response);
     }
 
-    public void addBlock(long handle, String data) throws HttpException {
-        AddBlockRequestDTO requestDTO = new AddBlockRequestDTO();
-        requestDTO.Handle = handle;
-        requestDTO.Data = data;
-
+    public void addBlock(AddBlockRequestDTO addBlockRequestDTO) throws HttpException {
         Response response = _target.path("add-block")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(requestDTO));
+                .post(Entity.json(addBlockRequestDTO));
 
         checkResponse(response);
     }
 
-    public void put(String contents, String dbfsPath) throws HttpException, IOException {
-        put(contents, dbfsPath, false);
-    }
-
-    public void put(String contents, String dbfsPath, boolean overwrite) throws HttpException, IOException {
-        PutRequestDTO putRequestDTO = new PutRequestDTO();
-        putRequestDTO.Path = dbfsPath;
-        putRequestDTO.Contents = contents;
-        putRequestDTO.Overwrite = overwrite;
-
+    public void put(PutRequestDTO putRequestDTO) throws HttpException {
         Response response = _target.path("put")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -103,15 +77,15 @@ public class DbfsClient extends DatabricksClient {
         checkResponse(response);
     }
 
-    public void delete(String path, boolean recursive) throws HttpException {
-        DeleteRequestDTO requestDTO = new DeleteRequestDTO();
-        requestDTO.Path = path;
-        requestDTO.Recursive = recursive;
+    public void delete(DbfsDeleteRequestDTO dbfsDeleteRequestDTO) throws HttpException {
+//        DeleteRequestDTO deleteRequestDTO = new DeleteRequestDTO();
+//        deleteRequestDTO.Path = path;
+//        deleteRequestDTO.Recursive = recursive;
 
         Response response = _target.path("delete")
                 .register(Session.Authentication)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(requestDTO));
+                .post(Entity.json(dbfsDeleteRequestDTO));
 
         checkResponse(response);
     }
@@ -125,7 +99,7 @@ public class DbfsClient extends DatabricksClient {
         }
     }
 
-    public ListResponseDTO list(String path) throws HttpException {
+    public DbfsListResponseDTO list(String path) throws HttpException {
         Response response = _target.path("list")
                 .register(Session.Authentication)
                 .queryParam("path", path)
@@ -134,11 +108,11 @@ public class DbfsClient extends DatabricksClient {
                 .get();
 
         checkResponse(response);
-        return response.readEntity(ListResponseDTO.class);
+        return response.readEntity(DbfsListResponseDTO.class);
     }
 
     public void mkdirs(String path) throws HttpException {
-        MkdirsRequestDTO requestDTO = new MkdirsRequestDTO();
+        DbfsMkdirsRequestDTO requestDTO = new DbfsMkdirsRequestDTO();
         requestDTO.Path = path;
 
         Response response = _target.path("mkdirs")

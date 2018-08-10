@@ -15,8 +15,10 @@ abstract public class AbstractJobRun implements JobRun {
     private Long _setupDuration;
     private Long _executionDuration;
     private Long _cleanupDuration;
+    private RunState _runState;
     private final JobsClient _client;
     private final RunDTO _runDTO;
+
 
     public final long JobId;
     public final long RunId;
@@ -55,46 +57,84 @@ abstract public class AbstractJobRun implements JobRun {
 
     }
 
-    //TODO Be more clever with not making an API call if the RunState is in a final state
-    public RunState getRunState() throws HttpException {
-        RunDTO run = _client.getRun(this.RunId);
-        return new RunState(run.State);
+    public RunState getRunState() throws JobRunException {
+        try{
+            if(_runState == null) {
+                RunDTO run = _client.getRun(this.RunId);
+                _runState = new RunState(run.State);
+            } else if(_runState.LifeCycleState.isFinal()){
+                return _runState;
+            } else {
+                RunDTO run = _client.getRun(this.RunId);
+                _runState = new RunState(run.State);
+            }
+            return _runState;
+        }catch(HttpException e){
+            throw new JobRunException(e);
+        }
     }
 
-    public String getSparkContextId() throws HttpException {
+    public String getSparkContextId() throws JobRunException {
         if(_sparkContextId == null) {
-            RunDTO run = _client.getRun(this.RunId);
-            if(run.ClusterInstance == null) {
-                return null;
-            } else {
-                _sparkContextId = run.ClusterInstance.SparkContextId;
+            try{
+                RunDTO run = _client.getRun(this.RunId);
+                if(run.ClusterInstance == null) {
+                    return null;
+                } else {
+                    _sparkContextId = run.ClusterInstance.SparkContextId;
+                }
+            }catch(HttpException e) {
+                throw new JobRunException(e);
             }
         }
         return _sparkContextId;
     }
 
-    public Long getSetupDuration() throws HttpException {
+    public Long getSetupDuration() throws JobRunException {
         if(_setupDuration == null) {
-            RunDTO run = _client.getRun(this.RunId);
-            _setupDuration = run.SetupDuration;
+            try{
+                RunDTO run = _client.getRun(this.RunId);
+                _setupDuration = run.SetupDuration;
+            }catch(HttpException e) {
+                throw new JobRunException(e);
+            }
         }
         return _setupDuration;
     }
 
-    public Long getExecutionDuration() throws HttpException {
+    public Long getExecutionDuration() throws JobRunException {
         if(_executionDuration == null) {
-            RunDTO run = _client.getRun(this.RunId);
-            _executionDuration = run.ExecutionDuration;
+            try{
+                RunDTO run = _client.getRun(this.RunId);
+                _executionDuration = run.ExecutionDuration;
+            }catch(HttpException e) {
+                throw new JobRunException(e);
+            }
         }
         return _executionDuration;
     }
 
-    public Long getCleanupDuration() throws HttpException {
+    public Long getCleanupDuration() throws JobRunException {
         if(_cleanupDuration == null) {
-            RunDTO run = _client.getRun(this.RunId);
-            _cleanupDuration = run.CleanupDuration;
+            try{
+                RunDTO run = _client.getRun(this.RunId);
+                _cleanupDuration = run.CleanupDuration;
+            }catch(HttpException e) {
+                throw new JobRunException(e);
+            }
         }
         return _cleanupDuration;
+    }
+
+    public void cancel() throws JobRunException {
+        RunDTO runDTO = new RunDTO();
+        runDTO.RunId = this.RunId;
+
+        try{
+            _client.cancelRun(runDTO);
+        } catch(HttpException e) {
+            throw new JobRunException(e);
+        }
     }
 
     private String[] getBaseParametersFromDTOAsArray() {

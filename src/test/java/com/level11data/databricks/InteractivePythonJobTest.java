@@ -18,6 +18,7 @@ public class InteractivePythonJobTest {
 
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
     public static final String SIMPLE_PYTHON_RESOURCE_NAME = "simpleapp.py";
+    public static final String DBR_VERSION = "4.3.x-scala2.11";
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
@@ -63,7 +64,7 @@ public class InteractivePythonJobTest {
         //Create Interactive Cluster
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
-                .withSparkVersion("4.0.x-scala2.11")
+                .withSparkVersion(DBR_VERSION)
                 .withNodeType("i3.xlarge")
                 .create();
 

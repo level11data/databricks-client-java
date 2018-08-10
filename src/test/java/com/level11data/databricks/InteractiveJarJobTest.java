@@ -18,6 +18,7 @@ public class InteractiveJarJobTest {
 
     public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
     public static final String SIMPLE_JAR_RESOURCE_NAME = "simple-scala-spark-app_2.11-0.0.1.jar";
+    public static final String DBR_VERSION = "4.3.x-scala2.11";
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
@@ -62,7 +63,7 @@ public class InteractiveJarJobTest {
         //Create Interactive Cluster
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
-                .withSparkVersion("4.0.x-scala2.11") //must be a Spark 1.6.x cluster
+                .withSparkVersion(DBR_VERSION) //must be a Spark 1.6.x cluster
                 .withNodeType("i3.xlarge")
                 .create();
 

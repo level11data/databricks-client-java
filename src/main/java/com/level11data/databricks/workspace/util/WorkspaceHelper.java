@@ -9,7 +9,6 @@ import com.level11data.databricks.workspace.*;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
-import java.rmi.Remote;
 import java.util.ArrayList;
 
 public class WorkspaceHelper {
@@ -212,9 +211,9 @@ public class WorkspaceHelper {
         String tmpWorkspacePathWithNotebook = tmpWorkspacePath + "/" + file.getName();
 
         try {
-            MkdirsRequestDTO mkdirsRequestDTO = new MkdirsRequestDTO();
-            mkdirsRequestDTO.Path = tmpWorkspacePath;
-            _client.mkdirs(mkdirsRequestDTO);
+            WorkspaceMkdirsRequestDTO workspaceMkdirsRequestDTO = new WorkspaceMkdirsRequestDTO();
+            workspaceMkdirsRequestDTO.Path = tmpWorkspacePath;
+            _client.mkdirs(workspaceMkdirsRequestDTO);
 
             ImportRequestDTO importRequestDTO = new ImportRequestDTO();
             importRequestDTO.Format = getExportFormat(file).toString();

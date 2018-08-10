@@ -1,35 +1,23 @@
 package com.level11data.databricks.client;
 
-import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
-import com.level11data.databricks.client.entities.dbfs.ListResponseDTO;
-import com.level11data.databricks.client.entities.workspace.DeleteRequestDTO;
-import com.level11data.databricks.client.entities.workspace.MkdirsRequestDTO;
+import com.level11data.databricks.client.entities.dbfs.*;
+import com.level11data.databricks.client.entities.workspace.*;
 import com.level11data.databricks.cluster.*;
-import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
-import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
+import com.level11data.databricks.cluster.builder.*;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
-import com.level11data.databricks.client.entities.jobs.JobDTO;
-import com.level11data.databricks.client.entities.jobs.RunDTO;
+import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.client.entities.clusters.*;
-import com.level11data.databricks.dbfs.DbfsHelper;
-import com.level11data.databricks.dbfs.DbfsFileInfo;
+import com.level11data.databricks.dbfs.*;
 import com.level11data.databricks.job.*;
-import com.level11data.databricks.job.builder.AutomatedJarJobBuilder;
-import com.level11data.databricks.job.builder.AutomatedNotebookJobBuilder;
-import com.level11data.databricks.job.builder.AutomatedPythonJobBuilder;
-import com.level11data.databricks.job.builder.AutomatedSparkSubmitJobBuilder;
-import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
-import com.level11data.databricks.job.run.JobRun;
+import com.level11data.databricks.job.builder.*;
+import com.level11data.databricks.job.run.*;
 import com.level11data.databricks.library.*;
 import com.level11data.databricks.util.ResourceConfigException;
-import com.level11data.databricks.workspace.Notebook;
-import com.level11data.databricks.workspace.ScalaNotebook;
-import com.level11data.databricks.workspace.WorkspaceConfigException;
+import com.level11data.databricks.workspace.*;
 import com.level11data.databricks.workspace.builder.ScalaNotebookBuilder;
 import com.level11data.databricks.workspace.util.WorkspaceHelper;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -369,7 +357,10 @@ public class DatabricksSession {
     }
 
     public void deleteDbfsObject(String dbfsPath, boolean recursive) throws HttpException {
-        getDbfsClient().delete(dbfsPath, recursive);
+        DbfsDeleteRequestDTO dbfsDeleteRequestDTO = new DbfsDeleteRequestDTO();
+        dbfsDeleteRequestDTO.Path = dbfsPath;
+        dbfsDeleteRequestDTO.Recursive = recursive;
+        getDbfsClient().delete(dbfsDeleteRequestDTO);
     }
 
     public void moveDbfsObject(String fromPath, String toPath) throws HttpException {
@@ -381,10 +372,10 @@ public class DatabricksSession {
     }
 
     public ArrayList<DbfsFileInfo> listDbfs(String path) throws HttpException {
-        ListResponseDTO listResponseDTO = getDbfsClient().list(path);
+        DbfsListResponseDTO dbfsListResponseDTO = getDbfsClient().list(path);
         ArrayList<DbfsFileInfo> fileList = new ArrayList<>();
 
-        for (FileInfoDTO fileInfo : listResponseDTO.Files) {
+        for (FileInfoDTO fileInfo : dbfsListResponseDTO.Files) {
             fileList.add(new DbfsFileInfo(fileInfo));
         }
 
@@ -441,10 +432,10 @@ public class DatabricksSession {
 
     public void mkdirsWorkspace(String workspacePath) throws WorkspaceConfigException {
         try{
-            MkdirsRequestDTO mkdirsRequestDTO = new MkdirsRequestDTO();
-            mkdirsRequestDTO.Path = workspacePath;
+            WorkspaceMkdirsRequestDTO workspaceMkdirsRequestDTO = new WorkspaceMkdirsRequestDTO();
+            workspaceMkdirsRequestDTO.Path = workspacePath;
 
-            getWorkspaceClient().mkdirs(mkdirsRequestDTO);
+            getWorkspaceClient().mkdirs(workspaceMkdirsRequestDTO);
         } catch(HttpException e) {
             throw new WorkspaceConfigException(e);
         }
@@ -452,11 +443,11 @@ public class DatabricksSession {
 
     public void deleteWorkspaceObject(String workspacePath, boolean recursive) throws WorkspaceConfigException {
         try{
-            DeleteRequestDTO deleteRequestDTO = new DeleteRequestDTO();
-            deleteRequestDTO.Path = workspacePath;
-            deleteRequestDTO.Recursive = recursive;
+            WorkspaceDeleteRequestDTO workspaceDeleteRequestDTO = new WorkspaceDeleteRequestDTO();
+            workspaceDeleteRequestDTO.Path = workspacePath;
+            workspaceDeleteRequestDTO.Recursive = recursive;
 
-            getWorkspaceClient().delete(deleteRequestDTO);
+            getWorkspaceClient().delete(workspaceDeleteRequestDTO);
         } catch(HttpException e) {
             throw new WorkspaceConfigException(e);
         }

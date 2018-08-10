@@ -5,15 +5,17 @@ import com.level11data.databricks.cluster.Cluster;
 
 public interface JobRun {
 
-    RunState getRunState() throws HttpException;
+    RunState getRunState() throws JobRunException;
 
-    String getSparkContextId() throws HttpException;
+    String getSparkContextId() throws JobRunException;
 
-    Long getSetupDuration() throws HttpException;
+    Long getSetupDuration() throws JobRunException;
 
-    Long getExecutionDuration() throws HttpException;
+    Long getExecutionDuration() throws JobRunException;
 
-    Long getCleanupDuration() throws HttpException;
+    Long getCleanupDuration() throws JobRunException;
 
     Cluster getCluster() throws JobRunException;
+
+    void cancel() throws JobRunException;
 }

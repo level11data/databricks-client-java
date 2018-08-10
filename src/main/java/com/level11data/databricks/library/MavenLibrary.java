@@ -65,12 +65,20 @@ public class MavenLibrary extends AbstractPublishedLibrary {
                 " Not Associated With AbstractCluster Id " + cluster.Id);
     }
 
-    public ClusterLibrary install(InteractiveCluster cluster) throws HttpException {
-        _client.installLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
-        return new ClusterLibrary(cluster, this);
+    public ClusterLibrary install(InteractiveCluster cluster) throws LibraryConfigException {
+        try{
+            _client.installLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
+            return new ClusterLibrary(cluster, this);
+        }catch(HttpException e){
+            throw new LibraryConfigException(e);
+        }
     }
 
-    public void uninstall(InteractiveCluster cluster) throws HttpException {
-        _client.uninstallLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
+    public void uninstall(InteractiveCluster cluster) throws LibraryConfigException {
+        try{
+            _client.uninstallLibraries(createLibraryRequest(cluster, LibraryHelper.createLibraryDTO(this)));
+        }catch(HttpException e) {
+            throw new LibraryConfigException(e);
+        }
     }
 }

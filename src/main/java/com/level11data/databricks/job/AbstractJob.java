@@ -163,7 +163,9 @@ public abstract class AbstractJob {
 
     public void delete() throws JobConfigException {
         try {
-            _client.deleteJob(this.Id);
+        JobDTO jobDTO = new JobDTO();
+        jobDTO.JobId = this.Id;
+            _client.deleteJob(jobDTO);
         } catch(HttpException e) {
             throw new JobConfigException(e);
         }

@@ -1,4 +1,4 @@
-package com.level11data.databricks.client.entities.dbfs;
+package com.level11data.databricks.client.entities.workspace;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,14 +13,10 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DeleteRequestDTO {
+public class WorkspaceMkdirsRequestDTO {
 
     @JsonProperty("path")
     public String Path;
-
-    @JsonProperty("recursive")
-    public boolean Recursive;
-
 
     @Override
     public String toString() {

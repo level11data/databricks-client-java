@@ -8,7 +8,7 @@ public interface Library {
 
     LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException;
 
-    ClusterLibrary install(InteractiveCluster cluster) throws HttpException;
+    ClusterLibrary install(InteractiveCluster cluster) throws LibraryConfigException;
 
-    void uninstall(InteractiveCluster cluster) throws HttpException;
+    void uninstall(InteractiveCluster cluster) throws LibraryConfigException;
 }

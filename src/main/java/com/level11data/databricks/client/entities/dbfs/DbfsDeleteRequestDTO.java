@@ -13,9 +13,14 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MkdirsRequestDTO {
+public class DbfsDeleteRequestDTO {
+
     @JsonProperty("path")
     public String Path;
+
+    @JsonProperty("recursive")
+    public boolean Recursive;
+
 
     @Override
     public String toString() {
