@@ -72,7 +72,7 @@ public class AutomatedNotebookJobTest {
 
         Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
-        System.out.println("jobRun.getRunState()="+jobRun.getRunState().LifeCycleState);
+        //System.out.println("jobRun.getRunState()="+jobRun.getRunState().LifeCycleState);
 
         while(!jobRun.getRunState().LifeCycleState.isFinal()) {
             Thread.sleep(5000); //wait 5 seconds

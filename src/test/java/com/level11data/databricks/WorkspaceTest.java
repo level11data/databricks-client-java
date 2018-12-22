@@ -65,11 +65,6 @@ public class WorkspaceTest {
         String localFilename = System.getProperty("java.io.tmpdir") + uniqueName + ".dbc";
         File downloadedFile = _databricks.getNotebook(workspaceNotebookPath).saveAsDbc(localFilename);
 
-        //TODO is it right to expect the hashes to match after upload & download?
-        //System.out.println(downloadedFile.toString());
-        //Assert.assertEquals("Downloaded dbc file does not match pre-upload file",
-        //        ResourceUtils.getMD5(localFile), ResourceUtils.getMD5(downloadedFile));
-
         //cleanup the test
         scalaNotebook.delete();
         _databricks.deleteWorkspaceObject(workspacePath, false);
@@ -105,13 +100,13 @@ public class WorkspaceTest {
         Notebook notebook = _databricks.getNotebook(workspaceNotebookPath);
         Assert.assertThat("Notebook Interface Check", notebook, instanceOf(ScalaNotebook.class));
 
-        String localFilename = System.getProperty("java.io.tmpdir") + uniqueName + ".dbc";
+        String localFilename = System.getProperty("java.io.tmpdir") + uniqueName + ".scala";
         File downloadedFile = _databricks.getNotebook(workspaceNotebookPath).saveAsSource(localFilename);
 
-        //TODO is it right to expect the hashes to match after upload & download?
-        //System.out.println(downloadedFile.toString());
-        //Assert.assertEquals("Downloaded source file does not match pre-upload file",
-        //        ResourceUtils.getMD5(localFile), ResourceUtils.getMD5(downloadedFile));
+        //TODO download source with client and compare to .saveAsSource()
+        //_databricks.getWorkspaceClient().exportResource()
+
+
 
         //cleanup the test
         scalaNotebook.delete();
@@ -148,13 +143,8 @@ public class WorkspaceTest {
         Notebook notebook = _databricks.getNotebook(workspaceNotebookPath);
         Assert.assertThat("Notebook Interface Check", notebook, instanceOf(ScalaNotebook.class));
 
-        String localFilename = System.getProperty("java.io.tmpdir") + uniqueName + ".dbc";
+        String localFilename = System.getProperty("java.io.tmpdir") + uniqueName + ".html";
         File downloadedFile = _databricks.getNotebook(workspaceNotebookPath).saveAsHtml(localFilename);
-
-        //TODO is it right to expect the hashes to match after upload & download?
-        //System.out.println(downloadedFile.toString());
-        //Assert.assertEquals("Downloaded source file does not match pre-upload file",
-        //        ResourceUtils.getMD5(localFile), ResourceUtils.getMD5(downloadedFile));
 
         //cleanup the test
         scalaNotebook.delete();

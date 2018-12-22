@@ -64,6 +64,11 @@ public abstract class AbstractNotebookBuilder implements NotebookBuilder {
         return this;
     }
 
+    public AbstractNotebookBuilder withEmptyCommand() {
+        this._commands.add(new EmptyCommand());
+        return this;
+    }
+
     public Command[] getCommands() {
         return _commands.toArray(new Command[_commands.size()]);
     }

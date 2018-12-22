@@ -53,7 +53,7 @@ public class InteractiveJarJobTest {
         String dbfsPath = "dbfs:/tmp/test/" + uniqueName + "/" + SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
 
-        System.out.println(jarFile.toString());
+        //System.out.println(jarFile.toString());
 
         //Set cluster name to ClassName.MethodName TIMESTAMP
         String clusterName = this.getClass().getSimpleName() + "." +
@@ -88,7 +88,7 @@ public class InteractiveJarJobTest {
             Thread.sleep(10000); //wait 10 seconds
         }
 
-        System.out.println(run.getRunState());
+        //System.out.println(run.getRunState());
 
         //cleanup
         job.delete();

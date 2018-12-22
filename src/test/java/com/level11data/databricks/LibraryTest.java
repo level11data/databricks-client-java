@@ -57,8 +57,6 @@ public class LibraryTest {
         String dbfsPath = "dbfs:/tmp/test/"+uniqueName+"/"+SIMPLE_JAR_RESOURCE_NAME;
         File jarFile = new File(localPath);
 
-        System.out.println("Library Path: "+dbfsPath);
-
         //Create Library and Upload to DBFS
         JarLibrary library = _databricks.getJarLibrary(new URI(dbfsPath));
         library.upload(jarFile);
@@ -131,8 +129,8 @@ public class LibraryTest {
         cluster.restart();
 
         while(!cluster.getState().equals(ClusterState.RUNNING)) {
-            System.out.println("Cluster State        : " + cluster.getState().toString());
-            System.out.println("Cluster State Message: " + cluster.getStateMessage());
+            //System.out.println("Cluster State        : " + cluster.getState().toString());
+            //System.out.println("Cluster State Message: " + cluster.getStateMessage());
             Thread.sleep(5000); //wait 5 seconds
         }
 

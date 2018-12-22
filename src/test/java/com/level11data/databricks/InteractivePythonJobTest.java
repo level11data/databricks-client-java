@@ -84,7 +84,7 @@ public class InteractivePythonJobTest {
             Thread.sleep(10000); //wait 10 seconds
         }
 
-        System.out.println(run.getRunState());
+        //System.out.println(run.getRunState());
 
         //cleanup
         job.delete();
