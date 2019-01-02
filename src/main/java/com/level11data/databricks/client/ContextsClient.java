@@ -2,10 +2,6 @@ package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.contexts.CreateContextRequestDTO;
 import com.level11data.databricks.client.entities.contexts.CreateContextResponseDTO;
-import org.glassfish.jersey.client.ClientConfig;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
@@ -14,14 +10,6 @@ public class ContextsClient extends AbstractDatabricksClient {
 
     public ContextsClient(DatabricksSession session) {
         super(session);
-    }
-
-    protected ClientConfig ClientConfig() {
-        return super.ClientConfig();
-    }
-
-    private Client createClient() {
-        return ClientBuilder.newClient(ClientConfig());
     }
 
     //TODO re-evaluate if this is needed; if so, fold into super()

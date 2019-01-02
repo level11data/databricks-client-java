@@ -4,10 +4,6 @@ import com.level11data.databricks.client.entities.commands.CommandRequestDTO;
 import com.level11data.databricks.client.entities.commands.CommandResponseDTO;
 import com.level11data.databricks.client.entities.commands.CommandStatusDTO;
 import com.level11data.databricks.client.entities.commands.ExecuteCommandRequestDTO;
-import org.glassfish.jersey.client.ClientConfig;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
@@ -18,14 +14,6 @@ public class CommandsClient extends AbstractDatabricksClient {
 
     public CommandsClient(DatabricksSession session) {
         super(session);
-    }
-
-    protected ClientConfig ClientConfig() {
-        return super.ClientConfig();
-    }
-
-    private Client createClient() {
-        return ClientBuilder.newClient(ClientConfig());
     }
 
     //TODO - Reevaluate if this is needed; if so collapse into super()

@@ -1,10 +1,6 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.dbfs.*;
-import org.glassfish.jersey.client.ClientConfig;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
@@ -16,14 +12,6 @@ public class DbfsClient extends AbstractDatabricksClient {
 
     public DbfsClient(DatabricksSession session) {
         super(session);
-    }
-
-    protected ClientConfig ClientConfig() {
-        return super.ClientConfig();
-    }
-
-    private Client createClient() {
-        return ClientBuilder.newClient(ClientConfig());
     }
 
     public FileInfoDTO getStatus(String path) throws HttpException {

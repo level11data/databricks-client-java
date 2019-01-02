@@ -7,6 +7,7 @@ import com.level11data.databricks.cluster.builder.*;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.client.entities.clusters.*;
+import com.level11data.databricks.config.DatabricksClientConfigException;
 import com.level11data.databricks.dbfs.*;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.*;
@@ -16,9 +17,13 @@ import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.workspace.*;
 import com.level11data.databricks.workspace.builder.ScalaNotebookBuilder;
 import com.level11data.databricks.workspace.util.WorkspaceHelper;
+import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
+
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -33,12 +38,11 @@ import java.util.*;
 
 
 public class DatabricksSession {
-    protected final URI Url;
+    protected final URI Endpoint;
 
     private final DatabricksClientConfiguration _databricksClientConfig;
 
-    private final ClientConfig _clientConfig = new ClientConfig().register(new JacksonFeature());
-    private final Client _httpClient = ClientBuilder.newClient(_clientConfig);
+    private Client _httpClient;
     private HttpAuthenticationFeature _userPassAuth;
 
     private ClustersClient _clustersClient;
@@ -53,12 +57,27 @@ public class DatabricksSession {
     private List<NodeType> _nodeTypes;
     private WorkspaceHelper _workspaceHelper;
 
-    public DatabricksSession(DatabricksClientConfiguration databricksConfig) throws DatabricksConfigException {
-        //validate expectations of config; throw exception if not met
-        validateConfig(databricksConfig);
+    private final String SECURITY_PROTOCOL = "TLSv1.2";
 
-        _databricksClientConfig = databricksConfig;
-        Url = databricksConfig.getClientUrl();
+    public DatabricksSession(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
+        //validate expectations of config; throw exception if not met
+        validateClientConfig(databricksClientConfig);
+
+        _databricksClientConfig = databricksClientConfig;
+        Endpoint = databricksClientConfig.getClientUrl();
+
+        //create secure https client session
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.register(new JacksonFeature());
+        clientConfig.connectorProvider(new HttpUrlConnectorProvider());
+        SSLContext sslContext = SslConfigurator.newInstance().securityProtocol(SECURITY_PROTOCOL).createSSLContext();
+        System.setProperty("https.protocols", SECURITY_PROTOCOL);
+        System.setProperty("jdk.tls.client.protocols", SECURITY_PROTOCOL);
+
+        _httpClient = ClientBuilder.newBuilder()
+                .sslContext(sslContext)
+                .withConfig(clientConfig)
+                .build();
     }
 
     public Builder getRequestBuilder(String path) {
@@ -72,7 +91,7 @@ public class DatabricksSession {
     }
 
     public Builder getRequestBuilder(String path, Map<String,Object> queryParams) {
-        //TODO add DEBUG System.out.println(_httpClient.target(this.Url).path(path).getUri().toString());
+        //TODO add DEBUG System.out.println(_httpClient.target(this.Endpoint).path(path).getUri().toString());
 //        if(queryParams != null) {
 //            System.out.println("Query Params:");
 //            queryParams.forEach((k,v) -> System.out.println("(" + k + "," + v + ")"));
@@ -82,7 +101,7 @@ public class DatabricksSession {
             //authenticate with token as first priority
             //System.out.println("Authenticating with TOKEN");
             if (queryParams != null) {
-                WebTarget target = _httpClient.target(this.Url).path(path);
+                WebTarget target = _httpClient.target(this.Endpoint).path(path);
 
                 target = applyQueryParameters(target, queryParams);
 
@@ -92,7 +111,7 @@ public class DatabricksSession {
                         .accept(MediaType.APPLICATION_JSON);
             } else {
                 return _httpClient
-                        .target(this.Url)
+                        .target(this.Endpoint)
                         .path(path)
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getClientToken())
@@ -102,7 +121,7 @@ public class DatabricksSession {
             //otherwise, authenticate with username and password
             //TODO add DEBUG System.out.println("Authenticating with USERNAME and PASSWORD");
             if(queryParams != null) {
-                WebTarget target = _httpClient.target(this.Url).path(path);
+                WebTarget target = _httpClient.target(this.Endpoint).path(path);
 
                 target = applyQueryParameters(target, queryParams);
 
@@ -111,7 +130,7 @@ public class DatabricksSession {
                         .accept(MediaType.APPLICATION_JSON);
             } else {
                 return _httpClient
-                        .target(this.Url)
+                        .target(this.Endpoint)
                         .path(path)
                         .register(getUserPassAuth())
                         .request(MediaType.APPLICATION_JSON_TYPE)
@@ -128,11 +147,11 @@ public class DatabricksSession {
         return target;
     }
 
-    private void validateConfig(DatabricksClientConfiguration databricksConfig) throws DatabricksConfigException {
-        if(!databricksConfig.hasClientToken() && !databricksConfig.hasClientUsername()) {
-            throw new DatabricksConfigException("Neither token nor username in DatabricksConfig");
-        } else if(databricksConfig.hasClientUsername() && !databricksConfig.hasClientPassword()) {
-            throw new DatabricksConfigException("Password not in DatabricksConfig");
+    private void validateClientConfig(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
+        if(!databricksClientConfig.hasClientToken() && !databricksClientConfig.hasClientUsername()) {
+            throw new DatabricksClientConfigException("Neither token nor username in DatabricksConfig");
+        } else if(databricksClientConfig.hasClientUsername() && !databricksClientConfig.hasClientPassword()) {
+            throw new DatabricksClientConfigException("Password not in DatabricksConfig");
         }
     }
 

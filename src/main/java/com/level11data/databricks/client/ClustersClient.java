@@ -1,10 +1,6 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.clusters.*;
-import org.glassfish.jersey.client.ClientConfig;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
@@ -13,14 +9,6 @@ public class ClustersClient extends AbstractDatabricksClient {
 
     public ClustersClient(DatabricksSession session) {
         super(session);
-    }
-
-    protected ClientConfig ClientConfig() {
-        return super.ClientConfig();
-    }
-
-    private Client createClient() {
-        return ClientBuilder.newClient(ClientConfig());
     }
 
     public SparkVersionsDTO getSparkVersions() throws HttpException  {

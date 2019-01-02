@@ -3,9 +3,6 @@ package com.level11data.databricks.client;
 import com.level11data.databricks.client.entities.libraries.AllClusterLibraryStatusesDTO;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
-import org.glassfish.jersey.client.ClientConfig;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
@@ -15,14 +12,6 @@ public class LibrariesClient extends AbstractDatabricksClient {
 
     public LibrariesClient(DatabricksSession session) {
         super(session);
-    }
-
-    protected ClientConfig ClientConfig() {
-        return super.ClientConfig();
-    }
-
-    private Client createClient() {
-        return ClientBuilder.newClient(ClientConfig());
     }
 
     public AllClusterLibraryStatusesDTO getAllClusterStatuses() throws HttpException  {

@@ -1,19 +1,14 @@
 package com.level11data.databricks.client;
 
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import javax.ws.rs.core.Response;
 
 public abstract class AbstractDatabricksClient {
-    public DatabricksSession Session;
+    public final DatabricksSession Session;
 
     public AbstractDatabricksClient(DatabricksSession session) {
         Session = session;
     }
 
-    protected ClientConfig ClientConfig() {
-        return new ClientConfig().register(new JacksonFeature());
-    }
 
     protected void checkResponse(Response response) throws HttpException {
         //This will print the entire response body; useful for debugging code
