@@ -84,14 +84,6 @@ public class DatabricksSession {
             if (queryParams != null) {
                 WebTarget target = _httpClient.target(this.Url).path(path);
 
-                //lambda not playing nice
-                //queryParams.forEach((k,v) -> target = target.queryParam(k,v));
-
-//                for(Map.Entry<String,Object> queryParam : queryParams.entrySet()) {
-//                    //System.out.println("Applying Query Praram to HTTP Request: "+queryParam.getKey() + "," + queryParam.getValue());
-//                    target = target.queryParam(queryParam.getKey(), queryParam.getValue());
-//                }
-
                 target = applyQueryParameters(target, queryParams);
 
                 return target
