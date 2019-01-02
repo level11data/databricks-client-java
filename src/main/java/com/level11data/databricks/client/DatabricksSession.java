@@ -16,7 +16,15 @@ import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.workspace.*;
 import com.level11data.databricks.workspace.builder.ScalaNotebookBuilder;
 import com.level11data.databricks.workspace.util.WorkspaceHelper;
+import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -25,10 +33,14 @@ import java.util.*;
 
 
 public class DatabricksSession {
-    protected final HttpAuthenticationFeature Authentication;
     protected final URI Url;
 
     private final DatabricksClientConfiguration _databricksClientConfig;
+
+    private final ClientConfig _clientConfig = new ClientConfig().register(new JacksonFeature());
+    private final Client _httpClient = ClientBuilder.newClient(_clientConfig);
+    private HttpAuthenticationFeature _userPassAuth;
+
     private ClustersClient _clustersClient;
     private JobsClient _jobsClient;
     private LibrariesClient _librariesClient;
@@ -41,14 +53,105 @@ public class DatabricksSession {
     private List<NodeType> _nodeTypes;
     private WorkspaceHelper _workspaceHelper;
 
-    public DatabricksSession(DatabricksClientConfiguration databricksConfig) {
+    public DatabricksSession(DatabricksClientConfiguration databricksConfig) throws DatabricksConfigException {
+        //validate expectations of config; throw exception if not met
+        validateConfig(databricksConfig);
+
         _databricksClientConfig = databricksConfig;
-
-        Authentication = HttpAuthenticationFeature.basicBuilder()
-                .credentials(databricksConfig.getClientUsername(), databricksConfig.getClientPassword())
-                .build();
-
         Url = databricksConfig.getClientUrl();
+    }
+
+    public Builder getRequestBuilder(String path) {
+        return getRequestBuilder(path, null);
+    }
+
+    public Builder getRequestBuilder(String path, String queryParamKey, Object queryParamValue) {
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put(queryParamKey, queryParamValue);
+        return getRequestBuilder(path, queryMap);
+    }
+
+    public Builder getRequestBuilder(String path, Map<String,Object> queryParams) {
+        //TODO add DEBUG System.out.println(_httpClient.target(this.Url).path(path).getUri().toString());
+//        if(queryParams != null) {
+//            System.out.println("Query Params:");
+//            queryParams.forEach((k,v) -> System.out.println("(" + k + "," + v + ")"));
+//        }
+
+        if(_databricksClientConfig.hasClientToken()) {
+            //authenticate with token as first priority
+            //System.out.println("Authenticating with TOKEN");
+            if (queryParams != null) {
+                WebTarget target = _httpClient.target(this.Url).path(path);
+
+                //lambda not playing nice
+                //queryParams.forEach((k,v) -> target = target.queryParam(k,v));
+
+//                for(Map.Entry<String,Object> queryParam : queryParams.entrySet()) {
+//                    //System.out.println("Applying Query Praram to HTTP Request: "+queryParam.getKey() + "," + queryParam.getValue());
+//                    target = target.queryParam(queryParam.getKey(), queryParam.getValue());
+//                }
+
+                target = applyQueryParameters(target, queryParams);
+
+                return target
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getClientToken())
+                        .accept(MediaType.APPLICATION_JSON);
+            } else {
+                return _httpClient
+                        .target(this.Url)
+                        .path(path)
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getClientToken())
+                        .accept(MediaType.APPLICATION_JSON);
+            }
+        } else {
+            //otherwise, authenticate with username and password
+            //TODO add DEBUG System.out.println("Authenticating with USERNAME and PASSWORD");
+            if(queryParams != null) {
+                WebTarget target = _httpClient.target(this.Url).path(path);
+
+                target = applyQueryParameters(target, queryParams);
+
+                return target
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept(MediaType.APPLICATION_JSON);
+            } else {
+                return _httpClient
+                        .target(this.Url)
+                        .path(path)
+                        .register(getUserPassAuth())
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept(MediaType.APPLICATION_JSON);
+            }
+        }
+    }
+
+    private WebTarget applyQueryParameters(WebTarget target, Map<String,Object> queryParams) {
+        for(Map.Entry<String,Object> queryParam : queryParams.entrySet()) {
+            //System.out.println("Applying Query Praram to HTTP Request: "+queryParam.getKey() + "," + queryParam.getValue());
+            target = target.queryParam(queryParam.getKey(), queryParam.getValue());
+        }
+        return target;
+    }
+
+    private void validateConfig(DatabricksClientConfiguration databricksConfig) throws DatabricksConfigException {
+        if(!databricksConfig.hasClientToken() && !databricksConfig.hasClientUsername()) {
+            throw new DatabricksConfigException("Neither token nor username in DatabricksConfig");
+        } else if(databricksConfig.hasClientUsername() && !databricksConfig.hasClientPassword()) {
+            throw new DatabricksConfigException("Password not in DatabricksConfig");
+        }
+    }
+
+    private HttpAuthenticationFeature getUserPassAuth() {
+        if(_userPassAuth == null) {
+            _userPassAuth = HttpAuthenticationFeature.basicBuilder()
+                    .credentials(_databricksClientConfig.getClientUsername()
+                            , _databricksClientConfig.getClientPassword())
+                    .build();
+        }
+        return _userPassAuth;
     }
 
     public ClustersClient getClustersClient() {
@@ -284,15 +387,14 @@ public class DatabricksSession {
         throw new JobConfigException("Unsupported Job Type");
     }
 
-    public JobRun getRun(long runId) throws HttpException, Exception {
+    public JobRun getRun(long runId) throws HttpException, JobRunException {
         JobsClient client = getJobsClient();
         RunDTO runDTO = client.getRun(runId);
 
         if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
-            InteractiveNotebookJobRun run = new InteractiveNotebookJobRun(client, runDTO);
-            return run;
+            return new InteractiveNotebookJobRun(client, runDTO);
         } else {
-            throw new Exception("Unsupported Job Type");  //TODO add better exception handling
+            throw new JobRunException("Unsupported Job Type");  //TODO add better exception handling
         }
     }
 

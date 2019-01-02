@@ -4,10 +4,10 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import javax.ws.rs.core.Response;
 
-public class DatabricksClient {
+public abstract class AbstractDatabricksClient {
     public DatabricksSession Session;
 
-    public DatabricksClient(DatabricksSession session) {
+    public AbstractDatabricksClient(DatabricksSession session) {
         Session = session;
     }
 
@@ -25,6 +25,8 @@ public class DatabricksClient {
             String body = response.readEntity(String.class);
             throw new HttpException("HTTP 400 Bad Request: " + body);
         } else if (response.getStatus() == 401) {
+            String body = response.readEntity(String.class);
+            System.out.println("HTTP "+ response.getStatus() + ":" + body);
             throw new HttpException("HTTP 401 Unauthorized: Not Authenticated");
         } else if(response.getStatus() == 403) {
             throw new HttpException("HTTP 403 Forbidden: Not Authorized");

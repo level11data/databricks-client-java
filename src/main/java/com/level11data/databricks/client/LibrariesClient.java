@@ -7,18 +7,14 @@ import org.glassfish.jersey.client.ClientConfig;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class LibrariesClient extends DatabricksClient {
+public class LibrariesClient extends AbstractDatabricksClient {
 
-    private WebTarget _target;
+    private final String ENDPOINT_TARGET = "api/2.0/libraries";
 
     public LibrariesClient(DatabricksSession session) {
         super(session);
-        _target = createClient().target(Session.Url)
-                .path("api").path("2.0").path("libraries");
     }
 
     protected ClientConfig ClientConfig() {
@@ -30,42 +26,35 @@ public class LibrariesClient extends DatabricksClient {
     }
 
     public AllClusterLibraryStatusesDTO getAllClusterStatuses() throws HttpException  {
-        Response response = _target.path("all-cluster-statuses")
-                .register(Session.Authentication)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/all-cluster-statuses";
+
+        Response response = Session.getRequestBuilder(pathSuffix).get();
 
         checkResponse(response);
         return response.readEntity(AllClusterLibraryStatusesDTO.class);
     }
 
     public ClusterLibraryStatusesDTO getClusterStatus(String clusterId) throws HttpException {
-        Response response = _target.path("cluster-status")
-                .register(Session.Authentication)
-                .queryParam("cluster_id", clusterId)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/cluster-status";
+
+        Response response = Session.getRequestBuilder(pathSuffix, "cluster_id", clusterId).get();
 
         checkResponse(response);
         return response.readEntity(ClusterLibraryStatusesDTO.class);
     }
 
-    public void installLibraries(ClusterLibraryRequestDTO clusterLibrariesRequest) throws HttpException {
-        Response response = _target.path("install")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterLibrariesRequest));
+    public void installLibraries(ClusterLibraryRequestDTO clusterLibrariesRequestDTO) throws HttpException {
+        String pathSuffix = ENDPOINT_TARGET + "/install";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterLibrariesRequestDTO));
 
         checkResponse(response);
     }
 
-    public void uninstallLibraries(ClusterLibraryRequestDTO clusterLibrariesRequest) throws HttpException {
-        Response response = _target.path("uninstall")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterLibrariesRequest));
+    public void uninstallLibraries(ClusterLibraryRequestDTO clusterLibrariesRequestDTO) throws HttpException {
+        String pathSuffix = ENDPOINT_TARGET + "/uninstall";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterLibrariesRequestDTO));
 
         checkResponse(response);
     }

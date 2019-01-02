@@ -115,6 +115,39 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
         return getNonEmptyString(CLIENT_TOKEN);
     }
 
+    public boolean hasClientToken() {
+        try {
+            getClientToken();
+            return true;
+        } catch(NullPointerException e) {
+            return false;
+        } catch(IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean hasClientUsername() {
+        try {
+            getClientUsername();
+            return true;
+        } catch(NullPointerException e) {
+            return false;
+        } catch(IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean hasClientPassword() {
+        try {
+            getClientPassword();
+            return true;
+        } catch(NullPointerException e) {
+            return false;
+        } catch(IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     /**
      * Returns true if required properties for Client are set
      */

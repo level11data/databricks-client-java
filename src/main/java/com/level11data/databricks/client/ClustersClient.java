@@ -2,20 +2,17 @@ package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.clusters.*;
 import org.glassfish.jersey.client.ClientConfig;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class ClustersClient extends DatabricksClient {
-    private WebTarget _target;
+public class ClustersClient extends AbstractDatabricksClient {
+    private final String ENDPOINT_TARGET = "api/2.0/clusters";
 
     public ClustersClient(DatabricksSession session) {
         super(session);
-        _target = createClient().target(session.Url)
-                .path("api").path("2.0").path("clusters");
     }
 
     protected ClientConfig ClientConfig() {
@@ -27,108 +24,92 @@ public class ClustersClient extends DatabricksClient {
     }
 
     public SparkVersionsDTO getSparkVersions() throws HttpException  {
-        Response response = _target.path("spark-versions")
-                .register(Session.Authentication)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/spark-versions";
+
+        Response response = Session.getRequestBuilder(pathSuffix).get();
 
         checkResponse(response);
         return response.readEntity(SparkVersionsDTO.class);
     }
 
     public NodeTypesDTO getNodeTypes() throws HttpException  {
-        Response response = _target.path("list-node-types")
-                .register(Session.Authentication)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/list-node-types";
+
+        Response response = Session.getRequestBuilder(pathSuffix).get();
 
         checkResponse(response);
         return response.readEntity(NodeTypesDTO.class);
     }
 
     public ZonesDTO getZones() throws HttpException {
-        Response response = _target.path("list-zones")
-                .register(Session.Authentication)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/list-zones";
+
+        Response response = Session.getRequestBuilder(pathSuffix).get();
 
         checkResponse(response);
         return response.readEntity(ZonesDTO.class);
     }
 
     public ClustersDTO listClusters() throws HttpException  {
-        Response response = _target.path("list")
-                .register(Session.Authentication)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/list";
+
+        Response response = Session.getRequestBuilder(pathSuffix).get();
 
         checkResponse(response);
         return response.readEntity(ClustersDTO.class);
     }
 
     public ClusterInfoDTO getCluster(String clusterId) throws HttpException {
-        //TODO should be DEBUG logging statement
-        //System.out.println("getCluster HTTP request for id "+clusterId);
-        Response response = _target.path("get")
-                .register(Session.Authentication)
-                .queryParam("cluster_id", clusterId)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        //TODO should be DEBUG logging statement  System.out.println("getCluster HTTP request for id "+clusterId);
+
+        String pathSuffix = ENDPOINT_TARGET + "/get";
+
+        Response response = Session.getRequestBuilder(pathSuffix, "cluster_id", clusterId).get();
 
         checkResponse(response);
         return response.readEntity(ClusterInfoDTO.class);
     }
 
     public void start(ClusterInfoDTO clusterInfoDTO) throws HttpException {
-        Response response = _target.path("start")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterInfoDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/start";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterInfoDTO));
 
         // check response status code
         checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is already started");
     }
 
     public void reStart(ClusterInfoDTO clusterInfoDTO) throws HttpException {
-        Response response = _target.path("restart")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterInfoDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/restart";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterInfoDTO));
 
         // check response status code
         checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is not in a RUNNING state");
     }
 
     public void delete(ClusterInfoDTO clusterInfoDTO) throws HttpException {
-        Response response = _target.path("delete")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterInfoDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/delete";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterInfoDTO));
 
         // check response status code
         checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is already TERMINATED or TERMINATING");
     }
 
     public void resize(ClusterInfoDTO clusterInfoDTO) throws HttpException {
-        Response response = _target.path("resize")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterInfoDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/resize";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterInfoDTO));
 
         // check response status code
         checkResponse(response, "InteractiveCluster " + clusterInfoDTO.ClusterId + " is not in a RUNNING state");
     }
 
     public String create(ClusterInfoDTO clusterInfoDTO) throws HttpException {
-        Response response = _target.path("create")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(clusterInfoDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/create";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(clusterInfoDTO));
 
         checkResponse(response);
         return response.readEntity(CreateClusterResponseDTO.class).ClusterId;

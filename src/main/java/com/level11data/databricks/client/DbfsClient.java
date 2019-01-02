@@ -6,18 +6,16 @@ import org.glassfish.jersey.client.ClientConfig;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
 
-public class DbfsClient extends DatabricksClient {
+public class DbfsClient extends AbstractDatabricksClient {
 
-    private WebTarget _target;
+    private final String ENDPOINT_TARGET = "api/2.0/dbfs";
 
     public DbfsClient(DatabricksSession session) {
         super(session);
-        _target = createClient().target(Session.Url)
-                .path("api").path("2.0").path("dbfs");
     }
 
     protected ClientConfig ClientConfig() {
@@ -29,67 +27,56 @@ public class DbfsClient extends DatabricksClient {
     }
 
     public FileInfoDTO getStatus(String path) throws HttpException {
-        Response response = _target.path("get-status")
-                .register(Session.Authentication)
-                .queryParam("path", path)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/get-status";
+
+        Response response = Session.getRequestBuilder(pathSuffix,"path",path).get();
 
         checkResponse(response);
         return response.readEntity(FileInfoDTO.class);
     }
 
     public long create(CreateRequestDTO createRequestDTO) throws HttpException {
-        Response response = _target.path("create")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(createRequestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/create";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(createRequestDTO));
 
         checkResponse(response);
         return response.readEntity(CreateResponseDTO.class).Handle;
     }
 
     public void close(CloseRequestDTO closeRequestDTO) throws HttpException {
-        Response response = _target.path("close")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(closeRequestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/close";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(closeRequestDTO));
 
         checkResponse(response);
     }
 
     public void addBlock(AddBlockRequestDTO addBlockRequestDTO) throws HttpException {
-        Response response = _target.path("add-block")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(addBlockRequestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/add-block";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(addBlockRequestDTO));
 
         checkResponse(response);
     }
 
     public void put(PutRequestDTO putRequestDTO) throws HttpException {
-        Response response = _target.path("put")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(putRequestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/put";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(putRequestDTO));
 
         checkResponse(response);
     }
 
     public void delete(DbfsDeleteRequestDTO dbfsDeleteRequestDTO) throws HttpException {
-//        DeleteRequestDTO deleteRequestDTO = new DeleteRequestDTO();
-//        deleteRequestDTO.Path = path;
-//        deleteRequestDTO.Recursive = recursive;
+        String pathSuffix = ENDPOINT_TARGET + "/delete";
 
-        Response response = _target.path("delete")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(dbfsDeleteRequestDTO));
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(dbfsDeleteRequestDTO));
 
         checkResponse(response);
     }
 
+    //TODO remove this and fold into super() class; why the need for another Exception Type??
     private void checkResponse(Response response, String message400) throws HttpException {
         // check response status code
         if (response.getStatus() == 400) {
@@ -100,51 +87,48 @@ public class DbfsClient extends DatabricksClient {
     }
 
     public DbfsListResponseDTO list(String path) throws HttpException {
-        Response response = _target.path("list")
-                .register(Session.Authentication)
-                .queryParam("path", path)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/list";
+
+        Response response = Session.getRequestBuilder(pathSuffix, "path", path).get();
 
         checkResponse(response);
         return response.readEntity(DbfsListResponseDTO.class);
     }
 
+    //TODO - Refactor to accept DTO
     public void mkdirs(String path) throws HttpException {
         DbfsMkdirsRequestDTO requestDTO = new DbfsMkdirsRequestDTO();
         requestDTO.Path = path;
 
-        Response response = _target.path("mkdirs")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(requestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/mkdirs";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(requestDTO));
 
         checkResponse(response);
     }
 
+    //TODO - Refactor to accept DTO
     public void move(String sourcePath, String destinationPath) throws HttpException {
         MoveRequestDTO requestDTO = new MoveRequestDTO();
         requestDTO.SourcePath = sourcePath;
         requestDTO.DestinationPath = destinationPath;
 
-        Response response = _target.path("move")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(requestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/move";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(requestDTO));
 
         checkResponse(response);
     }
 
     public ReadResponseDTO read(String path, long offset, long length) throws HttpException {
-        Response response = _target.path("read")
-                .register(Session.Authentication)
-                .queryParam("path", path)
-                .queryParam("offset", offset)
-                .queryParam("length", length)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/read";
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("path", path);
+        queryParams.put("offset", offset);
+        queryParams.put("length",length);
+
+        Response response = Session.getRequestBuilder(pathSuffix, queryParams).get();
 
         checkResponse(response);
         return response.readEntity(ReadResponseDTO.class);

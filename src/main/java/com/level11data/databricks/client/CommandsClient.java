@@ -9,17 +9,15 @@ import org.glassfish.jersey.client.ClientConfig;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
 
-public class CommandsClient extends DatabricksClient {
-    private WebTarget _target;
+public class CommandsClient extends AbstractDatabricksClient {
+    private final String ENDPOINT_TARGET = "api/1.2/commands";
 
     public CommandsClient(DatabricksSession session) {
         super(session);
-        _target = createClient().target(session.Url)
-                .path("api").path("1.2").path("commands");
     }
 
     protected ClientConfig ClientConfig() {
@@ -30,6 +28,7 @@ public class CommandsClient extends DatabricksClient {
         return ClientBuilder.newClient(ClientConfig());
     }
 
+    //TODO - Reevaluate if this is needed; if so collapse into super()
     private void checkResponse(Response response, String message400) throws HttpException {
         // check response status code
         if (response.getStatus() == 400) {
@@ -40,33 +39,32 @@ public class CommandsClient extends DatabricksClient {
     }
 
     public String executeCommand(ExecuteCommandRequestDTO executeCommandRequestDTO) throws HttpException {
-        Response response = _target.path("execute")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(executeCommandRequestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/execute";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(executeCommandRequestDTO));
 
         checkResponse(response);
         return response.readEntity(CommandResponseDTO.class).Id;
     }
 
     public CommandStatusDTO getCommandStatus(CommandRequestDTO commandRequestDTO) throws HttpException {
-        Response response = _target.path("status")
-                .register(Session.Authentication)
-                .queryParam("clusterId", commandRequestDTO.ClusterId)
-                .queryParam("contextId", commandRequestDTO.ContextId)
-                .queryParam("commandId", commandRequestDTO.CommandId)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get();
+        String pathSuffix = ENDPOINT_TARGET + "/status";
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("clusterId",commandRequestDTO.ClusterId);
+        queryParams.put("contextId",commandRequestDTO.ContextId);
+        queryParams.put("commandId",commandRequestDTO.CommandId);
+
+        Response response = Session.getRequestBuilder(pathSuffix, queryParams).get();
 
         checkResponse(response);
         return response.readEntity(CommandStatusDTO.class);
     }
 
     public void cancelCommand(CommandRequestDTO commandRequestDTO) throws HttpException {
-        Response response = _target.path("cancel")
-                .register(Session.Authentication)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(commandRequestDTO));
+        String pathSuffix = ENDPOINT_TARGET + "/cancel";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(commandRequestDTO));
 
         checkResponse(response);
     }
