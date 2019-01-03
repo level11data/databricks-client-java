@@ -148,7 +148,9 @@ public class DatabricksSession {
     }
 
     private void validateClientConfig(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
-        if(!databricksClientConfig.hasClientToken() && !databricksClientConfig.hasClientUsername()) {
+        if(databricksClientConfig.hasClientToken()) {
+            //no op - valid config
+        } else if(!databricksClientConfig.hasClientToken() && !databricksClientConfig.hasClientUsername()) {
             throw new DatabricksClientConfigException("Neither token nor username in DatabricksConfig");
         } else if(databricksClientConfig.hasClientUsername() && !databricksClientConfig.hasClientPassword()) {
             throw new DatabricksClientConfigException("Password not in DatabricksConfig");
