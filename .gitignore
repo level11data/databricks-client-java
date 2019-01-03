@@ -40,3 +40,6 @@ hs_err_pid*
 # build artifacts
 target/
 
+
+# Ignore user specific IntelliJ settings
+.idea/
