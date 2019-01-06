@@ -8,7 +8,7 @@ This project is released under the Apache License. See [LICENSE](./LICENSE) for 
 
 ## Build Process
 
-###Build Client JAR
+### Build Client JAR
 
 To build the client JAR, run the following [maven] command: 
   `mvn package`
@@ -16,7 +16,7 @@ To build the client JAR, run the following [maven] command:
 To skip the tests, run the following [maven] command:
    `mvn package -Dmaven.test.skip=true`
 
-###Running Tests
+### Running Tests
    
 In order for the tests to run, the client needs to connect to a Databricks instance.
    
@@ -31,10 +31,10 @@ OR
    `export DB_TEST_PASS=<YOUR DATABRICKS PASSWORD>`
    
    
-##Using the Client
+## Using the Client
    Before you can create a `DatabricksSession`, you must first create a `DatabricksClientConfiguration`.
 
-###DatabricksClientConfiguration
+### DatabricksClientConfiguration
    The configuration is an extention of a regular java [PropertiesConfiguration](https://commons.apache.org/proper/commons-configuration/userguide/howto_properties.html) from the Apache Commons library.
    
    The following is the list or properties it expects:
