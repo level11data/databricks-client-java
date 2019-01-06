@@ -1,8 +1,5 @@
 package com.level11data.databricks.config;
 
-import org.apache.commons.configuration2.AbstractConfiguration;
-import org.apache.commons.configuration2.CompositeConfiguration;
-import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import com.google.common.base.Preconditions;
@@ -10,93 +7,94 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.URI;
-import java.util.Iterator;
 import javax.ws.rs.core.UriBuilder;
-/*
-Inspired by
-  http://www.programcreek.com/java-api-examples/index.php?source_dir=fluo-master/modules/api/src/main/java/io/fluo/api/config/FluoConfiguration.java
+public class DatabricksClientConfiguration extends PropertiesConfiguration {
 
-*/
+    public static final String DEFAULT_RESOURCE_NAME = "databricks-client.properties";
 
-public class DatabricksClientConfiguration extends CompositeConfiguration {
-
-    private static final Logger log = Logger.getLogger(DatabricksClientConfiguration.class);
+    //private static final Logger log = Logger.getLogger(DatabricksClientConfiguration.class);
 
     public static final String LEVEL11DATA_PREFIX = "com.level11data";
     private static final String CLIENT_PREFIX = LEVEL11DATA_PREFIX + ".databricks.client";
-    public static final String CLIENT_TOKEN = CLIENT_PREFIX + ".token";
+
+    public static final String CLIENT_URL      = CLIENT_PREFIX + ".url";
+    public static final String CLIENT_TOKEN    = CLIENT_PREFIX + ".token";
     public static final String CLIENT_USERNAME = CLIENT_PREFIX + ".username";
     public static final String CLIENT_PASSWORD = CLIENT_PREFIX + ".password";
-    public static final String CLIENT_URL = CLIENT_PREFIX + ".url";
 
-    public DatabricksClientConfiguration() {
+    public DatabricksClientConfiguration() throws DatabricksClientConfigException {
         super();
-        setThrowExceptionOnMissing(true);
+
+        //attempt to read config from default resource file
+        initConfigFromDefaultResource();
+
+        //validate that config includes minimum required properties
+        validateRequiredClientProps();
     }
 
-    public DatabricksClientConfiguration(DatabricksClientConfiguration other) {
-        this();
-        Iterator<String> iter = other.getKeys();
-        while (iter.hasNext()) {
-            String key = iter.next();
-            setProperty(key, other.getProperty(key));
+    public DatabricksClientConfiguration(URI databricksURL, String token) throws DatabricksClientConfigException {
+        super();
+
+        this.addProperty(CLIENT_URL, databricksURL.toString());
+        this.addProperty(CLIENT_TOKEN, token);
+
+        //validate that config includes minimum required properties
+        validateRequiredClientProps();
+    }
+
+
+    public DatabricksClientConfiguration(File propertiesFile) throws DatabricksClientConfigException {
+        super();
+        FileInputStream inputStream;
+        try{
+            inputStream = new FileInputStream(propertiesFile);
+        } catch(FileNotFoundException e) {
+            throw new DatabricksClientConfigException("File Not Found: "+propertiesFile.getAbsolutePath(), e);
         }
-    }
 
-    public DatabricksClientConfiguration(Configuration configuration) {
-        this();
-        if (configuration instanceof AbstractConfiguration) {
-            AbstractConfiguration aconf = (AbstractConfiguration) configuration;
-        }
-        addConfiguration(configuration);
-    }
+        readConfigFromStream(inputStream);
 
-    public DatabricksClientConfiguration(File propertiesFile) throws IllegalArgumentException {
-        this();
-        try {
-            Reader reader = new FileReader(propertiesFile);
-            PropertiesConfiguration config = new PropertiesConfiguration();
-            config.read(reader);
-            addConfiguration(config);
-        } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("Configuration File Not Found: " + propertiesFile.getAbsolutePath());
+        try{
+            inputStream.close();
         } catch(IOException e) {
-            throw new IllegalArgumentException(("File could not be read: " + propertiesFile.getAbsolutePath()));
-        } catch (ConfigurationException e) {
-            throw new IllegalArgumentException(e);
+            throw new DatabricksClientConfigException(e);
         }
+
+        //validate that config includes minimum required properties
+        validateRequiredClientProps();
     }
 
-    public DatabricksClientConfiguration(InputStream inputStream) throws IOException, ConfigurationException {
-        this();
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration();
-            config.read(new InputStreamReader(inputStream));
-            addConfiguration(config);
+    public DatabricksClientConfiguration(InputStream inputStream) throws DatabricksClientConfigException {
+        super();
+        readConfigFromStream(inputStream);
+
+        //validate that config includes minimum required properties
+        validateRequiredClientProps();
+    }
+
+    private void initConfigFromDefaultResource() throws DatabricksClientConfigException {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream resourceStream = loader.getResourceAsStream(DEFAULT_RESOURCE_NAME);
+
+        if (resourceStream == null) {
+            throw new DatabricksClientConfigException("Default Resource Not Found: " + DEFAULT_RESOURCE_NAME);
+        }
+        readConfigFromStream(resourceStream);
+        try{
+            resourceStream.close();
         } catch(IOException e) {
-            throw new IllegalArgumentException(e);
+            throw new DatabricksClientConfigException(e);
+        }
+    }
+
+    private void readConfigFromStream(InputStream inputStream) throws DatabricksClientConfigException {
+        try {
+            this.read(new InputStreamReader(inputStream));
+        } catch(IOException e) {
+            throw new DatabricksClientConfigException(e);
         } catch (ConfigurationException e) {
-            throw new IllegalArgumentException(e);
+            throw new DatabricksClientConfigException(e);
         }
-    }
-
-    public Configuration getClientConfiguration() {
-        Configuration clientConfig = new CompositeConfiguration();
-        Iterator<String> iter = getKeys();
-        while (iter.hasNext()) {
-            String key = iter.next();
-            if (key.startsWith(CLIENT_PREFIX)) {
-                clientConfig.setProperty(key, getProperty(key));
-            }
-        }
-        return clientConfig;
-    }
-
-    public void validate() {
-        // keep in alphabetical order
-        getClientPassword();
-        getClientUrl();
-        getClientUsername();
     }
 
     public URI getClientUrl() {
@@ -148,19 +146,26 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
         }
     }
 
-    /**
-     * Returns true if required properties for Client are set
-     */
-    public boolean hasRequiredClientProps() {
+    private void validateRequiredClientProps() throws DatabricksClientConfigException{
         boolean valid = true;
         valid &= verifyStringPropSet(CLIENT_URL);
 
-        if(verifyStringPropSet(CLIENT_TOKEN)) {
-            valid &= true;
-        } else if(verifyStringPropSet(CLIENT_USERNAME) & verifyStringPropSet(CLIENT_PASSWORD)) {
-            valid &= true;
+        if(!verifyStringPropSet(CLIENT_URL)) {
+            throw new DatabricksClientConfigException("Databricks Client Config missing "+CLIENT_URL);
         }
-        return valid;
+
+
+        if(verifyStringPropSet(CLIENT_TOKEN) || verifyStringPropSet(CLIENT_USERNAME)) {
+            if(verifyStringPropSet(CLIENT_TOKEN)){
+                //valid config
+            } else if(verifyStringPropSet(CLIENT_USERNAME) && !verifyStringPropSet(CLIENT_PASSWORD)) {
+                throw new DatabricksClientConfigException("Databricks Client Config missing " + CLIENT_PASSWORD);
+            }
+
+        } else {
+            throw new DatabricksClientConfigException("Databricks Client Config missing either " +
+                    CLIENT_TOKEN + " or " + CLIENT_USERNAME);
+        }
     }
 
     private String getNonEmptyString(String property, String defaultValue) {
@@ -186,13 +191,13 @@ public class DatabricksClientConfiguration extends CompositeConfiguration {
         if (containsKey(key) && !getString(key).isEmpty()) {
             return true;
         }
-        log.info(key + " is not set");
+        //log.info(key + " is not set");
         return false;
     }
 
     private boolean verifyStringPropNotSet(String key) {
         if (containsKey(key) && !getString(key).isEmpty()) {
-            log.info(key + " should not be set");
+            //log.info(key + " should not be set");
             return false;
         }
         return true;

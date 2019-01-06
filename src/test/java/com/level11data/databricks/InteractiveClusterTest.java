@@ -12,25 +12,15 @@ import org.junit.Assert;
 import java.io.InputStream;
 
 public class InteractiveClusterTest {
-    public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
     public static final String DBR_VERSION = "4.3.x-scala2.11";
 
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
-    DatabricksSession _databricks;
-    DatabricksClientConfiguration _databricksConfig;
+    //load config from default resource databricks-client.properties (in test/resources)
+    DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
+
+    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
 
     public InteractiveClusterTest() throws Exception {
-        loadConfigFromResource();
-    }
 
-    private void loadConfigFromResource() throws Exception {
-        if(resourceStream == null) {
-            throw new IllegalArgumentException("Resource Not Found: " + CLIENT_CONFIG_RESOURCE_NAME);
-        }
-        _databricksConfig = new DatabricksClientConfiguration(resourceStream);
-
-        _databricks = new DatabricksSession(_databricksConfig);
     }
 
     @Test

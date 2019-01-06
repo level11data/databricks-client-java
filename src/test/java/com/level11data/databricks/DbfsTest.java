@@ -8,28 +8,17 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 
 public class DbfsTest {
-    public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
     public static final String SIMPLE_JAR_RESOURCE_NAME = "simple-scala-spark-app_2.11-0.0.1.jar";
 
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
-    DatabricksSession _databricks;
-    DatabricksClientConfiguration _databricksConfig;
+    //load config from default resource databricks-client.properties (in test/resources)
+    DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
+
+    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
 
     public DbfsTest() throws Exception {
-        loadConfigFromResource();
-    }
 
-    private void loadConfigFromResource() throws Exception {
-        if (resourceStream == null) {
-            throw new IllegalArgumentException("Resource Not Found: " + CLIENT_CONFIG_RESOURCE_NAME);
-        }
-        _databricksConfig = new DatabricksClientConfiguration(resourceStream);
-
-        _databricks = new DatabricksSession(_databricksConfig);
     }
 
     @Test

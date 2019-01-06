@@ -11,27 +11,16 @@ import java.io.File;
 import java.io.InputStream;
 
 public class WorkspaceTest {
-
-    public static final String CLIENT_CONFIG_RESOURCE_NAME = "test.properties";
     public static final String SIMPLE_SCALA_DBC_NOTEBOOK_RESOURCE_NAME = "test-notebook.dbc";
     public static final String SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook.scala";
 
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    InputStream resourceStream = loader.getResourceAsStream(CLIENT_CONFIG_RESOURCE_NAME);
-    DatabricksSession _databricks;
-    DatabricksClientConfiguration _databricksConfig;
+    //load config from default resource databricks-client.properties (in test/resources)
+    DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
+
+    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
 
     public WorkspaceTest() throws Exception {
-        loadConfigFromResource();
-    }
 
-    private void loadConfigFromResource() throws Exception {
-        if(resourceStream == null) {
-            throw new IllegalArgumentException("Resource Not Found: " + CLIENT_CONFIG_RESOURCE_NAME);
-        }
-        _databricksConfig = new DatabricksClientConfiguration(resourceStream);
-
-        _databricks = new DatabricksSession(_databricksConfig);
     }
 
     @Test
