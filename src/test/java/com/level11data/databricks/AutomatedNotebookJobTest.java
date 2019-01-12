@@ -5,11 +5,13 @@ import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedNotebookJob;
 import com.level11data.databricks.job.run.AutomatedNotebookJobRun;
-import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.job.run.RunResultState;
+import com.level11data.databricks.util.TestUtils;
+import com.level11data.databricks.workspace.ScalaNotebook;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.HashMap;
 
 public class AutomatedNotebookJobTest {
@@ -17,6 +19,9 @@ public class AutomatedNotebookJobTest {
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
     DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+
+    public static final String SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook.scala";
+    public static final String SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook-parameters.scala";
 
     public AutomatedNotebookJobTest() throws Exception {
 
@@ -29,7 +34,7 @@ public class AutomatedNotebookJobTest {
         //Set job name to ClassName.MethodName TIMESTAMP
         String jobName = this.getClass().getSimpleName() + "." +
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
-                " " +now;
+                "-" +now;
 
         //create cluster spec
         ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
@@ -37,12 +42,15 @@ public class AutomatedNotebookJobTest {
                 .withNodeType("i3.xlarge")
                 .createClusterSpec();
 
-        //create job
-        //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook";
-        Notebook notebook = _databricks.getNotebook(notebookPath);
+        //create notebook
+        File localFile = TestUtils.getResourceByName(SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME);
+        String workspacePath = "/tmp/test/" + jobName;
+        String workspaceNotebookPath = workspacePath + "/" + SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME;
 
-        AutomatedNotebookJob job = _databricks.createJob(notebook)
+        ScalaNotebook scalaNotebook = _databricks.createScalaNotebook(localFile).create(workspaceNotebookPath);
+
+        //create job
+        AutomatedNotebookJob job = _databricks.createJob(scalaNotebook)
                 .withName(jobName)
                 .withClusterSpec(clusterSpec)
                 .create();
@@ -60,15 +68,18 @@ public class AutomatedNotebookJobTest {
 
         Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
-        //System.out.println("jobRun.getRunState()="+jobRun.getRunState().LifeCycleState);
-
         while(!jobRun.getRunState().LifeCycleState.isFinal()) {
             Thread.sleep(5000); //wait 5 seconds
         }
+
+        Assert.assertEquals("Job Run Not Successful",
+                RunResultState.SUCCESS,  jobRun.getRunState().ResultState);
+
         Assert.assertEquals("Job Run Output Does Not Match", "2", jobRun.getOutput());
 
         //cleanup
         job.delete();
+        scalaNotebook.delete();
     }
 
     @Test
@@ -78,12 +89,13 @@ public class AutomatedNotebookJobTest {
         //Set cluster name to ClassName.MethodName TIMESTAMP
         String jobName = this.getClass().getSimpleName() + "." +
                 Thread.currentThread().getStackTrace()[1].getMethodName() +
-                " " +now;
+                "-" +now;
 
-        //create job
-        //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook-parameters";
-        Notebook notebook = _databricks.getNotebook(notebookPath);
+        //create notebook
+        File localFile = TestUtils.getResourceByName(SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME);
+        String workspacePath = "/tmp/test/" + jobName;
+        String workspaceNotebookPath = workspacePath + "/" + SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME;
+        ScalaNotebook scalaNotebook = _databricks.createScalaNotebook(localFile).create(workspaceNotebookPath);
 
         HashMap<String,String> parameters = new HashMap<String,String>();
         parameters.put("parameter1", "Hello");
@@ -95,7 +107,8 @@ public class AutomatedNotebookJobTest {
                 .withNodeType("i3.xlarge")
                 .createClusterSpec();
 
-        AutomatedNotebookJob job = _databricks.createJob(notebook, parameters)
+        //create job
+        AutomatedNotebookJob job = _databricks.createJob(scalaNotebook, parameters)
                 .withName(jobName)
                 .withClusterSpec(clusterSpec)
                 .create();
@@ -123,6 +136,9 @@ public class AutomatedNotebookJobTest {
             Thread.sleep(5000); //wait 5 seconds
         }
 
+        Assert.assertEquals("Job Run Not Successful",
+                RunResultState.SUCCESS,  jobRun.getRunState().ResultState);
+
         Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Hello, and this is Parameter 2: World",
                 jobRun.getOutput());
 
@@ -142,11 +158,15 @@ public class AutomatedNotebookJobTest {
             Thread.sleep(5000); //wait 5 seconds
         }
 
+        Assert.assertEquals("Job Run Not Successful",
+                RunResultState.SUCCESS,  jobRunWithParamOverride.getRunState().ResultState);
+
         Assert.assertEquals("Job Output Does Not Match", "This is Parameter 1: Override One, and this is Parameter 2: Override Two",
                 jobRunWithParamOverride.getOutput());
 
         //cleanup
         job.delete();
+        scalaNotebook.delete();
     }
 
 }

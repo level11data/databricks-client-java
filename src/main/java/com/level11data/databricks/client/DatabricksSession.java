@@ -455,15 +455,15 @@ public class DatabricksSession {
         return new AutomatedSparkSubmitJobBuilder(getJobsClient(), parameters);
     }
 
-    public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws IOException, HttpException {
+    public void putDbfsFile(File file, String dbfsPath,boolean overwrite) throws DbfsException {
         DbfsHelper.putFile(getDbfsClient(), file, dbfsPath, overwrite);
     }
 
-    public void putDbfsFile(File file, String dbfsPath) throws IOException, HttpException {
+    public void putDbfsFile(File file, String dbfsPath) throws DbfsException {
         DbfsHelper.putFile(getDbfsClient(), file, dbfsPath);
     }
 
-    public byte[] getDbfsObject(String dbfsPath) throws IOException, HttpException {
+    public byte[] getDbfsObject(String dbfsPath) throws DbfsException {
         return DbfsHelper.getObject(getDbfsClient(), dbfsPath);
     }
 

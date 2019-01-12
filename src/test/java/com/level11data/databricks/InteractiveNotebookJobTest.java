@@ -6,10 +6,13 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
+import com.level11data.databricks.util.TestUtils;
 import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.ScalaNotebook;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 
@@ -20,6 +23,9 @@ public class InteractiveNotebookJobTest {
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
     DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+
+    public static final String SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook.scala";
+    public static final String SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook-parameters.scala";
 
     public InteractiveNotebookJobTest() throws Exception {
 
@@ -47,12 +53,14 @@ public class InteractiveNotebookJobTest {
             Thread.sleep(10000); //wait 10 seconds
         }
 
-        //create job
-        //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook";
-        Notebook notebook = _databricks.getNotebook(notebookPath);
+        //create notebook
+        File localFile = TestUtils.getResourceByName(SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME);
+        String workspacePath = "/tmp/test/" + clusterName;
+        String workspaceNotebookPath = workspacePath + "/" + SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME;
+        ScalaNotebook scalaNotebook = _databricks.createScalaNotebook(localFile).create(workspaceNotebookPath);
 
-        InteractiveNotebookJob job = cluster.createJob(notebook)
+        //create job
+        InteractiveNotebookJob job = cluster.createJob(scalaNotebook)
                 .withName("testSimpleInteractiveNotebookJob "+now)
                 .create();
 
@@ -78,6 +86,7 @@ public class InteractiveNotebookJobTest {
         //cleanup
         job.delete();
         cluster.terminate();
+        scalaNotebook.delete();
     }
 
     @Test
@@ -103,16 +112,18 @@ public class InteractiveNotebookJobTest {
             Thread.sleep(10000); //wait 10 seconds
         }
 
-        //create job
-        //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + _databricksConfig.getClientUsername() + "/test-notebook-parameters";
-        Notebook notebook = _databricks.getNotebook(notebookPath);
+        //create notebook
+        File localFile = TestUtils.getResourceByName(SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME);
+        String workspacePath = "/tmp/test/" + clusterName;
+        String workspaceNotebookPath = workspacePath + "/" + SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME;
+        ScalaNotebook scalaNotebook = _databricks.createScalaNotebook(localFile).create(workspaceNotebookPath);
 
+        //create job
         HashMap<String,String> parameters = new HashMap<String,String>();
         parameters.put("parameter1", "Hello");
         parameters.put("parameter2", "World");
 
-        InteractiveNotebookJob job = cluster.createJob(notebook, parameters)
+        InteractiveNotebookJob job = cluster.createJob(scalaNotebook, parameters)
                 .withName("testSimpleInteractiveNotebookJobWithParams "+now)
                 .create();
 
@@ -164,6 +175,7 @@ public class InteractiveNotebookJobTest {
         //cleanup
         job.delete();
         cluster.terminate();
+        scalaNotebook.delete();
     }
 
 

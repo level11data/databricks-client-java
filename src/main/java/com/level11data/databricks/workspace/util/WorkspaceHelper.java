@@ -59,11 +59,10 @@ public class WorkspaceHelper {
         } else {
             //file must be source code
             CommandLanguage fileLang = getSourceLang(file);
-            BufferedReader reader;
 
-            try {
-                reader = new BufferedReader(new FileReader(file));
-                return parseCommands(reader, fileLang);
+            try(FileReader fileReader = new FileReader(file);
+                BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+                return parseCommands(bufferedReader, fileLang);
             } catch(IOException e) {
                 throw new WorkspaceConfigException(e);
             }
@@ -85,10 +84,13 @@ public class WorkspaceHelper {
     }
 
     private ArrayList<Command> parseCommands(RemoteNotebook remoteNotebook) throws WorkspaceConfigException {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(remoteNotebook.SourceCode);
+        try(ByteArrayInputStream inputStream = new ByteArrayInputStream(remoteNotebook.SourceCode);
         InputStreamReader reader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        return parseCommands(bufferedReader, getCommandLanguage(remoteNotebook.Language));
+        BufferedReader bufferedReader = new BufferedReader(reader)) {
+            return parseCommands(bufferedReader, getCommandLanguage(remoteNotebook.Language));
+        } catch(IOException e) {
+            throw new WorkspaceConfigException(e);
+        }
     }
 
     private ArrayList<Command> parseCommands(BufferedReader bufferedReader, CommandLanguage defaultCommandLang) throws WorkspaceConfigException {
@@ -96,56 +98,62 @@ public class WorkspaceHelper {
 
         try {
             String line = bufferedReader.readLine();
-            StringBuilder command = new StringBuilder();
+            StringBuilder commandCell = new StringBuilder();
 
             CommandLanguage commandLang = defaultCommandLang;
 
             while (line != null) {
-                line = bufferedReader.readLine();
-
-                if(line != null) {
-                    //check if line begins with directive
-                    if(line.startsWith("%scala")) {
-                        commandLang = CommandLanguage.SCALA;
-                        command = parseDirectiveLine(command, line, "%scala");
-                    } else if(line.startsWith("%python")) {
-                        commandLang = CommandLanguage.PYTHON;
-                        command = parseDirectiveLine(command, line, "%python");
-                    } else if(line.startsWith("%py")) {
-                        commandLang = CommandLanguage.PYTHON;
-                        command = parseDirectiveLine(command, line, "%py");
-                    } else if(line.startsWith("%sql")) {
-                        commandLang = CommandLanguage.SQL;
-                        command = parseDirectiveLine(command, line, "%sql");
-                    } else if(line.startsWith("%r")) {
-                        commandLang = CommandLanguage.R;
-                        command = parseDirectiveLine(command, line, "%r");
-                    } else if(line.startsWith("%sh")) {
-                        commandLang = CommandLanguage.SHELL;
-                        command = parseDirectiveLine(command, line, "%sh");
-                    } else if(line.startsWith("%fs")) {
-                        commandLang = CommandLanguage.DBFS;
-                        command = parseDirectiveLine(command, line, "%fs");
-                    }  else if(line.startsWith("%md")) {
-                        commandLang = CommandLanguage.MARKDOWN;
-                        command = parseDirectiveLine(command, line, "%md");
-                    }else if (line.contains("COMMAND ----------")) {
-                        //add new command
-                        commands.add(createCommand(commandLang, command.toString()));
-
-                        //start new command
-                        command = new StringBuilder();
-                        commandLang = defaultCommandLang;
-                    } else {
-                        command.append(line);
-                    }
+                if(commandCell.length() > 0) {
+                    //add new line if this is
+                    commandCell.append(System.lineSeparator());
                 }
+
+                //check if line begins with directive
+                if(line.contains("Databricks notebook source")) {
+                    //typical first line for notebook exported from Databricks
+                    //no-opp - skip
+                } else if(line.startsWith("%scala")) {
+                    commandLang = CommandLanguage.SCALA;
+                    commandCell = parseDirectiveLine(commandCell, line, "%scala");
+                } else if(line.startsWith("%python")) {
+                    commandLang = CommandLanguage.PYTHON;
+                    commandCell = parseDirectiveLine(commandCell, line, "%python");
+                } else if(line.startsWith("%py")) {
+                    commandLang = CommandLanguage.PYTHON;
+                    commandCell = parseDirectiveLine(commandCell, line, "%py");
+                } else if(line.startsWith("%sql")) {
+                    commandLang = CommandLanguage.SQL;
+                    commandCell = parseDirectiveLine(commandCell, line, "%sql");
+                } else if(line.startsWith("%r")) {
+                    commandLang = CommandLanguage.R;
+                    commandCell = parseDirectiveLine(commandCell, line, "%r");
+                } else if(line.startsWith("%sh")) {
+                    commandLang = CommandLanguage.SHELL;
+                    commandCell = parseDirectiveLine(commandCell, line, "%sh");
+                } else if(line.startsWith("%fs")) {
+                    commandLang = CommandLanguage.DBFS;
+                    commandCell = parseDirectiveLine(commandCell, line, "%fs");
+                }  else if(line.startsWith("%md")) {
+                    commandLang = CommandLanguage.MARKDOWN;
+                    commandCell = parseDirectiveLine(commandCell, line, "%md");
+                }else if (line.contains("COMMAND ----------")) {
+                    //add command to list
+                    commands.add(createCommand(commandLang, commandCell.toString()));
+
+                    //start new command
+                    commandCell = new StringBuilder();
+                    commandLang = defaultCommandLang;
+                } else {
+                    //command is in same language as notebook base language
+                    commandCell.append(line);
+                }
+                //read next line
+                line = bufferedReader.readLine();
             }
             //add final command
-            if(command.length() > 0) {
-                commands.add(createCommand(commandLang, command.toString()));
+            if(commandCell.length() > 0) {
+                commands.add(createCommand(commandLang, commandCell.toString()));
             }
-            bufferedReader.close();
         } catch(IOException e) {
             throw new WorkspaceConfigException(e);
         }

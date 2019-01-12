@@ -10,7 +10,9 @@ import com.level11data.databricks.job.run.InteractiveNotebookJobRun;
 import com.level11data.databricks.job.run.RunResultState;
 import com.level11data.databricks.library.JarLibrary;
 import com.level11data.databricks.library.LibraryInstallStatus;
+import com.level11data.databricks.util.TestUtils;
 import com.level11data.databricks.workspace.Notebook;
+import com.level11data.databricks.workspace.ScalaNotebook;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,6 +29,8 @@ public class LibraryTest {
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
     DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+
+    public static final String SIMPLE_JAR_NOTEBOOK_RESOURCE_NAME = "test-notebook-jar-library.scala";
 
     public LibraryTest() throws Exception {
 
@@ -91,11 +95,15 @@ public class LibraryTest {
 
         //Run an Interactive Notebook Job (without including library) to see if
         // the notebook is able to import the library (which is already attached)
-        //TODO Implement Workspace API to import notebook from resources
-        String notebookPath = "/Users/" + "jason@databricks.com" + "/test-notebook-jar-library";
-        Notebook notebook = _databricks.getNotebook(notebookPath);
 
-        InteractiveNotebookJob job = cluster.createJob(notebook).withName(clusterName).create();
+        //create notebook
+        File localFile = TestUtils.getResourceByName(SIMPLE_JAR_NOTEBOOK_RESOURCE_NAME);
+        String workspacePath = "/tmp/test/" + clusterName;
+        String workspaceNotebookPath = workspacePath + "/" + SIMPLE_JAR_NOTEBOOK_RESOURCE_NAME;
+        ScalaNotebook scalaNotebook = _databricks.createScalaNotebook(localFile).create(workspaceNotebookPath);
+
+        //create job
+        InteractiveNotebookJob job = cluster.createJob(scalaNotebook).withName(clusterName).create();
 
         //run job
         InteractiveNotebookJobRun jobRun = job.run();
@@ -136,7 +144,8 @@ public class LibraryTest {
 
         //cleanup the test
         job.delete();
-        _databricks.deleteDbfsObject(dbfsPath, false);
+        _databricks.deleteDbfsObject(dbfsPath, false); //TODO include delete() on Library
         cluster.terminate();
+        scalaNotebook.delete();
     }
 }

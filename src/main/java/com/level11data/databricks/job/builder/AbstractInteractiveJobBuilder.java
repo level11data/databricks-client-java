@@ -215,11 +215,7 @@ public abstract class AbstractInteractiveJobBuilder extends AbstractJobBuilder i
         for (URI uri : _libraryFileMap.keySet()) {
             try {
                 ResourceUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
-            } catch (HttpException e) {
-                throw new LibraryConfigException(e);
             } catch (ResourceConfigException e) {
-                throw new LibraryConfigException(e);
-            } catch (IOException e) {
                 throw new LibraryConfigException(e);
             }
         }

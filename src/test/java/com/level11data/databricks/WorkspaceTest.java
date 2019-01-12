@@ -2,13 +2,13 @@ package com.level11data.databricks;
 
 import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
+import com.level11data.databricks.util.TestUtils;
 import com.level11data.databricks.workspace.*;
 import com.level11data.databricks.workspace.util.WorkspaceHelper;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import java.io.File;
-import java.io.InputStream;
 
 public class WorkspaceTest {
     public static final String SIMPLE_SCALA_DBC_NOTEBOOK_RESOURCE_NAME = "test-notebook.dbc";
@@ -27,9 +27,7 @@ public class WorkspaceTest {
     public void testScalaDbcNotebook() throws Exception {
         long now = System.currentTimeMillis();
 
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        String localPath = loader.getResource(SIMPLE_SCALA_DBC_NOTEBOOK_RESOURCE_NAME).getFile();
-        File localFile = new File(localPath);
+        File localFile = TestUtils.getResourceByName(SIMPLE_SCALA_DBC_NOTEBOOK_RESOURCE_NAME);
 
         //Set to ClassName.MethodName-TIMESTAMP
         String uniqueName = this.getClass().getSimpleName() + "." +

@@ -4,6 +4,7 @@ import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.libraries.*;
+import com.level11data.databricks.dbfs.DbfsException;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.Library;
 import com.level11data.databricks.library.LibraryConfigException;
@@ -133,10 +134,6 @@ public abstract class AbstractAutomatedJobWithLibrariesBuilder extends AbstractA
             try {
                 ResourceUtils.uploadFile(_client.Session, _libraryFileMap.get(uri), uri);
             } catch (ResourceConfigException e) {
-                throw new LibraryConfigException(e);
-            } catch (IOException e) {
-                throw new LibraryConfigException(e);
-            } catch (HttpException e) {
                 throw new LibraryConfigException(e);
             }
         }

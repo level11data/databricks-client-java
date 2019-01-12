@@ -2,7 +2,7 @@ package com.level11data.databricks.util;
 
 import com.level11data.databricks.client.DatabricksSession;
 import com.level11data.databricks.client.HttpException;
-import com.level11data.databricks.workspace.WorkspaceConfigException;
+import com.level11data.databricks.dbfs.DbfsException;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -20,7 +20,7 @@ public class ResourceUtils {
         boolean isValid = false;
 
         if(scheme == null) {
-            throw new ResourceConfigException("AbstractLibrary must be stored in dbfs or s3. Make sure the URI begins with 'dbfs:' or 's3:'");
+            throw new ResourceConfigException("Unsupported URI scheme: None");
         } else if(scheme.equals("dbfs")) {
             isValid = true;
         } else if(scheme.equals("s3")) {
@@ -32,19 +32,23 @@ public class ResourceUtils {
         }
 
         if(!isValid) {
-            throw new ResourceConfigException(scheme + " is NOT a valid URI scheme");
+            throw new ResourceConfigException("Unsupported URI scheme: " + scheme);
         }
     }
 
 
-    public static void uploadFile(DatabricksSession session, File file, URI destination) throws HttpException, IOException, ResourceConfigException {
+    public static void uploadFile(DatabricksSession session, File file, URI destination) throws ResourceConfigException {
         validate(destination);
 
-        //TODO add support for s3, s3a, s3n, azure
-        if(destination.getScheme().equals("dbfs")) {
-            session.putDbfsFile(file, destination.toString());
-        } else {
-            throw new ResourceConfigException(destination.getScheme() + " is not a supported scheme for upload");
+        try{
+            //TODO add support for s3, s3a, s3n, azure
+            if(destination.getScheme().equals("dbfs")) {
+                session.putDbfsFile(file, destination.toString());
+            } else {
+                throw new ResourceConfigException(destination.getScheme() + " is not a supported scheme for upload");
+            }
+        } catch (DbfsException e) {
+            throw new ResourceConfigException(e);
         }
     }
 
@@ -55,48 +59,32 @@ public class ResourceUtils {
     }
 
     public static String encodeToBase64(File file) throws IOException {
-        FileInputStream fileInputStreamReader = null;
-        try {
+        try(FileInputStream fileInputStreamReader = new FileInputStream(file)) {
             byte[] fileBytes = new byte[(int)file.length()];
-            fileInputStreamReader = new FileInputStream(file);
             fileInputStreamReader.read(fileBytes);
             return encodeToBase64(fileBytes);
-        } finally {
-            if (fileInputStreamReader != null) {
-                fileInputStreamReader.close();
-            }
-
         }
     }
 
     public static byte[] decodeFromBase64(String encodedBase64) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Base64.Decoder decoder = Base64.getDecoder();
-        return decoder.decode(encodedBase64);
+        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
+            Base64.Decoder decoder = Base64.getDecoder();
+            return decoder.decode(encodedBase64);
+        }
     }
 
     public static String getMD5(File file) throws IOException {
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
+        try(FileInputStream inputStream = new FileInputStream(file)) {
             String md5 = getMD5(inputStream);
             inputStream.close();
             return md5;
-        } finally {
-            if(inputStream != null) {
-                inputStream.close();
-            }
-
         }
-
     }
 
     private static String getMD5(InputStream is) throws IOException {
         // md5Hex converts an array of bytes into an array of characters representing the hexadecimal values of each byte in order.
         // The returned array will be double the length of the passed array, as it takes two characters to represent any given byte.
-        String md5 = DigestUtils.md5Hex(IOUtils.toByteArray(is));
-
-        return md5;
+        return DigestUtils.md5Hex(IOUtils.toByteArray(is));
     }
 
     public static File writeTextFile(StringBuilder sb, String pathname) throws ResourceConfigException {
@@ -118,13 +106,23 @@ public class ResourceUtils {
     }
 
     public static File writeBytesToFile(byte[] bytes, String pathname) throws ResourceConfigException {
-        try {
-            File outputFile = new File(pathname);
-            FileOutputStream out = new FileOutputStream(outputFile);
+        File outputFile = new File(pathname);
+
+        try(FileOutputStream out = new FileOutputStream(outputFile)) {
             out.write(bytes);
             return outputFile;
         } catch(IOException e) {
             throw new ResourceConfigException(e);
+        }
+    }
+
+    public static File getResourceByName(String resourceName) throws ResourceConfigException {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        String localPath = loader.getResource(resourceName).getFile();
+        if(localPath != null) {
+            return new File(localPath);
+        } else {
+            throw new ResourceConfigException("Resource Not Found: "+ resourceName);
         }
     }
 

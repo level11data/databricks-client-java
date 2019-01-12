@@ -34,10 +34,6 @@ public abstract class AbstractPrivateLibrary extends AbstractLibrary {
             ResourceUtils.uploadFile(_client.Session, file, Uri);
         } catch(ResourceConfigException e) {
             throw new LibraryConfigException(e);
-        } catch(HttpException e) {
-            throw new LibraryConfigException(e);
-        } catch(IOException e) {
-            throw new LibraryConfigException(e);
         }
     }
 }
