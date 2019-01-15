@@ -1,6 +1,6 @@
 package com.level11data.databricks;
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.util.TestUtils;
 import com.level11data.databricks.workspace.*;
@@ -17,7 +17,7 @@ public class WorkspaceTest {
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
-    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+    WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
     public WorkspaceTest() throws Exception {
 

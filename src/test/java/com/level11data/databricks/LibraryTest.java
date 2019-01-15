@@ -1,6 +1,6 @@
 package com.level11data.databricks;
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.cluster.ClusterLibrary;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
@@ -11,13 +11,11 @@ import com.level11data.databricks.job.run.RunResultState;
 import com.level11data.databricks.library.JarLibrary;
 import com.level11data.databricks.library.LibraryInstallStatus;
 import com.level11data.databricks.util.TestUtils;
-import com.level11data.databricks.workspace.Notebook;
 import com.level11data.databricks.workspace.ScalaNotebook;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
@@ -28,7 +26,7 @@ public class LibraryTest {
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
-    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+    WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
     public static final String SIMPLE_JAR_NOTEBOOK_RESOURCE_NAME = "test-notebook-jar-library.scala";
 

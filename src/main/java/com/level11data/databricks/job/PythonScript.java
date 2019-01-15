@@ -1,6 +1,6 @@
 package com.level11data.databricks.job;
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.util.ResourceConfigException;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.util.ResourceUtils;
@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.net.URI;
 
 public class PythonScript {
-    private final DatabricksSession _session;
+    private final WorkspaceSession _session;
 
     public final URI Uri;
 
-    public PythonScript(DatabricksSession session, URI uri) throws ResourceConfigException {
+    public PythonScript(WorkspaceSession session, URI uri) throws ResourceConfigException {
         _session = session;
         Uri = uri;
         ResourceUtils.validate(uri);

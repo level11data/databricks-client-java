@@ -1,6 +1,6 @@
 package com.level11data.databricks;
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.dbfs.DbfsFileInfo;
 import org.junit.Assert;
@@ -15,7 +15,7 @@ public class DbfsTest {
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
-    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+    WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
     public DbfsTest() throws Exception {
 

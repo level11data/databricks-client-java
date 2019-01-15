@@ -4,6 +4,8 @@ import com.level11data.databricks.client.entities.commands.CommandRequestDTO;
 import com.level11data.databricks.client.entities.commands.CommandResponseDTO;
 import com.level11data.databricks.client.entities.commands.CommandStatusDTO;
 import com.level11data.databricks.client.entities.commands.ExecuteCommandRequestDTO;
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
@@ -12,7 +14,7 @@ import java.util.Map;
 public class CommandsClient extends AbstractDatabricksClient {
     private final String ENDPOINT_TARGET = "api/1.2/commands";
 
-    public CommandsClient(DatabricksSession session) {
+    public CommandsClient(WorkspaceSession session) {
         super(session);
     }
 

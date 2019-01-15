@@ -1,6 +1,6 @@
 package com.level11data.databricks;
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.InteractiveJarJob;
@@ -9,7 +9,6 @@ import com.level11data.databricks.library.JarLibrary;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class InteractiveJarJobTest {
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
-    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+    WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
     public InteractiveJarJobTest() throws Exception {
 

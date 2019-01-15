@@ -1,13 +1,15 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.clusters.*;
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 public class ClustersClient extends AbstractDatabricksClient {
     private final String ENDPOINT_TARGET = "api/2.0/clusters";
 
-    public ClustersClient(DatabricksSession session) {
+    public ClustersClient(WorkspaceSession session) {
         super(session);
     }
 

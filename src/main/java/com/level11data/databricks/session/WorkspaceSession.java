@@ -1,5 +1,6 @@
-package com.level11data.databricks.client;
+package com.level11data.databricks.session;
 
+import com.level11data.databricks.client.*;
 import com.level11data.databricks.client.entities.dbfs.*;
 import com.level11data.databricks.client.entities.workspace.*;
 import com.level11data.databricks.cluster.*;
@@ -31,13 +32,12 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
 
-public class DatabricksSession {
+public class WorkspaceSession {
     protected final URI Endpoint;
 
     private final DatabricksClientConfiguration _databricksClientConfig;
@@ -59,12 +59,12 @@ public class DatabricksSession {
 
     private final String SECURITY_PROTOCOL = "TLSv1.2";
 
-    public DatabricksSession(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
+    public WorkspaceSession(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
         //validate expectations of config; throw exception if not met
         validateClientConfig(databricksClientConfig);
 
         _databricksClientConfig = databricksClientConfig;
-        Endpoint = databricksClientConfig.getClientUrl();
+        Endpoint = databricksClientConfig.getWorkspaceUrl();
 
         //create secure https client session
         ClientConfig clientConfig = new ClientConfig();
@@ -107,14 +107,14 @@ public class DatabricksSession {
 
                 return target
                         .request(MediaType.APPLICATION_JSON_TYPE)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getClientToken())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getWorkspaceToken())
                         .accept(MediaType.APPLICATION_JSON);
             } else {
                 return _httpClient
                         .target(this.Endpoint)
                         .path(path)
                         .request(MediaType.APPLICATION_JSON_TYPE)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getClientToken())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getWorkspaceToken())
                         .accept(MediaType.APPLICATION_JSON);
             }
         } else {
@@ -160,8 +160,8 @@ public class DatabricksSession {
     private HttpAuthenticationFeature getUserPassAuth() {
         if(_userPassAuth == null) {
             _userPassAuth = HttpAuthenticationFeature.basicBuilder()
-                    .credentials(_databricksClientConfig.getClientUsername()
-                            , _databricksClientConfig.getClientPassword())
+                    .credentials(_databricksClientConfig.getWorkspaceUsername()
+                            , _databricksClientConfig.getWorkspacePassword())
                     .build();
         }
         return _userPassAuth;

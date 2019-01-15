@@ -1,13 +1,15 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.jobs.*;
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 public class JobsClient extends AbstractDatabricksClient {
     private final String ENDPOINT_TARGET = "api/2.0/jobs";
 
-    public JobsClient(DatabricksSession session) {
+    public JobsClient(WorkspaceSession session) {
         super(session);
     }
 

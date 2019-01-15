@@ -1,6 +1,6 @@
 package com.level11data.databricks;
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.job.AutomatedNotebookJob;
@@ -18,7 +18,7 @@ public class AutomatedNotebookJobTest {
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
-    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+    WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
     public static final String SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook.scala";
     public static final String SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook-parameters.scala";
@@ -55,16 +55,16 @@ public class AutomatedNotebookJobTest {
                 .withClusterSpec(clusterSpec)
                 .create();
 
-        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
-                _databricksConfig.getClientUsername(), job.getCreatorUserName());
+        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
+                _databricksConfig.getWorkspaceUsername(), job.getCreatorUserName());
 
         Assert.assertEquals("Job Parameters is not zero", 0, job.BaseParameters.size());
 
         //run job
         AutomatedNotebookJobRun jobRun = job.run();
 
-        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
-                _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
+        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
+                _databricksConfig.getWorkspaceUsername(), jobRun.CreatorUserName);
 
         Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
 
@@ -113,16 +113,16 @@ public class AutomatedNotebookJobTest {
                 .withClusterSpec(clusterSpec)
                 .create();
 
-        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
-                _databricksConfig.getClientUsername(), job.getCreatorUserName());
+        Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
+                _databricksConfig.getWorkspaceUsername(), job.getCreatorUserName());
 
         Assert.assertEquals("Job Parameters is not 2", 2, job.BaseParameters.size());
 
         //run job
         AutomatedNotebookJobRun jobRun = job.run();
 
-        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getClientUsername(),
-                _databricksConfig.getClientUsername(), jobRun.CreatorUserName);
+        Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
+                _databricksConfig.getWorkspaceUsername(), jobRun.CreatorUserName);
 
         Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
 

@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class DatabricksClientConfigTest {
@@ -34,10 +33,10 @@ public class DatabricksClientConfigTest {
             tmpFile.deleteOnExit();
 
             String COMMENT_LINE = "#connection details to Databricks";
-            String URL_LINE = "com.level11data.databricks.client.url = " + TEST_URL_VALUE;
-            String TOKEN_LINE = "com.level11data.databricks.client.token = " + TEST_TOKEN_VALUE;
-            String USERNAME_LINE = "com.level11data.databricks.client.username = " + TEST_USER_VALUE;
-            String PASSWORD_LINE = "com.level11data.databricks.client.password = " + TEST_PASS_VALUE;
+            String URL_LINE = "com.level11data.databricks.client.workspace.url = " + TEST_URL_VALUE;
+            String TOKEN_LINE = "com.level11data.databricks.client.workspace.token = " + TEST_TOKEN_VALUE;
+            String USERNAME_LINE = "com.level11data.databricks.client.workspace.username = " + TEST_USER_VALUE;
+            String PASSWORD_LINE = "com.level11data.databricks.client.workspace.password = " + TEST_PASS_VALUE;
 
             List<String> lines = Arrays.asList(COMMENT_LINE, URL_LINE, TOKEN_LINE, USERNAME_LINE, PASSWORD_LINE);
 
@@ -53,9 +52,9 @@ public class DatabricksClientConfigTest {
         tmpFile.deleteOnExit();
 
         String COMMENT_LINE = "#connection details to Databricks";
-        String TOKEN_LINE = "com.level11data.databricks.client.token = " + TEST_TOKEN_VALUE;
-        String USERNAME_LINE = "com.level11data.databricks.client.username = " + TEST_USER_VALUE;
-        String PASSWORD_LINE = "com.level11data.databricks.client.password = " + TEST_PASS_VALUE;
+        String TOKEN_LINE = "com.level11data.databricks.client.workspace.token = " + TEST_TOKEN_VALUE;
+        String USERNAME_LINE = "com.level11data.databricks.client.workspace.username = " + TEST_USER_VALUE;
+        String PASSWORD_LINE = "com.level11data.databricks.client.workspace.password = " + TEST_PASS_VALUE;
 
         List<String> lines = Arrays.asList(COMMENT_LINE, TOKEN_LINE, USERNAME_LINE, PASSWORD_LINE);
 
@@ -69,7 +68,7 @@ public class DatabricksClientConfigTest {
         tmpFile.deleteOnExit();
 
         String COMMENT_LINE = "#connection details to Databricks";
-        String URL_LINE = "com.level11data.databricks.client.url = " + TEST_URL_VALUE;
+        String URL_LINE = "com.level11data.databricks.client.workspace.url = " + TEST_URL_VALUE;
 
         List<String> lines = Arrays.asList(COMMENT_LINE, URL_LINE);
 
@@ -83,8 +82,8 @@ public class DatabricksClientConfigTest {
         tmpFile.deleteOnExit();
 
         String COMMENT_LINE = "#connection details to Databricks";
-        String URL_LINE = "com.level11data.databricks.client.url = " + TEST_URL_VALUE;
-        String USERNAME_LINE = "com.level11data.databricks.client.username = " + TEST_USER_VALUE;
+        String URL_LINE = "com.level11data.databricks.client.workspace.url = " + TEST_URL_VALUE;
+        String USERNAME_LINE = "com.level11data.databricks.client.workspace.username = " + TEST_USER_VALUE;
 
         List<String> lines = Arrays.asList(COMMENT_LINE, URL_LINE, USERNAME_LINE);
 
@@ -100,16 +99,16 @@ public class DatabricksClientConfigTest {
         DatabricksClientConfiguration databricksClientConfig = new DatabricksClientConfiguration(configFile);
 
         Assert.assertEquals("URL value in Config is different than expected",
-                TEST_URL_VALUE, databricksClientConfig.getClientUrl().toString());
+                TEST_URL_VALUE, databricksClientConfig.getWorkspaceUrl().toString());
 
         Assert.assertEquals("Token value in Config is different than expected",
-                TEST_TOKEN_VALUE, databricksClientConfig.getClientToken().toString());
+                TEST_TOKEN_VALUE, databricksClientConfig.getWorkspaceToken().toString());
 
         Assert.assertEquals("Username value in Config is different than expected",
-                TEST_USER_VALUE, databricksClientConfig.getClientUsername().toString());
+                TEST_USER_VALUE, databricksClientConfig.getWorkspaceUsername().toString());
 
         Assert.assertEquals("Password value in Config is different than expected",
-                TEST_PASS_VALUE, databricksClientConfig.getClientPassword().toString());
+                TEST_PASS_VALUE, databricksClientConfig.getWorkspacePassword().toString());
     }
 
 
@@ -121,16 +120,16 @@ public class DatabricksClientConfigTest {
         DatabricksClientConfiguration databricksClientConfig = new DatabricksClientConfiguration(inputStream);
 
         Assert.assertEquals("URL value in Config is different than expected",
-                TEST_URL_VALUE, databricksClientConfig.getClientUrl().toString());
+                TEST_URL_VALUE, databricksClientConfig.getWorkspaceUrl().toString());
 
         Assert.assertEquals("Token value in Config is different than expected",
-                TEST_TOKEN_VALUE, databricksClientConfig.getClientToken().toString());
+                TEST_TOKEN_VALUE, databricksClientConfig.getWorkspaceToken().toString());
 
         Assert.assertEquals("Username value in Config is different than expected",
-                TEST_USER_VALUE, databricksClientConfig.getClientUsername().toString());
+                TEST_USER_VALUE, databricksClientConfig.getWorkspaceUsername().toString());
 
         Assert.assertEquals("Password value in Config is different than expected",
-                TEST_PASS_VALUE, databricksClientConfig.getClientPassword().toString());
+                TEST_PASS_VALUE, databricksClientConfig.getWorkspacePassword().toString());
     }
 
     @Test
@@ -142,7 +141,7 @@ public class DatabricksClientConfigTest {
             throw new DatabricksClientConfigException("Client Config Should Have Failed to Initialize");
         }catch(DatabricksClientConfigException e) {
             Assert.assertEquals("Exception message does not match expectation",
-                    "Databricks Client Config missing com.level11data.databricks.client.url", e.getMessage());
+                    "Databricks Client Config missing com.level11data.databricks.client.workspace.url", e.getMessage());
         }
     }
 
@@ -155,7 +154,7 @@ public class DatabricksClientConfigTest {
             throw new DatabricksClientConfigException("Client Config Should Have Failed to Initialize");
         }catch(DatabricksClientConfigException e) {
             Assert.assertEquals("Exception message does not match expectation",
-                    "Databricks Client Config missing either com.level11data.databricks.client.token or com.level11data.databricks.client.username", e.getMessage());
+                    "Databricks Client Config missing either com.level11data.databricks.client.workspace.token or com.level11data.databricks.client.workspace.username", e.getMessage());
         }
     }
 
@@ -168,7 +167,7 @@ public class DatabricksClientConfigTest {
             throw new DatabricksClientConfigException("Client Config Should Have Failed to Initialize");
         }catch(DatabricksClientConfigException e) {
             Assert.assertEquals("Exception message does not match expectation",
-                    "Databricks Client Config missing com.level11data.databricks.client.password", e.getMessage());
+                    "Databricks Client Config missing com.level11data.databricks.client.workspace.password", e.getMessage());
         }
     }
 
@@ -186,9 +185,9 @@ public class DatabricksClientConfigTest {
         DatabricksClientConfiguration config = new DatabricksClientConfiguration(databricksURL,"fake-token");
 
         Assert.assertEquals("Token constructor token does not match",
-                "fake-token", config.getClientToken());
+                "fake-token", config.getWorkspaceToken());
 
         Assert.assertEquals("Token constructor URL does not match",
-                databricksURL, config.getClientUrl());
+                databricksURL, config.getWorkspaceUrl());
     }
 }

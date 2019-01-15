@@ -1,11 +1,13 @@
 package com.level11data.databricks.client;
 
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.core.Response;
 
 public abstract class AbstractDatabricksClient {
-    public final DatabricksSession Session;
+    public final WorkspaceSession Session;
 
-    public AbstractDatabricksClient(DatabricksSession session) {
+    public AbstractDatabricksClient(WorkspaceSession session) {
         Session = session;
     }
 

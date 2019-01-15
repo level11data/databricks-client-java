@@ -1,6 +1,8 @@
 package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.workspace.*;
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
@@ -9,7 +11,7 @@ import java.util.Map;
 public class WorkspaceClient extends AbstractDatabricksClient {
     private final String ENDPOINT_TARGET = "api/2.0/workspace";
 
-    public WorkspaceClient(DatabricksSession session) {
+    public WorkspaceClient(WorkspaceSession session) {
         super(session);
     }
 

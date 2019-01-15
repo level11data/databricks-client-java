@@ -3,6 +3,8 @@ package com.level11data.databricks.client;
 import com.level11data.databricks.client.entities.libraries.AllClusterLibraryStatusesDTO;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryRequestDTO;
 import com.level11data.databricks.client.entities.libraries.ClusterLibraryStatusesDTO;
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
@@ -10,7 +12,7 @@ public class LibrariesClient extends AbstractDatabricksClient {
 
     private final String ENDPOINT_TARGET = "api/2.0/libraries";
 
-    public LibrariesClient(DatabricksSession session) {
+    public LibrariesClient(WorkspaceSession session) {
         super(session);
     }
 

@@ -1,7 +1,6 @@
 package com.level11data.databricks.util;
 
-import com.level11data.databricks.client.DatabricksSession;
-import com.level11data.databricks.client.HttpException;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.dbfs.DbfsException;
 import org.apache.commons.io.IOUtils;
 
@@ -37,7 +36,7 @@ public class ResourceUtils {
     }
 
 
-    public static void uploadFile(DatabricksSession session, File file, URI destination) throws ResourceConfigException {
+    public static void uploadFile(WorkspaceSession session, File file, URI destination) throws ResourceConfigException {
         validate(destination);
 
         try{

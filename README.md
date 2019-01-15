@@ -22,17 +22,17 @@ In order for the tests to run, the client needs to connect to a Databricks insta
    
 Add the following to your `.bash_profile` in order to set the required environment variables:
    
-   `export DB_TEST_URL=<YOUR DATABRICKS URL>`
+   `export DB_TEST_URL=<YOUR DATABRICKS WORKSPACE URL>`
    
 Additionally, set either   
-   `export DB_TEST_TOKEN=<YOUR DATABRICKS ACCESS TOKEN>`
+   `export DB_TEST_TOKEN=<YOUR DATABRICKS WORKSPACE ACCESS TOKEN>`
 OR   
-   `export DB_TEST_USER=<YOUR DATABRICKS USERNAME>`
-   `export DB_TEST_PASS=<YOUR DATABRICKS PASSWORD>`
+   `export DB_TEST_USER=<YOUR DATABRICKS WORKSPACE USERNAME>`
+   `export DB_TEST_PASS=<YOUR DATABRICKS WORKSPACE PASSWORD>`
    
    
 ## Using the Client
-   Before you can create a `DatabricksSession`, you must first create a `DatabricksClientConfiguration`.
+   Before you can create a `WorkspSession`, you must first create a `DatabricksClientConfiguration`.
 
 ### DatabricksClientConfiguration
    The configuration is an extention of a regular java [PropertiesConfiguration](https://commons.apache.org/proper/commons-configuration/userguide/howto_properties.html) from the Apache Commons library.
@@ -41,10 +41,10 @@ OR
 
 | Property Name  | Default Value | Required |
 |---|---|---|
-| com.level11data.databricks.client.url  | None | Yes |
-| com.level11data.databricks.client.token | None | Either token or username |
-| com.level11data.databricks.client.username | None | Either username or token |
-| com.level11data.databricks.client.password | None | Only with username |
+| com.level11data.databricks.workspace.client.url  | None | Yes |
+| com.level11data.databricks.workspace.client.token | None | Either token or username |
+| com.level11data.databricks.workspace.client.username | None | Either username or token |
+| com.level11data.databricks.workspace.client.password | None | Only with username |
       
 The configuration can be instantiated a number of ways:
 

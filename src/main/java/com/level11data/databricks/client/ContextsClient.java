@@ -2,13 +2,15 @@ package com.level11data.databricks.client;
 
 import com.level11data.databricks.client.entities.contexts.CreateContextRequestDTO;
 import com.level11data.databricks.client.entities.contexts.CreateContextResponseDTO;
+import com.level11data.databricks.session.WorkspaceSession;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 public class ContextsClient extends AbstractDatabricksClient {
     private final String ENDPOINT_TARGET = "api/1.2/contexts";
 
-    public ContextsClient(DatabricksSession session) {
+    public ContextsClient(WorkspaceSession session) {
         super(session);
     }
 

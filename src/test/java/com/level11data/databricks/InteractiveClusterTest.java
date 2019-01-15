@@ -1,15 +1,12 @@
 package com.level11data.databricks;
 
 
-import com.level11data.databricks.client.DatabricksSession;
+import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.cluster.ClusterState;
-import com.level11data.databricks.cluster.SparkVersion;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import org.junit.Test;
 import org.junit.Assert;
-
-import java.io.InputStream;
 
 public class InteractiveClusterTest {
     public static final String DBR_VERSION = "4.3.x-scala2.11";
@@ -17,7 +14,7 @@ public class InteractiveClusterTest {
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
 
-    DatabricksSession _databricks = new DatabricksSession(_databricksConfig);
+    WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
     public InteractiveClusterTest() throws Exception {
 

@@ -3,7 +3,6 @@ package com.level11data.databricks.config;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import com.google.common.base.Preconditions;
-import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.URI;
@@ -16,11 +15,11 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
 
     public static final String LEVEL11DATA_PREFIX = "com.level11data";
     private static final String CLIENT_PREFIX = LEVEL11DATA_PREFIX + ".databricks.client";
-
-    public static final String CLIENT_URL      = CLIENT_PREFIX + ".url";
-    public static final String CLIENT_TOKEN    = CLIENT_PREFIX + ".token";
-    public static final String CLIENT_USERNAME = CLIENT_PREFIX + ".username";
-    public static final String CLIENT_PASSWORD = CLIENT_PREFIX + ".password";
+    private static final String WORKSPACE_PREFIX = CLIENT_PREFIX + ".workspace";
+    public static final String WORKSPACE_URL      = WORKSPACE_PREFIX + ".url";
+    public static final String WORKSPACE_TOKEN    = WORKSPACE_PREFIX + ".token";
+    public static final String WORKSPACE_USERNAME = WORKSPACE_PREFIX + ".username";
+    public static final String WORKSPACE_PASSWORD = WORKSPACE_PREFIX + ".password";
 
     public DatabricksClientConfiguration() throws DatabricksClientConfigException {
         super();
@@ -35,8 +34,8 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
     public DatabricksClientConfiguration(URI databricksURL, String token) throws DatabricksClientConfigException {
         super();
 
-        this.addProperty(CLIENT_URL, databricksURL.toString());
-        this.addProperty(CLIENT_TOKEN, token);
+        this.addProperty(WORKSPACE_URL, databricksURL.toString());
+        this.addProperty(WORKSPACE_TOKEN, token);
 
         //validate that config includes minimum required properties
         validateRequiredClientProps();
@@ -97,25 +96,25 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
         }
     }
 
-    public URI getClientUrl() {
-        return UriBuilder.fromUri(getNonEmptyString(CLIENT_URL)).build();
+    public URI getWorkspaceUrl() {
+        return UriBuilder.fromUri(getNonEmptyString(WORKSPACE_URL)).build();
     }
 
-    public String getClientUsername() {
-        return getNonEmptyString(CLIENT_USERNAME);
+    public String getWorkspaceUsername() {
+        return getNonEmptyString(WORKSPACE_USERNAME);
     }
 
-    public String getClientPassword() {
-        return getNonEmptyString(CLIENT_PASSWORD);
+    public String getWorkspacePassword() {
+        return getNonEmptyString(WORKSPACE_PASSWORD);
     }
 
-    public String getClientToken() {
-        return getNonEmptyString(CLIENT_TOKEN);
+    public String getWorkspaceToken() {
+        return getNonEmptyString(WORKSPACE_TOKEN);
     }
 
     public boolean hasClientToken() {
         try {
-            getClientToken();
+            getWorkspaceToken();
             return true;
         } catch(NullPointerException e) {
             return false;
@@ -126,7 +125,7 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
 
     public boolean hasClientUsername() {
         try {
-            getClientUsername();
+            getWorkspaceUsername();
             return true;
         } catch(NullPointerException e) {
             return false;
@@ -137,7 +136,7 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
 
     public boolean hasClientPassword() {
         try {
-            getClientPassword();
+            getWorkspacePassword();
             return true;
         } catch(NullPointerException e) {
             return false;
@@ -148,23 +147,23 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
 
     private void validateRequiredClientProps() throws DatabricksClientConfigException{
         boolean valid = true;
-        valid &= verifyStringPropSet(CLIENT_URL);
+        valid &= verifyStringPropSet(WORKSPACE_URL);
 
-        if(!verifyStringPropSet(CLIENT_URL)) {
-            throw new DatabricksClientConfigException("Databricks Client Config missing "+CLIENT_URL);
+        if(!verifyStringPropSet(WORKSPACE_URL)) {
+            throw new DatabricksClientConfigException("Databricks Client Config missing " + WORKSPACE_URL);
         }
 
 
-        if(verifyStringPropSet(CLIENT_TOKEN) || verifyStringPropSet(CLIENT_USERNAME)) {
-            if(verifyStringPropSet(CLIENT_TOKEN)){
+        if(verifyStringPropSet(WORKSPACE_TOKEN) || verifyStringPropSet(WORKSPACE_USERNAME)) {
+            if(verifyStringPropSet(WORKSPACE_TOKEN)){
                 //valid config
-            } else if(verifyStringPropSet(CLIENT_USERNAME) && !verifyStringPropSet(CLIENT_PASSWORD)) {
-                throw new DatabricksClientConfigException("Databricks Client Config missing " + CLIENT_PASSWORD);
+            } else if(verifyStringPropSet(WORKSPACE_USERNAME) && !verifyStringPropSet(WORKSPACE_PASSWORD)) {
+                throw new DatabricksClientConfigException("Databricks Client Config missing " + WORKSPACE_PASSWORD);
             }
 
         } else {
             throw new DatabricksClientConfigException("Databricks Client Config missing either " +
-                    CLIENT_TOKEN + " or " + CLIENT_USERNAME);
+                    WORKSPACE_TOKEN + " or " + WORKSPACE_USERNAME);
         }
     }
 
