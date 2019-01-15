@@ -32,7 +32,7 @@ OR
    
    
 ## Using the Client
-   Before you can create a `WorkspSession`, you must first create a `DatabricksClientConfiguration`.
+   Before you can create a `WorkspaceSession`, you must first create a `DatabricksClientConfiguration`.
 
 ### DatabricksClientConfiguration
    The configuration is an extention of a regular java [PropertiesConfiguration](https://commons.apache.org/proper/commons-configuration/userguide/howto_properties.html) from the Apache Commons library.
