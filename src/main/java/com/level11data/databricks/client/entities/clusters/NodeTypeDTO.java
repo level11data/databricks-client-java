@@ -32,6 +32,33 @@ public class NodeTypeDTO {
     @JsonProperty("is_deprecated")
     public Boolean IsDeprecated;
 
+    @JsonProperty("category")
+    public String Category;
+
+    @JsonProperty("support_ebs_volumes")
+    public Boolean SupportEbsVolumes;
+
+    @JsonProperty("support_cluster_tags")
+    public Boolean SupportClusterTags;
+
+    @JsonProperty("num_gpus")
+    public Float NumGpus;
+
+    @JsonProperty("node_instance_type")
+    public NodeInstanceTypeDTO NodeInstanceType;
+
+    @JsonProperty("is_hidden")
+    public Boolean IsHidden;
+
+    @JsonProperty("support_port_forwarding")
+    public Boolean SupportPortForwarding;
+
+    @JsonProperty("display_order")
+    public Integer DisplayOrder;
+
+    @JsonProperty("is_io_cache_enabled")
+    public Boolean IsIoCacheEnabled;
+
     @Override
     public String toString() {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

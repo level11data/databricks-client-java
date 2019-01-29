@@ -1,6 +1,5 @@
 package com.level11data.databricks.client.entities.clusters;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,15 +9,20 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SparkVersionsDTO {
+public class NodeInstanceTypeDTO {
 
-    @JsonProperty("versions")
-    public List<SparkVersionDTO> Versions;
+    @JsonProperty("instance_type_id")
+    public String InstanceTypeId;
+
+    @JsonProperty("local_disks")
+    public Integer LocalDisks;
+
+    @JsonProperty("local_disk_size_gb")
+    public Float LocalDiskSizeGb;
 
     @Override
     public String toString() {

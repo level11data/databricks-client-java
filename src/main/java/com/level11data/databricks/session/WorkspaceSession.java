@@ -60,12 +60,22 @@ public class WorkspaceSession {
     private final String SECURITY_PROTOCOL = "TLSv1.2";
 
     public WorkspaceSession(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
-        //validate expectations of config; throw exception if not met
-        validateClientConfig(databricksClientConfig);
-
         _databricksClientConfig = databricksClientConfig;
         Endpoint = databricksClientConfig.getWorkspaceUrl();
 
+        //create secure https client session
+        createEncryptedHttpSession();
+    }
+
+    public WorkspaceSession(URI workspaceUrl, String token) throws DatabricksClientConfigException {
+        this(new DatabricksClientConfiguration(workspaceUrl, token));
+    }
+
+    public WorkspaceSession() throws DatabricksClientConfigException {
+        this(new DatabricksClientConfiguration());
+    }
+
+    private void createEncryptedHttpSession() {
         //create secure https client session
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JacksonFeature());
@@ -147,16 +157,6 @@ public class WorkspaceSession {
         return target;
     }
 
-    private void validateClientConfig(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
-        if(databricksClientConfig.hasClientToken()) {
-            //no op - valid config
-        } else if(!databricksClientConfig.hasClientToken() && !databricksClientConfig.hasClientUsername()) {
-            throw new DatabricksClientConfigException("Neither token nor username in DatabricksConfig");
-        } else if(databricksClientConfig.hasClientUsername() && !databricksClientConfig.hasClientPassword()) {
-            throw new DatabricksClientConfigException("Password not in DatabricksConfig");
-        }
-    }
-
     private HttpAuthenticationFeature getUserPassAuth() {
         if(_userPassAuth == null) {
             _userPassAuth = HttpAuthenticationFeature.basicBuilder()
@@ -230,28 +230,12 @@ public class WorkspaceSession {
         return _sparkVersionsDTO;
     }
 
-    public SparkVersion getDefaultSparkVersion() throws HttpException, ClusterConfigException  {
-        return getSparkVersionByKey(getOrRequestSparkVersionsDTO().DefaultVersionKey);
-    }
-
     private void initSparkVersions() throws HttpException {
-        String defaultSparkVersionKey = getOrRequestSparkVersionsDTO().DefaultVersionKey;
-        boolean isDefaultKeyInList = false;
-
         List<SparkVersionDTO> sparkVersionsDTO = getOrRequestSparkVersionsDTO().Versions;
         ArrayList<SparkVersion> sparkVersions = new ArrayList<>();
 
         for(SparkVersionDTO svDTO : sparkVersionsDTO) {
             sparkVersions.add(new SparkVersion(svDTO.Key, svDTO.Name));
-            if(svDTO.Key.equals(defaultSparkVersionKey)) {
-                isDefaultKeyInList = true;
-            }
-        }
-        //It's possible that the Default Spark Version is not included in the list
-        // possibly because it is deprecated.  If so, add it to the list with the key
-        // as both the key and the value (since the value cannot be derived)
-        if(!isDefaultKeyInList) {
-            sparkVersions.add(new SparkVersion(defaultSparkVersionKey, defaultSparkVersionKey));
         }
         _sparkVersions = sparkVersions;
     }
@@ -275,21 +259,6 @@ public class WorkspaceSession {
             throw new ClusterConfigException(e);
         }
         throw new ClusterConfigException("No SparkVersion Found For Key "+key);
-    }
-
-    private void refreshNodeTypesDTO() throws HttpException {
-        _nodeTypesDTO = getClustersClient().getNodeTypes();
-    }
-
-    private NodeTypesDTO getOrRequestNodeTypesDTO() throws HttpException {
-        if(_nodeTypesDTO == null) {
-            refreshNodeTypesDTO();
-        }
-        return _nodeTypesDTO;
-    }
-
-    public NodeType getDefaultNodeType() throws HttpException, ClusterConfigException {
-        return getNodeTypeById(getOrRequestNodeTypesDTO().DefaultNodeTypeId);
     }
 
     private void initNodeTypes() throws ClusterConfigException {

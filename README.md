@@ -32,7 +32,27 @@ OR
    
    
 ## Using the Client
-   Before you can create a `WorkspaceSession`, you must first create a `DatabricksClientConfiguration`.
+
+### Create a WorkspaceSession
+
+A `WorkspaceSession` is what establishes a connection between your client and a Databricks Workspace.
+
+It can be instantiated in a number of different ways:
+
+* With the URL and Token:
+`WorkspaceSession(URI workspaceURL, String token)`
+
+* With a *DatabricksClientConfiguration*
+   `WorkspaceSession(DatabricksClientConfiguration databricksClientConfig)`
+
+      See the section on [DatabricksClientConfiguration](###databricksclientconfiguration) for creating one
+
+* With no arguments
+   `WorkspaceSession()`
+ 
+ This will use the default `DatabricksClientConfiguration`
+ See the section on the [Default DatabricksClientConfiguration](####default-databricksclientconfiguration)
+
 
 ### DatabricksClientConfiguration
    The configuration is an extention of a regular java [PropertiesConfiguration](https://commons.apache.org/proper/commons-configuration/userguide/howto_properties.html) from the Apache Commons library.
@@ -46,20 +66,21 @@ OR
 | com.level11data.databricks.workspace.client.username | None | Either username or token |
 | com.level11data.databricks.workspace.client.password | None | Only with username |
       
-The configuration can be instantiated a number of ways:
+The configuration can be instantiated a few different ways:
 
-1. With the URL and Token:
-`DatabricksClientConfiguration(URI databricksURL, String token)`
+* With the URL and Token:
+  `DatabricksClientConfiguration(URI workspaceURL, String token)`
 
-2. With a PropertiesFile reference:
-`DatabricksClientConfiguration(File propertiesFile)`
+* With a PropertiesFile reference:
+  `DatabricksClientConfiguration(File propertiesFile)`
 
-3. With an InputStream of properties
-`DatabricksClientConfiguration(InputStream inputStream)`
+* With an InputStream of properties
+  `DatabricksClientConfiguration(InputStream inputStream)`
 
-4. With a default configuration:
-`DatabricksClientConfiguration()`
+* With a default configuration:
+  `DatabricksClientConfiguration()`
 
+#### Default DatabricksClientConfiguration
 The default configuration will load the configuration from the default properties file, found in:
  [resources/databricks-client.properties](https://github.com/level11data/databricks-client-java/blob/master/src/main/resources/databricks-client.properties)
 
