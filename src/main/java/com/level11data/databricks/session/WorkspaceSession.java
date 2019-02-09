@@ -242,7 +242,7 @@ public class WorkspaceSession {
 
     public List<SparkVersion> getSparkVersions() throws HttpException  {
         if(_sparkVersions == null) {
-            initSparkVersions();
+                initSparkVersions();
         }
         return _sparkVersions;
     }
