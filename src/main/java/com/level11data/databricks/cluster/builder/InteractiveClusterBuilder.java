@@ -9,6 +9,7 @@ import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.cluster.ClusterState;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.instancepool.InstancePool;
 import com.level11data.databricks.library.*;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class InteractiveClusterBuilder extends AbstractClusterBuilder implements
     }
 
     @Override
-    protected InteractiveClusterBuilder withName(String clusterName) {
+    public InteractiveClusterBuilder withName(String clusterName) {
         return (InteractiveClusterBuilder)super.withName(clusterName);
     }
 
@@ -153,6 +154,10 @@ public class InteractiveClusterBuilder extends AbstractClusterBuilder implements
     public InteractiveClusterBuilder withLibrary(AbstractLibrary library) {
         _libraries.add(library);
         return this;
+    }
+
+    public InteractiveClusterBuilder withInstancePool(InstancePool instancePool) {
+        return (InteractiveClusterBuilder)super.withInstancePool(instancePool);
     }
 
     public InteractiveCluster create() throws ClusterConfigException {

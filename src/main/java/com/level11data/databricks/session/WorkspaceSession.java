@@ -10,6 +10,9 @@ import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.client.entities.clusters.*;
 import com.level11data.databricks.config.DatabricksClientConfigException;
 import com.level11data.databricks.dbfs.*;
+import com.level11data.databricks.instancepool.InstancePool;
+import com.level11data.databricks.instancepool.InstancePoolConfigException;
+import com.level11data.databricks.instancepool.builder.InstancePoolBuilder;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.*;
 import com.level11data.databricks.job.run.*;
@@ -50,6 +53,7 @@ public class WorkspaceSession {
     private LibrariesClient _librariesClient;
     private DbfsClient _dbfsClient;
     private WorkspaceClient _workspaceClient;
+    private InstancePoolsClient _instancePoolsClient;
 
     private SparkVersionsDTO _sparkVersionsDTO;
     private NodeTypesDTO _nodeTypesDTO;
@@ -200,6 +204,13 @@ public class WorkspaceSession {
             _workspaceClient = new WorkspaceClient(this);
         }
         return _workspaceClient;
+    }
+
+    public InstancePoolsClient getInstancePoolsClient() {
+        if(_instancePoolsClient == null) {
+            _instancePoolsClient = new InstancePoolsClient(this);
+        }
+        return _instancePoolsClient;
     }
 
     public InteractiveClusterBuilder createInteractiveCluster(String name, Integer numWorkers)  {
@@ -369,14 +380,54 @@ public class WorkspaceSession {
         throw new JobConfigException("Unsupported Job Type");
     }
 
-    public JobRun getRun(long runId) throws HttpException, JobRunException {
-        JobsClient client = getJobsClient();
-        RunDTO runDTO = client.getRun(runId);
 
-        if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
-            return new InteractiveNotebookJobRun(client, runDTO);
-        } else {
-            throw new JobRunException("Unsupported Job Type");  //TODO add better exception handling
+    public Job getFirstJobByName(String jobName) throws JobConfigException {
+        JobsClient client = getJobsClient();
+        try{
+            JobDTO[] jobsDTO = client.listJobs().Jobs;
+
+            for (JobDTO jobDTO : jobsDTO) {
+                if(jobDTO.Settings.Name.equals(jobName)) {
+                    return getJob(jobDTO.JobId);
+                }
+            }
+            //no matching job name found
+            return null;
+        } catch(HttpException e) {
+            throw new JobConfigException(e);
+        }
+    }
+
+    public JobRun getRun(long runId) throws JobRunException {
+        try{
+            JobsClient client = getJobsClient();
+            RunDTO runDTO = client.getRun(runId);
+
+            if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
+                return new InteractiveNotebookJobRun(client, runDTO);
+            } else if(runDTO.isAutomated() && runDTO.isNotebookJob()) {
+                return new AutomatedNotebookJobRun(client, runDTO);
+            } else if(runDTO.isAutomated() && runDTO.isJarJob()) {
+                return new AutomatedJarJobRun(client, runDTO);
+            } else if(runDTO.isInteractive() && runDTO.isJarJob()) {
+                return new InteractiveJarJobRun(client, runDTO);
+            } else if(runDTO.isAutomated() && runDTO.isPythonJob()) {
+                PythonScript pyScript = new PythonScript(this, new URI(runDTO.Task.SparkPythonTask.PythonFile));
+                return new AutomatedPythonJobRun(client, pyScript, runDTO);
+            } else if(runDTO.isInteractive() && runDTO.isPythonJob()) {
+                PythonScript pyScript = new PythonScript(this, new URI(runDTO.Task.SparkPythonTask.PythonFile));
+                return new InteractivePythonJobRun(client, pyScript, runDTO);
+            } else if(runDTO.isSparkSubmitJob()) {
+                return new AutomatedSparkSubmitJobRun(client, runDTO);
+            } else {
+                throw new JobRunException("Unsupported Job Type");
+            }
+        } catch(HttpException e) {
+            throw new JobRunException(e);
+        } catch(ResourceConfigException e) {
+            throw new JobRunException(e);
+        } catch(URISyntaxException e) {
+            throw new JobRunException(e);
         }
     }
 
@@ -547,6 +598,18 @@ public class WorkspaceSession {
 
     public ScalaNotebookBuilder createScalaNotebook(File file) throws WorkspaceConfigException {
         return new ScalaNotebookBuilder(getWorkspaceClient(), file);
+    }
+
+    public InstancePoolBuilder createInstancePool() {
+        return new InstancePoolBuilder(getInstancePoolsClient());
+    }
+
+    public InstancePool getInstancePool(String instancePoolId) throws InstancePoolConfigException {
+        try{
+            return new InstancePool(getInstancePoolsClient(),getInstancePoolsClient().getInstancePool(instancePoolId));
+        } catch(HttpException e) {
+            throw new InstancePoolConfigException(e);
+        }
     }
 }
 

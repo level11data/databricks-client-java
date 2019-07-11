@@ -85,9 +85,9 @@ public abstract class AbstractInteractiveJobBuilder extends AbstractJobBuilder i
     }
 
     @Override
-    protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) {
+    protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         jobSettingsDTO = super.applySettings(jobSettingsDTO);
-        jobSettingsDTO.ExistingClusterId = Cluster.Id;
+        jobSettingsDTO.ExistingClusterId = Cluster.getId();
 
         if(_libraryDTOs.size() > 0) {
             jobSettingsDTO.Libraries = _libraryDTOs.toArray(new LibraryDTO[_libraryDTOs.size()]);

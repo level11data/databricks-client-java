@@ -20,7 +20,7 @@ public class EggLibrary extends AbstractPrivateLibrary {
 
     public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException {
         try{
-            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
+            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.getId());
 
             //find library status for this library
             for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
@@ -34,8 +34,8 @@ public class EggLibrary extends AbstractPrivateLibrary {
             throw new LibraryConfigException(e);
         }
 
-        throw new LibraryConfigException("Egg AbstractLibrary " + this.Uri.toString() +
-                " Not Associated With AbstractCluster Id " + cluster.Id);
+        throw new LibraryConfigException("EggLibrary " + this.Uri.toString() +
+                " Not Associated With Cluster Id " + cluster.getId());
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws LibraryConfigException {

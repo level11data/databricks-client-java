@@ -23,6 +23,12 @@ public class AutomatedPythonJobTest {
 
     WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
+    public final String DBR_VERSION = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.sparkVersion");
+
+    public final String NODE_TYPE = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.nodeType");
+
     public AutomatedPythonJobTest() throws Exception {
 
     }
@@ -51,8 +57,8 @@ public class AutomatedPythonJobTest {
 
         //create cluster spec
         ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
+                .withSparkVersion(DBR_VERSION)
+                .withNodeType(NODE_TYPE)
                 .createClusterSpec();
 
         AutomatedPythonJob job = _databricks.createJob(pythonScript, pythonFile, params)

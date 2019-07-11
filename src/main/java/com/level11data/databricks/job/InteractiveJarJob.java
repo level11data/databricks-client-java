@@ -11,10 +11,9 @@ import com.level11data.databricks.library.Library;
 import java.util.List;
 
 public class InteractiveJarJob extends AbstractInteractiveJob implements StandardJob {
-    private JobsClient _client;
-
-    public final String MainClassName;
-    public final String[] Parameters;
+    private final JobsClient _client;
+    private final String[] _parameters;
+    private final String _mainClassName;
 
     public InteractiveJarJob(JobsClient client,
                              InteractiveCluster cluster,
@@ -32,8 +31,8 @@ public class InteractiveJarJob extends AbstractInteractiveJob implements Standar
             //Validate DTO for this Job Type
             JobValidation.validateInteractiveJarJob(jobSettingsDTO);
 
-            MainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
-            Parameters = jobSettingsDTO.SparkJarTask.Parameters;
+            _mainClassName = jobSettingsDTO.SparkJarTask.MainClassName;
+            _parameters = jobSettingsDTO.SparkJarTask.Parameters;
     }
 
     public InteractiveJarJob(JobsClient client,
@@ -52,8 +51,8 @@ public class InteractiveJarJob extends AbstractInteractiveJob implements Standar
         //Validate DTO for this Job Type
         JobValidation.validateInteractiveJarJob(jobDTO);
 
-        MainClassName = jobDTO.Settings.SparkJarTask.MainClassName;
-        Parameters = jobDTO.Settings.SparkJarTask.Parameters;
+        _mainClassName = jobDTO.Settings.SparkJarTask.MainClassName;
+        _parameters = jobDTO.Settings.SparkJarTask.Parameters;
     }
 
     public InteractiveJarJobRun run() throws JobRunException {
@@ -63,7 +62,7 @@ public class InteractiveJarJob extends AbstractInteractiveJob implements Standar
     public InteractiveJarJobRun run(List<String> overrideParameters) throws JobRunException {
         try {
             RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-            runRequestDTO.JobId = this.Id;
+            runRequestDTO.JobId = this.getId();
 
             if(overrideParameters != null) {
                 runRequestDTO.JarParams = overrideParameters.toArray(new String[overrideParameters.size()]);
@@ -82,5 +81,13 @@ public class InteractiveJarJob extends AbstractInteractiveJob implements Standar
         } catch(HttpException e) {
             throw new JobConfigException(e);
         }
+    }
+
+    public String[] getParameters() {
+        return _parameters;
+    }
+
+    public String getMainClassName() {
+        return _mainClassName;
     }
 }

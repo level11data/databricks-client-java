@@ -22,7 +22,7 @@ public class InstancePoolEditRequestDTO {
 
     //optional, editable
     @JsonProperty("min_idle_instances")
-    public int MinIdleInstances;
+    public Integer MinIdleInstances;
 
     //optional, editable
     @JsonProperty("max_capacity")

@@ -20,6 +20,9 @@ public class ClusterInfoDTO {
     @JsonProperty("cluster_id")
     public String ClusterId;
 
+    @JsonProperty("instance_pool_id")
+    public String InstancePoolId;
+
     @JsonProperty("creator_user_name")
     public String CreatorUserName;
 

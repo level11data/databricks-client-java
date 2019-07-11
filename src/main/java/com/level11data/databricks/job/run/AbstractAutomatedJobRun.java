@@ -32,7 +32,7 @@ public abstract class AbstractAutomatedJobRun extends AbstractJobRun {
     public AutomatedCluster getCluster() throws JobRunException {
         if (_cluster == null) {
             try {
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this.getRunId());
                 validateJobRun(run);
                 if(_clusterCreated) {
                     ClustersClient clusterClient = new ClustersClient(_client.Session);

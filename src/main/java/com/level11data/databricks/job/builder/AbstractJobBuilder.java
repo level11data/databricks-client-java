@@ -74,7 +74,7 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         return this;
     }
 
-    protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) {
+    protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         jobSettingsDTO.Name = _name;
         jobSettingsDTO.TimeoutSeconds = _timeoutSeconds;
         jobSettingsDTO.MaxRetries = _maxRetries;

@@ -23,7 +23,7 @@ abstract public class AbstractInteractiveJobRun extends AbstractJobRun {
     public InteractiveCluster getCluster() throws JobRunException {
         if (_cluster == null) {
             try {
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this.getRunId());
                 validateJobRun(run);
                 ClustersClient clusterClient = new ClustersClient(_client.Session);
                 ClusterInfoDTO clusterInfo = clusterClient.getCluster(run.ClusterInstance.ClusterId);

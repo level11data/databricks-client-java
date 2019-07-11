@@ -5,14 +5,13 @@ import com.level11data.databricks.client.JobsClient;
 import com.level11data.databricks.client.entities.jobs.*;
 import com.level11data.databricks.job.run.AutomatedSparkSubmitJobRun;
 import com.level11data.databricks.job.run.JobRunException;
-import com.level11data.databricks.library.Library;
 
 import java.util.List;
 
 public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements StandardJob {
 
-    private JobsClient _client;
-    public final String[] Parameters;
+    private final JobsClient _client;
+    private final String[] _parameters;
 
     public AutomatedSparkSubmitJob(JobsClient client,
                                    JobSettingsDTO jobSettingsDTO) throws JobConfigException {
@@ -22,7 +21,7 @@ public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements Sta
         //Validate the DTO for this Job Type
         JobValidation.validateAutomatedSparkSubmitJob(jobSettingsDTO);
 
-        Parameters = jobSettingsDTO.SparkSubmitTask.Parameters;
+        _parameters = jobSettingsDTO.SparkSubmitTask.Parameters;
     }
 
     public AutomatedSparkSubmitJob(JobsClient client,
@@ -33,9 +32,8 @@ public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements Sta
         //Validate the DTO for this Job Type
         JobValidation.validateAutomatedSparkSubmitJob(jobDTO);
 
-        Parameters = jobDTO.Settings.SparkSubmitTask.Parameters;
+        _parameters = jobDTO.Settings.SparkSubmitTask.Parameters;
     }
-
 
     public AutomatedSparkSubmitJobRun run() throws JobRunException {
         return run(null);
@@ -44,7 +42,7 @@ public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements Sta
     public AutomatedSparkSubmitJobRun run(List<String> overrideParameters) throws JobRunException {
         try {
             RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-            runRequestDTO.JobId = this.Id;
+            runRequestDTO.JobId = this.getId();
 
             if(overrideParameters != null) {
                 runRequestDTO.JarParams = overrideParameters.toArray(new String[overrideParameters.size()]);
@@ -57,5 +55,7 @@ public class AutomatedSparkSubmitJob extends AbstractAutomatedJob implements Sta
         }
     }
 
-
+    public String[] getParameters() {
+        return _parameters;
+    }
 }

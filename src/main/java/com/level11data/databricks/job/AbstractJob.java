@@ -20,18 +20,18 @@ public abstract class AbstractJob {
     private LibrariesClient _librariesClient;
     private JobsClient _client;
 
-    public final long Id;
-    public final String Name;
-    public final List<Library> Libraries;
-    public final EmailNotification NotificationOnStart;
-    public final EmailNotification NotificationOnSuccess;
-    public final EmailNotification NotificationOnFailure;
-    public final Integer MaxRetries;
-    public final Integer MinRetryIntervalMillis;
-    public final boolean RetryOnTimeout;
-    //public final CronScheduleDTO Schedule;
-    public final Integer MaxConcurrentRuns;
-    public final Integer TimeoutSeconds;
+    private final long _id;
+    private final String _name;
+    private final List<Library> _libraries;
+    private final EmailNotification _notificationOnStart;
+    private final EmailNotification _notificationOnSuccess;
+    private final EmailNotification _notificationOnFailure;
+    private final Integer _maxRetries;
+    private final Integer _minRetryIntervalMillis;
+    private final boolean _retryOnTimeout;
+    //private final CronScheduleDTO _schedule;
+    private final Integer _maxConcurrentRuns;
+    private final Integer _timeoutSeconds;
 
     protected AbstractJob(JobsClient client, JobDTO jobDTO, List<Library> libraries) throws JobConfigException {
         this(client, new Long(jobDTO.JobId), jobDTO.Settings, libraries);
@@ -50,20 +50,20 @@ public abstract class AbstractJob {
 
         try {
             if(jobId == null) {
-                Id = client.createJob(jobSettingsDTO);
+                _id = client.createJob(jobSettingsDTO);
             } else {
-                Id = jobId.longValue();
+                _id = jobId.longValue();
             }
         } catch(HttpException e) {
             throw new JobConfigException(e);
         }
 
-        Name = jobSettingsDTO.Name;
-        MaxRetries = jobSettingsDTO.MaxRetries;
-        MinRetryIntervalMillis = jobSettingsDTO.MinRetryIntervalMillis;
-        RetryOnTimeout = jobSettingsDTO.RetryOnTimeout;
-        MaxConcurrentRuns = jobSettingsDTO.MaxConcurrentRuns;
-        TimeoutSeconds = jobSettingsDTO.TimeoutSeconds;
+        _name = jobSettingsDTO.Name;
+        _maxRetries = jobSettingsDTO.MaxRetries;
+        _minRetryIntervalMillis = jobSettingsDTO.MinRetryIntervalMillis;
+        _retryOnTimeout = jobSettingsDTO.RetryOnTimeout;
+        _maxConcurrentRuns = jobSettingsDTO.MaxConcurrentRuns;
+        _timeoutSeconds = jobSettingsDTO.TimeoutSeconds;
 
         try {
             List<Library> libraryList = libraries == null ? new ArrayList<Library>() : libraries;
@@ -75,20 +75,20 @@ public abstract class AbstractJob {
                     }
                 }
             }
-            Libraries = Collections.unmodifiableList(libraryList);
+            _libraries = Collections.unmodifiableList(libraryList);
         } catch(LibraryConfigException e) {
             throw new JobConfigException(e);
         }
 
-        //Schedule = TODO Add in Schedule
+        //_schedule = TODO Add in Schedule
 
-        NotificationOnStart = initOnStartNotification(jobSettingsDTO.EmailNotifications);
-        NotificationOnSuccess = initOnSuccessNotification(jobSettingsDTO.EmailNotifications);
-        NotificationOnFailure = initOnFailureNotification(jobSettingsDTO.EmailNotifications);
+        _notificationOnStart = initOnStartNotification(jobSettingsDTO.EmailNotifications);
+        _notificationOnSuccess = initOnSuccessNotification(jobSettingsDTO.EmailNotifications);
+        _notificationOnFailure = initOnFailureNotification(jobSettingsDTO.EmailNotifications);
     }
 
     private boolean isLibraryDtoInLibraries(LibraryDTO libraryDTO) {
-        for (Library library : Libraries) {
+        for (Library library : _libraries) {
             if(library.equals(libraryDTO)) {
                 return true;
             }
@@ -134,7 +134,7 @@ public abstract class AbstractJob {
 
     private void initJobInfo() throws HttpException {
         if(!_jobInfoRequested) {
-            _jobDTO = _client.getJob(Id);
+            _jobDTO = _client.getJob(_id);
             _jobInfoRequested = true;
         }
     }
@@ -164,7 +164,7 @@ public abstract class AbstractJob {
     public void delete() throws JobConfigException {
         try {
         JobDTO jobDTO = new JobDTO();
-        jobDTO.JobId = this.Id;
+        jobDTO.JobId = this._id;
             _client.deleteJob(jobDTO);
         } catch(HttpException e) {
             throw new JobConfigException(e);
@@ -187,4 +187,51 @@ public abstract class AbstractJob {
         //not in list
         return false;
     }
+
+    public long getId(){
+        return _id;
+    }
+
+    public String getName(){
+        return _name;
+    }
+
+    public List<Library> getLibraries(){
+        return _libraries;
+    }
+
+    public EmailNotification getNotificationOnStart() {
+        return _notificationOnStart;
+    }
+
+    public EmailNotification getNotificationOnSuccess() {
+        return _notificationOnSuccess;
+    }
+
+    public EmailNotification getNotificationOnFailure() {
+        return _notificationOnFailure;
+    }
+
+    public Integer getMaxRetries() {
+        return _maxRetries;
+    }
+
+    public Integer getMinRetryIntervalMillis() {
+        return _minRetryIntervalMillis;
+    }
+
+    public boolean getRetryOnTimeout() {
+        return _retryOnTimeout;
+    }
+
+    //public CronScheduleDTO getSchedule() { return _schedule; }
+
+    public Integer getMaxConcurrentRuns() {
+        return _maxConcurrentRuns;
+    }
+
+    public Integer getTimeoutSeconds() {
+        return _timeoutSeconds;
+    }
+
 }

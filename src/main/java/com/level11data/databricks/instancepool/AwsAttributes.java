@@ -1,10 +1,9 @@
 package com.level11data.databricks.instancepool;
 
-import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.client.entities.clusters.AwsAttributesDTO;
+import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 
 public class AwsAttributes {
-    public final Integer FirstOnDemand;
     public final AwsAvailability Availability;
     public final String ZoneId;
     public final String InstanceProfileARN;
@@ -13,27 +12,7 @@ public class AwsAttributes {
     public final Integer EbsVolumeCount;
     public final Integer EbsVolumeSize;
 
-    public AwsAttributes(Integer firstOnDemand,
-                         AwsAvailability availability,
-                         String zoneId,
-                         String instanceProfileARN,
-                         Integer spotBidPricePercent,
-                         EbsVolumeType ebsVolumeType,
-                         Integer ebsVolumeCount,
-                         Integer ebsVolumeSize) {
-        FirstOnDemand = firstOnDemand;
-        Availability = availability;
-        ZoneId = zoneId;
-        InstanceProfileARN = instanceProfileARN;
-        SpotBidPricePercent = spotBidPricePercent;
-        EbsVolumeType = ebsVolumeType;
-        EbsVolumeCount = ebsVolumeCount;
-        EbsVolumeSize = ebsVolumeSize;
-    }
-
     public AwsAttributes(AwsAttributesDTO awsAttributesDTOInfo) {
-        FirstOnDemand = awsAttributesDTOInfo.FirstOnDemand;
-
         String awsAvailability = awsAttributesDTOInfo.Availability;
         if(awsAvailability != null) {
             Availability = AwsAvailability.valueOf(awsAvailability);

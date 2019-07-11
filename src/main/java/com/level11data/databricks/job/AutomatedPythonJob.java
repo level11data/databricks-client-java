@@ -11,9 +11,10 @@ import java.util.List;
 
 public class AutomatedPythonJob extends AbstractAutomatedJob implements StandardJob {
 
-    private JobsClient _client;
-    public final PythonScript PythonScript;
-    public final String[] Parameters;
+    private final JobsClient _client;
+    private final String[] _parameters;
+    private final PythonScript _pythonScript;
+
 
     public AutomatedPythonJob(JobsClient client,
                               PythonScript pythonScript,
@@ -31,8 +32,8 @@ public class AutomatedPythonJob extends AbstractAutomatedJob implements Standard
         //Validate DTO for this Job Type
         JobValidation.validateAutomatedPythonJob(jobSettingsDTO);
 
-        PythonScript = pythonScript; //maintain object reference from builder
-        Parameters = jobSettingsDTO.SparkPythonTask.Parameters;
+        _pythonScript = pythonScript; //maintain object reference from builder
+        _parameters = jobSettingsDTO.SparkPythonTask.Parameters;
     }
 
     public AutomatedPythonJob(JobsClient client,
@@ -51,8 +52,8 @@ public class AutomatedPythonJob extends AbstractAutomatedJob implements Standard
         //Validate DTO for this Job Type
         JobValidation.validateAutomatedPythonJob(jobDTO);
 
-        PythonScript = pythonScript; //maintain object reference from builder
-        Parameters = jobDTO.Settings.SparkPythonTask.Parameters;
+        _pythonScript = pythonScript; //maintain object reference from builder
+        _parameters = jobDTO.Settings.SparkPythonTask.Parameters;
     }
 
     public AutomatedPythonJobRun run() throws JobRunException {
@@ -62,18 +63,24 @@ public class AutomatedPythonJob extends AbstractAutomatedJob implements Standard
     public AutomatedPythonJobRun run(List<String> overrideParameters) throws JobRunException {
         try {
             RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-            runRequestDTO.JobId = this.Id;
+            runRequestDTO.JobId = this.getId();
 
             if(overrideParameters != null) {
                 runRequestDTO.PythonParams = overrideParameters.toArray(new String[overrideParameters.size()]);
             }
             RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
             RunDTO jobRun = _client.getRun(response.RunId);
-            return new AutomatedPythonJobRun(_client, PythonScript, jobRun);
+            return new AutomatedPythonJobRun(_client, _pythonScript, jobRun);
         } catch(HttpException e) {
             throw new JobRunException(e);
         }
     }
 
+    public String[] getParameters() {
+        return _parameters;
+    }
 
+    public PythonScript getPythonScript() {
+        return _pythonScript;
+    }
 }

@@ -4,6 +4,7 @@ import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.cluster.AwsAttribute.*;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.*;
+import com.level11data.databricks.instancepool.InstancePool;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ abstract public class AbstractClusterBuilder {
     private String _logConfS3KmsKey;
     private String _logConfS3CannedAcl;
     private Map<String, String> _sparkEnvironmentVariables = new HashMap<String, String>();
+    private InstancePool _instancePool;
 
     //autoscaling; with Name
     public AbstractClusterBuilder(ClustersClient client, String clusterName, Integer minWorkers, Integer maxWorkers) {
@@ -169,6 +171,11 @@ abstract public class AbstractClusterBuilder {
         return this;
     }
 
+    protected AbstractClusterBuilder withInstancePool(InstancePool instancePool){
+        _instancePool = instancePool;
+        return this;
+    };
+
     protected void validateBuilder(boolean clusterNameRequired) throws ClusterConfigException {
         validateLogConf();
 
@@ -200,6 +207,17 @@ abstract public class AbstractClusterBuilder {
         }
     }
 
+    private boolean anyAwsAttributesPopulated() {
+        return _awsAvailability != null ||
+                _awsEbsVolumeCount != null ||
+                _awsEbsVolumeSize != null ||
+                _awsEbsVolumeType != null ||
+                _awsFirstOnDemand != null ||
+                _awsInstanceProfileArn != null ||
+                _awsSpotBidPricePercent != null ||
+                _awsZone != null;
+    }
+
     protected ClusterInfoDTO applySettings(ClusterInfoDTO clusterInfoDTO) {
         clusterInfoDTO.ClusterName = _clusterName;
         clusterInfoDTO.NumWorkers = _numWorkers;
@@ -211,23 +229,24 @@ abstract public class AbstractClusterBuilder {
             clusterInfoDTO.AutoScale = autoScaleDTO;
         }
 
-        if(_awsAvailability != null ||
-                _awsEbsVolumeCount != null ||
-                _awsEbsVolumeSize != null ||
-                _awsEbsVolumeType != null ||
-                _awsFirstOnDemand != null ||
-                _awsInstanceProfileArn != null ||
-                _awsSpotBidPricePercent != null ||
-                _awsZone != null) {
+        //cannot specify AWS Attributes if an InstancePoolId is supplied
+        //TODO add WARN logging statement if values are being overridden
+        if(anyAwsAttributesPopulated() && _instancePool == null) {
             AwsAttributesDTO awsAttr = new AwsAttributesDTO();
-            awsAttr.Availability = _awsAvailability.toString();
+
+            if (_awsAvailability != null) {
+                awsAttr.Availability = _awsAvailability.toString();
+            }
+
             awsAttr.EbsVolumeCount = _awsEbsVolumeCount;
             awsAttr.EbsVolumeSize = _awsEbsVolumeSize;
-            awsAttr.EbsVolumeType = _awsEbsVolumeType.toString();
-            awsAttr.FirstOnDemand = _awsFirstOnDemand;
+            if (_awsEbsVolumeType != null) {
+                awsAttr.EbsVolumeType = _awsEbsVolumeType.toString();
+            }
+            awsAttr.ZoneId = _awsZone;
             awsAttr.InstanceProfileARN = _awsInstanceProfileArn;
             awsAttr.SpotBidPricePercent = _awsSpotBidPricePercent;
-            awsAttr.ZoneId = _awsZone;
+            awsAttr.FirstOnDemand = _awsFirstOnDemand;
             clusterInfoDTO.AwsAttributes = awsAttr;
         }
 
@@ -255,15 +274,24 @@ abstract public class AbstractClusterBuilder {
 
         clusterInfoDTO.CustomTags = _customTags;
         clusterInfoDTO.DriverNodeTypeId = _driverNodeType;
-        clusterInfoDTO.EnableElasticDisk = _enableElasticDisk;
-        clusterInfoDTO.NodeTypeId = _nodeType;
+
+        //cannot specify some properties if an InstancePoolId is supplied
+        if(_instancePool == null) {
+            //TODO add WARN logging statement if values are being overridden
+            clusterInfoDTO.NodeTypeId = _nodeType;
+            clusterInfoDTO.EnableElasticDisk = _enableElasticDisk;
+        }
+
         clusterInfoDTO.SparkConf = _sparkConf;
         clusterInfoDTO.SparkEnvironmentVariables = _sparkEnvironmentVariables;
         clusterInfoDTO.SparkVersionKey = _sparkVersion;
         if(_sshPublicKeys.size() > 0) {
             clusterInfoDTO.SshPublicKeys = _sshPublicKeys.toArray(new String[_sshPublicKeys.size()]);
         }
+
+        if(_instancePool != null) {
+            clusterInfoDTO.InstancePoolId = _instancePool.getId();
+        }
         return clusterInfoDTO;
     }
-
 }

@@ -20,6 +20,12 @@ public class AutomatedNotebookJobTest {
 
     WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
+    public final String DBR_VERSION = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.sparkVersion");
+
+    public final String NODE_TYPE = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.nodeType");
+
     public static final String SIMPLE_SCALA_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook.scala";
     public static final String SIMPLE_SCALA_PARAMETERS_SOURCE_NOTEBOOK_RESOURCE_NAME = "test-notebook-parameters.scala";
 
@@ -38,8 +44,8 @@ public class AutomatedNotebookJobTest {
 
         //create cluster spec
         ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
+                .withSparkVersion(DBR_VERSION)
+                .withNodeType(NODE_TYPE)
                 .createClusterSpec();
 
         //create notebook
@@ -58,15 +64,15 @@ public class AutomatedNotebookJobTest {
         Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
                 _databricksConfig.getWorkspaceUsername(), job.getCreatorUserName());
 
-        Assert.assertEquals("Job Parameters is not zero", 0, job.BaseParameters.size());
+        Assert.assertEquals("Job Parameters is not zero", 0, job.getBaseParameters().size());
 
         //run job
         AutomatedNotebookJobRun jobRun = job.run();
 
         Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
-                _databricksConfig.getWorkspaceUsername(), jobRun.CreatorUserName);
+                _databricksConfig.getWorkspaceUsername(), jobRun.getCreatorUserName());
 
-        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
+        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.getOverridingParameters().size());
 
         while(!jobRun.getRunState().LifeCycleState.isFinal()) {
             Thread.sleep(5000); //wait 5 seconds
@@ -103,8 +109,8 @@ public class AutomatedNotebookJobTest {
 
         //create cluster spec
         ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
+                .withSparkVersion(DBR_VERSION)
+                .withNodeType(NODE_TYPE)
                 .createClusterSpec();
 
         //create job
@@ -116,21 +122,21 @@ public class AutomatedNotebookJobTest {
         Assert.assertEquals("Job CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
                 _databricksConfig.getWorkspaceUsername(), job.getCreatorUserName());
 
-        Assert.assertEquals("Job Parameters is not 2", 2, job.BaseParameters.size());
+        Assert.assertEquals("Job Parameters is not 2", 2, job.getBaseParameters().size());
 
         //run job
         AutomatedNotebookJobRun jobRun = job.run();
 
         Assert.assertEquals("Job Run CreatorUserName does not equal " + _databricksConfig.getWorkspaceUsername(),
-                _databricksConfig.getWorkspaceUsername(), jobRun.CreatorUserName);
+                _databricksConfig.getWorkspaceUsername(), jobRun.getCreatorUserName());
 
-        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.OverridingParameters.size());
+        Assert.assertEquals("Job Run Override is not zero", 0, jobRun.getOverridingParameters().size());
 
         Assert.assertEquals("Parameter 1 was not set", "Hello",
-                jobRun.BaseParameters.get("parameter1"));
+                jobRun.getBaseParameters().get("parameter1"));
 
         Assert.assertEquals("Parameter 2 was not set", "World",
-                jobRun.BaseParameters.get("parameter2"));
+                jobRun.getBaseParameters().get("parameter2"));
 
         while(!jobRun.getRunState().LifeCycleState.isFinal()) {
             Thread.sleep(5000); //wait 5 seconds
@@ -149,10 +155,10 @@ public class AutomatedNotebookJobTest {
         AutomatedNotebookJobRun jobRunWithParamOverride = job.run(parameterOverride);
 
         Assert.assertEquals("Override Parameter 1 was not set", "Override One",
-                jobRunWithParamOverride.OverridingParameters.get("parameter1"));
+                jobRunWithParamOverride.getOverridingParameters().get("parameter1"));
 
         Assert.assertEquals("Override Parameter 2 was not set", "Override Two",
-                jobRunWithParamOverride.OverridingParameters.get("parameter2"));
+                jobRunWithParamOverride.getOverridingParameters().get("parameter2"));
 
         while(!jobRunWithParamOverride.getRunState().LifeCycleState.isFinal()) {
             Thread.sleep(5000); //wait 5 seconds

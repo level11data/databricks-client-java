@@ -1,7 +1,19 @@
 package com.level11data.databricks.instancepool;
 
-/**
- * Created by jason on 7/5/19.
- */
-public class InstancePoolConfigException {
+public class InstancePoolConfigException extends Exception {
+    public InstancePoolConfigException() {
+        super();
+    }
+
+    public InstancePoolConfigException(String message) {
+        super(message);
+    }
+
+    public InstancePoolConfigException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public InstancePoolConfigException(Throwable cause) {
+        super(cause);
+    }
 }

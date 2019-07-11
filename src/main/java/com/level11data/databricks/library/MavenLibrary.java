@@ -48,7 +48,7 @@ public class MavenLibrary extends AbstractPublishedLibrary {
 
     public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException {
         try {
-            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
+            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.getId());
 
             //find library status for this library
             for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
@@ -61,8 +61,8 @@ public class MavenLibrary extends AbstractPublishedLibrary {
         } catch(HttpException e) {
             throw new LibraryConfigException(e);
         }
-        throw new LibraryConfigException("Maven AbstractLibrary " + this.Coordinates +
-                " Not Associated With AbstractCluster Id " + cluster.Id);
+        throw new LibraryConfigException("MavenLibrary " + this.Coordinates +
+                " Not Associated With Cluster Id " + cluster.getId());
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws LibraryConfigException {

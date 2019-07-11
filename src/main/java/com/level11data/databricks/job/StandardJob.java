@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface StandardJob extends Job {
 
+    String[] getParameters();
+
     JobRun run(List<String> overrideParameters) throws JobRunException;
 }

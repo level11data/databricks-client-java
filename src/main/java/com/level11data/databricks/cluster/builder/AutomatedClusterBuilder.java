@@ -6,6 +6,7 @@ import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
 import com.level11data.databricks.cluster.ClusterSpec;
+import com.level11data.databricks.instancepool.InstancePool;
 import com.level11data.databricks.job.builder.AbstractAutomatedJobBuilder;
 
 public class AutomatedClusterBuilder extends AbstractClusterBuilder implements ClusterBuilder {
@@ -16,7 +17,7 @@ public class AutomatedClusterBuilder extends AbstractClusterBuilder implements C
     }
 
     public AutomatedClusterBuilder(ClustersClient client, Integer numWorkers) {
-        this(client, (String)null, numWorkers);
+        this(client, (String) null, numWorkers);
     }
 
     public AutomatedClusterBuilder(ClustersClient client, String clusterName, Integer minWorkers, Integer maxWorkers) {
@@ -32,7 +33,6 @@ public class AutomatedClusterBuilder extends AbstractClusterBuilder implements C
         clusterInfoDTO = super.applySettings(clusterInfoDTO);
 
         //nothing specific to AutomatedCluster
-
         return clusterInfoDTO;
     }
 
@@ -41,12 +41,16 @@ public class AutomatedClusterBuilder extends AbstractClusterBuilder implements C
         super.validateBuilder(clusterNameRequired);
     }
 
-    private void validateBuilder() throws ClusterConfigException {
+    private void validateBuilder(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
         validateBuilder(false);
+
+        if(clusterInfoDTO.AutoTerminationMinutes != null) {
+            throw new ClusterConfigException("AutomatedCluster ClusterInfoDTO Cannot Have AutoTerminationMinutes set");
+        }
     }
 
     @Override
-    protected AutomatedClusterBuilder withName(String clusterName) {
+    public AutomatedClusterBuilder withName(String clusterName) {
         return (AutomatedClusterBuilder)super.withName(clusterName);
     }
 
@@ -141,11 +145,15 @@ public class AutomatedClusterBuilder extends AbstractClusterBuilder implements C
         return (AutomatedClusterBuilder)super.withSparkEnvironmentVariable(key, value);
     }
 
+    @Override
+    public AutomatedClusterBuilder withInstancePool(InstancePool instancePool) {
+        return (AutomatedClusterBuilder)super.withInstancePool(instancePool);
+    }
 
     public ClusterSpec createClusterSpec() throws ClusterConfigException {
-        validateBuilder();
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
         clusterInfoDTO = applySettings(clusterInfoDTO);
+        validateBuilder(clusterInfoDTO);
         return new ClusterSpec(clusterInfoDTO);
     }
 

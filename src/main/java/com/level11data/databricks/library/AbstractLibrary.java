@@ -15,7 +15,7 @@ public abstract class AbstractLibrary implements Library {
 
     protected ClusterLibraryRequestDTO createLibraryRequest(InteractiveCluster cluster, LibraryDTO libraryDTO) {
         ClusterLibraryRequestDTO clusterLibraryRequest = new ClusterLibraryRequestDTO();
-        clusterLibraryRequest.ClusterId = cluster.Id;
+        clusterLibraryRequest.ClusterId = cluster.getId();
 
         LibraryDTO[] libraries = new LibraryDTO[1];
         libraries[0] = libraryDTO;

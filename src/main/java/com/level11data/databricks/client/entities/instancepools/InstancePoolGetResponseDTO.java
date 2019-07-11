@@ -17,6 +17,9 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InstancePoolGetResponseDTO {
 
+    @JsonProperty("instance_pool_id")
+    public String InstancePoolId;
+
     @JsonProperty("instance_pool_name")
     public String InstancePoolName;
 
@@ -24,13 +27,13 @@ public class InstancePoolGetResponseDTO {
     public String NodeTypeId;
 
     @JsonProperty("min_idle_instances")
-    public int MinIdleInstances;
+    public Integer MinIdleInstances;
 
     @JsonProperty("max_capacity")
     public Integer MaxCapacity;
 
     @JsonProperty("idle_instance_autotermination_minutes")
-    public int IdleInstanceAutoTerminationMinutes;
+    public Integer IdleInstanceAutoTerminationMinutes;
 
     @JsonProperty("custom_tags")
     public Map<String, String> CustomTags;
@@ -43,6 +46,12 @@ public class InstancePoolGetResponseDTO {
 
     @JsonProperty("aws_attributes")
     public AwsAttributesDTO AwsAttributes;
+
+    @JsonProperty("enable_elastic_disk")
+    public Boolean EnableElasticDisk;
+
+    @JsonProperty("stats")
+    public InstancePoolStatsDTO Stats;
 
 
     @Override

@@ -116,7 +116,7 @@ public abstract class AbstractAutomatedJobWithLibrariesBuilder extends AbstractA
     }
 
     @Override
-    protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) {
+    protected JobSettingsDTO applySettings(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         jobSettingsDTO = super.applySettings(jobSettingsDTO);
 
         if(_libraryDTOs.size() > 0) {

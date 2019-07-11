@@ -4,8 +4,11 @@ import com.level11data.databricks.cluster.AwsAttribute.AwsAvailability;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.cluster.ClusterConfigException;
 import com.level11data.databricks.cluster.ClusterSpec;
+import com.level11data.databricks.instancepool.InstancePool;
 
 public interface ClusterBuilder {
+
+    ClusterBuilder withName(String clusterName);
 
     ClusterBuilder withSparkVersion(String sparkVersion);
 
@@ -46,6 +49,8 @@ public interface ClusterBuilder {
                                             String cannedAcl);
 
     ClusterBuilder withSparkEnvironmentVariable(String key, String value);
+
+    ClusterBuilder withInstancePool(InstancePool instancePool);
 
     ClusterSpec createClusterSpec() throws ClusterConfigException;
 }

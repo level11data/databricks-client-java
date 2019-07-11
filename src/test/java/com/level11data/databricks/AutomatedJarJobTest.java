@@ -1,5 +1,6 @@
 package com.level11data.databricks;
 
+import com.level11data.databricks.job.Job;
 import com.level11data.databricks.session.WorkspaceSession;
 import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
@@ -20,6 +21,12 @@ public class AutomatedJarJobTest {
 
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
+
+    public final String DBR_VERSION = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.sparkVersion");
+
+    public final String NODE_TYPE = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.nodeType");
 
     WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
@@ -45,8 +52,8 @@ public class AutomatedJarJobTest {
 
         //create cluster spec
         ClusterSpec clusterSpec = _databricks.createClusterSpec(1)
-                .withSparkVersion("3.4.x-scala2.11")
-                .withNodeType("i3.xlarge")
+                .withSparkVersion(DBR_VERSION)
+                .withNodeType(NODE_TYPE)
                 .createClusterSpec();
 
         //create job
@@ -70,6 +77,12 @@ public class AutomatedJarJobTest {
 
         Assert.assertEquals("Job Run was NOT Successful", RunResultState.SUCCESS,
                 run.getRunState().ResultState);
+
+        //check if job can be retrieved via name
+        AutomatedJarJob queriedJob = (AutomatedJarJob)_databricks.getFirstJobByName(jobName);
+
+        Assert.assertEquals("Queried Job does NOT match created Job",
+                job.getId(), queriedJob.getId());
 
         //cleanup
         job.delete();
