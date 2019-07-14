@@ -2,6 +2,8 @@ package com.level11data.databricks.session;
 
 import com.level11data.databricks.client.*;
 import com.level11data.databricks.client.entities.dbfs.*;
+import com.level11data.databricks.client.entities.instancepools.InstancePoolListRequestDTO;
+import com.level11data.databricks.client.entities.instancepools.InstancePoolListResponseDTO;
 import com.level11data.databricks.client.entities.workspace.*;
 import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.cluster.builder.*;

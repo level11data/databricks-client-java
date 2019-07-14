@@ -1,8 +1,6 @@
 package com.level11data.databricks.job.builder;
 
-import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.JobsClient;
-import com.level11data.databricks.client.entities.jobs.JobDTO;
 import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.client.entities.jobs.JobSettingsDTO;
 import com.level11data.databricks.client.entities.jobs.NotebookTaskDTO;
@@ -10,7 +8,6 @@ import com.level11data.databricks.job.InteractiveNotebookJob;
 import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.library.LibraryConfigException;
 import com.level11data.databricks.workspace.Notebook;
-import com.level11data.databricks.workspace.WorkspaceConfigException;
 import org.quartz.Trigger;
 
 import java.io.File;
@@ -22,7 +19,7 @@ import java.util.TimeZone;
 public class InteractiveNotebookJobBuilder extends AbstractInteractiveJobBuilder {
     private final Notebook _notebook;
     private final JobsClient _client;
-    private final Map<String,String> _baseParameters;
+    private Map<String,String> _baseParameters;
 
     public InteractiveNotebookJobBuilder(JobsClient client,
                                          InteractiveCluster cluster,
@@ -176,5 +173,8 @@ public class InteractiveNotebookJobBuilder extends AbstractInteractiveJobBuilder
         }
     }
 
-
+    public InteractiveNotebookJobBuilder withBaseParameter(String key, String value) {
+        _baseParameters.put(key, value);
+        return this;
+    }
 }

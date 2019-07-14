@@ -48,7 +48,6 @@ public class InstancePoolBuilder {
 
     }
 
-
     public InstancePoolBuilder withName(String instancePoolName) {
         _name = instancePoolName;
         return this;

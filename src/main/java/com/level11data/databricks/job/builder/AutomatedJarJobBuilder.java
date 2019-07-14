@@ -20,7 +20,7 @@ public class AutomatedJarJobBuilder extends AbstractAutomatedJobWithLibrariesBui
 
     private final JobsClient _client;
     private final String _mainClassName;
-    private final List<String> _baseParameters;
+    private List<String> _baseParameters;
 
     public AutomatedJarJobBuilder(JobsClient client,
                                   String mainClassName,
@@ -181,6 +181,11 @@ public class AutomatedJarJobBuilder extends AbstractAutomatedJobWithLibrariesBui
     @Override
     protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         super.validate(jobSettingsDTO);
+    }
+
+    public AutomatedJarJobBuilder withBaseParameter(String parameter) {
+        _baseParameters.add(parameter);
+        return this;
     }
 
     public AutomatedJarJob create() throws JobConfigException {

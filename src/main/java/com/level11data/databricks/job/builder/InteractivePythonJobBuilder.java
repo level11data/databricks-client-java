@@ -23,7 +23,7 @@ public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
     private final JobsClient _client;
     private final PythonScript _pythonScript;
     private final File _pythonFile;
-    private final List<String> _baseParameters;
+    private List<String> _baseParameters;
 
     public InteractivePythonJobBuilder(JobsClient client,
                                        InteractiveCluster cluster,
@@ -170,6 +170,11 @@ public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
     @Override
     public InteractivePythonJobBuilder withCranLibrary(String packageName, String repo) {
         return (InteractivePythonJobBuilder)super.withCranLibrary(packageName, repo);
+    }
+
+    public InteractivePythonJobBuilder withBaseParameter(String parameter) {
+        _baseParameters.add(parameter);
+        return this;
     }
 
     @Override

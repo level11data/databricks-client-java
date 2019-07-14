@@ -43,4 +43,6 @@ public interface Job {
     Integer getTimeoutSeconds();
 
     ClusterSpec getClusterSpec() throws JobConfigException;
+
+    //JobRun getLastJobRun();  //TODO add this
 }

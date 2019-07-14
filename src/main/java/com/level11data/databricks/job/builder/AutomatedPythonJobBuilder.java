@@ -24,7 +24,7 @@ public class AutomatedPythonJobBuilder extends AbstractAutomatedJobWithLibraries
     private final JobsClient _client;
     private final PythonScript _pythonScript;
     private final File _pythonFile;
-    private final List<String> _baseParameters;
+    private  List<String> _baseParameters;
 
     //everything
     public AutomatedPythonJobBuilder(JobsClient client,
@@ -181,6 +181,11 @@ public class AutomatedPythonJobBuilder extends AbstractAutomatedJobWithLibraries
     @Override
     protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         super.validate(jobSettingsDTO);
+    }
+
+    public AutomatedPythonJobBuilder withBaseParameter(String parameter) {
+        _baseParameters.add(parameter);
+        return this;
     }
 
     public AutomatedPythonJob create() throws JobConfigException {
