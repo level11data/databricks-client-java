@@ -53,7 +53,12 @@ public class InteractiveJarJobBuilder extends AbstractInteractiveJobBuilder {
         super(cluster, client);
         _client = client;
         _mainClassName = mainClassName;
-        _baseParameters = baseParameters;
+
+        if(baseParameters != null) {
+            _baseParameters = baseParameters;
+        } else {
+            _baseParameters = new ArrayList<String>();
+        }
 
         if(jarLibraryFile != null) {
             withJarLibrary(jarLibrary.Uri, jarLibraryFile);

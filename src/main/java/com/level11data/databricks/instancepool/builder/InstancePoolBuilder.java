@@ -148,8 +148,8 @@ public class InstancePoolBuilder {
             if(_awsAvailability != null) {
                 awsAttrDTO.Availability = _awsAvailability.toString();
             }
-            awsAttrDTO.EbsVolumeCount = _awsEbsVolumeCount;
-            awsAttrDTO.EbsVolumeSize = _awsEbsVolumeSize;
+            awsAttrDTO.EbsVolumeCount = _awsEbsVolumeCount.intValue();
+            awsAttrDTO.EbsVolumeSize = _awsEbsVolumeSize.intValue();
 
             if(_awsEbsVolumeType != null) {
                 awsAttrDTO.EbsVolumeType = _awsEbsVolumeType.toString();

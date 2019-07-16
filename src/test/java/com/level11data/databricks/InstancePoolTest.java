@@ -219,4 +219,39 @@ public class InstancePoolTest {
         run.getCluster().getInstancePool().delete();
         _databricks.deleteDbfsObject(dbfsPath, true);
     }
+
+    @Test
+    public void testAwsInstancePool() throws Exception {
+        long now = System.currentTimeMillis();
+        String SIMPLE_JAR_RESOURCE_NAME = "simple-scala-spark-app_2.11-0.0.1.jar";
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+
+        //Set pool name to ClassName.MethodName TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" + now;
+
+        InstancePool instancePool = _databricks.createInstancePool()
+                .withName(uniqueName)
+                .withNodeTypeId("c4.2xlarge")
+                .withMinIdleInstances(2)
+                .withMaxCapacity(2)
+                .withPreloadedSparkVersion(DBR_VERSION)
+                .withIdleInstanceAutoTerminationMinutes(5)
+                .withAwsEbsVolume(EbsVolumeType.GENERAL_PURPOSE_SSD, 1, 100)
+                .create();
+
+        Assert.assertEquals("InstancePool does NOT have expected MinIdleInstances",
+                2, instancePool.getMinIdleInstances());
+
+        Assert.assertEquals("InstancePool does NOT have expected MinIdleInstances",
+                2, instancePool.getMaxCapacity().intValue());
+
+        Assert.assertEquals("InstancePool does NOT have expected PreloadedSparkVersion",
+                DBR_VERSION, instancePool.getPreloadedSparkVersions().get(0).Key);
+
+
+        //cleanup
+        instancePool.delete();
+    }
 }

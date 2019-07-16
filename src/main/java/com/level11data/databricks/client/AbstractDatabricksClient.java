@@ -15,8 +15,8 @@ public abstract class AbstractDatabricksClient {
 
     protected void checkResponse(Response response) throws HttpException {
         //This will print the entire response body; useful for debugging code
-        //String debugBody = response.readEntity(String.class);
-        //System.out.println(debugBody);
+//        String debugBody = response.readEntity(String.class);
+//        System.out.println(debugBody);
 
         // check response status code
         if (response.getStatus() == 400) {

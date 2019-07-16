@@ -16,6 +16,7 @@ import org.quartz.Trigger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -34,7 +35,12 @@ public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
         _client = client;
         _pythonScript = pythonScript;
         _pythonFile = pythonFile;          //could be null
-        _baseParameters = baseParameters;  //could be null
+
+        if(baseParameters != null) {
+            _baseParameters = baseParameters;
+        } else {
+            _baseParameters = new ArrayList<String>();
+        }
     }
 
     public InteractivePythonJobBuilder(JobsClient client,

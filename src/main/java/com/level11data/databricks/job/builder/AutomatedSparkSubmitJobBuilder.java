@@ -7,6 +7,8 @@ import com.level11data.databricks.cluster.ClusterSpec;
 import com.level11data.databricks.job.AutomatedSparkSubmitJob;
 import com.level11data.databricks.job.JobConfigException;
 import org.quartz.Trigger;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -23,7 +25,7 @@ public class AutomatedSparkSubmitJobBuilder extends AbstractAutomatedJobBuilder 
         if(parameters != null) {
             _baseParameters = parameters;
         } else {
-            _baseParameters = null;
+            _baseParameters = new ArrayList<String>();
         }
     }
 

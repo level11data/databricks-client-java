@@ -17,6 +17,9 @@ public class InstancePoolsClient extends AbstractDatabricksClient {
     public String createInstancePool(InstancePoolInfoDTO instancePoolInfoDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/create";
 
+        //debug
+        System.out.println(instancePoolInfoDTO.toString());
+
         Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(instancePoolInfoDTO));
 
         checkResponse(response);
