@@ -47,6 +47,9 @@ public class InstancePoolGetResponseDTO {
     @JsonProperty("aws_attributes")
     public AwsAttributesDTO AwsAttributes;
 
+    @JsonProperty("disk_spec")
+    public DiskSpecDTO DiskSpec;
+
     @JsonProperty("enable_elastic_disk")
     public Boolean EnableElasticDisk;
 

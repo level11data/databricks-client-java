@@ -47,7 +47,8 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
         try {
             _notebook = _client.Session.getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
         } catch(WorkspaceConfigException e) {
-            throw new JobConfigException(e);
+            throw new JobConfigException("Notebook Path " + jobDTO.Settings.NotebookTask.NotebookPath +
+                    " does not exist for Job " + jobDTO.Settings.Name, e);
         }
 
 

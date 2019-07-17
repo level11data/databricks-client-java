@@ -342,8 +342,9 @@ public class WorkspaceSession {
     }
 
     public Job getJob(long jobId) throws JobConfigException {
+        JobsClient client = getJobsClient();
+
         try {
-            JobsClient client = getJobsClient();
             JobDTO jobDTO = client.getJob(jobId);
 
             if(jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
@@ -376,7 +377,14 @@ public class WorkspaceSession {
         } catch(ResourceConfigException e) {
             throw new JobConfigException(e);
         } catch(WorkspaceConfigException e) {
-            throw new JobConfigException(e);
+            try {
+                JobDTO jobDTO = client.getJob(jobId);
+
+                throw new JobConfigException("Notebook Path " + jobDTO.Settings.NotebookTask.NotebookPath +
+                        " does not exist for Job " + jobDTO.Settings.Name, e);
+            } catch(HttpException he) {
+                throw new JobConfigException(e);
+            }
         }
         //No valid Job Type was found
         throw new JobConfigException("Unsupported Job Type");

@@ -2,7 +2,9 @@ package com.level11data.databricks.instancepool.builder;
 
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.InstancePoolsClient;
-import com.level11data.databricks.client.entities.clusters.AwsAttributesDTO;
+import com.level11data.databricks.client.entities.instancepools.AwsAttributesDTO;
+import com.level11data.databricks.client.entities.instancepools.DiskSpecDTO;
+import com.level11data.databricks.client.entities.instancepools.DiskTypeDTO;
 import com.level11data.databricks.client.entities.instancepools.InstancePoolInfoDTO;
 import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
 import com.level11data.databricks.instancepool.AwsAvailability;
@@ -28,8 +30,8 @@ public class InstancePoolBuilder {
     private String _awsInstanceProfileArn;
     private Integer _awsSpotBidPricePercent;
     private EbsVolumeType _awsEbsVolumeType;
-    private Integer _awsEbsVolumeCount;
-    private Integer _awsEbsVolumeSize;
+    private Integer _diskCount;
+    private Integer _diskSize;
     private boolean _enableElasticDisk;
 
     public InstancePoolBuilder(InstancePoolsClient client) {
@@ -113,10 +115,10 @@ public class InstancePoolBuilder {
         return this;
     }
 
-    public InstancePoolBuilder withAwsEbsVolume(EbsVolumeType type, int count, int size) {
+    public InstancePoolBuilder withDiscSpec(EbsVolumeType type, int count, int size) {
         _awsEbsVolumeType = type;
-        _awsEbsVolumeCount = count;
-        _awsEbsVolumeSize = size;
+        _diskCount = count;
+        _diskSize = size;
         return this;
     }
 
@@ -137,8 +139,8 @@ public class InstancePoolBuilder {
         infoDTO.EnableElasticDisk = _enableElasticDisk;
 
         if(_awsAvailability != null ||
-                _awsEbsVolumeCount != null ||
-                _awsEbsVolumeSize != null ||
+                _diskCount != null ||
+                _diskSize != null ||
                 _awsEbsVolumeType != null ||
                 _awsInstanceProfileArn != null ||
                 _awsSpotBidPricePercent != null ||
@@ -148,11 +150,20 @@ public class InstancePoolBuilder {
             if(_awsAvailability != null) {
                 awsAttrDTO.Availability = _awsAvailability.toString();
             }
-            awsAttrDTO.EbsVolumeCount = _awsEbsVolumeCount.intValue();
-            awsAttrDTO.EbsVolumeSize = _awsEbsVolumeSize.intValue();
 
-            if(_awsEbsVolumeType != null) {
-                awsAttrDTO.EbsVolumeType = _awsEbsVolumeType.toString();
+            if(_diskCount != null ||
+                    _diskSize != null ||
+               _awsEbsVolumeType != null ) {
+                DiskSpecDTO diskSpecDTO = new DiskSpecDTO();
+                diskSpecDTO.DiskCount = _diskCount.intValue();
+                diskSpecDTO.DiskSize = _diskSize.intValue();
+
+                if(_awsEbsVolumeType != null) {
+                    DiskTypeDTO diskTypeDTO = new DiskTypeDTO();
+                    diskTypeDTO.EbsVolumeType = _awsEbsVolumeType.toString();
+                    diskSpecDTO.DiskType = diskTypeDTO;
+                }
+                infoDTO.DiskSpec = diskSpecDTO;
             }
             awsAttrDTO.InstanceProfileARN = _awsInstanceProfileArn;
             awsAttrDTO.SpotBidPricePercent = _awsSpotBidPricePercent;

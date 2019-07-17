@@ -118,7 +118,7 @@ public class InstancePoolTest {
                 .withMaxCapacity(2)
                 .withPreloadedSparkVersion(DBR_VERSION)
                 .withIdleInstanceAutoTerminationMinutes(10)
-                .withAwsEbsVolume(EbsVolumeType.GENERAL_PURPOSE_SSD, 1, 100)
+                .withDiscSpec(EbsVolumeType.GENERAL_PURPOSE_SSD, 1, 100)
                 .withAwsZone("us-west-2a")
                 .withAwsSpotBidPricePercent(99)
                 .withAwsAvailability(AwsAvailability.SPOT)
@@ -238,7 +238,7 @@ public class InstancePoolTest {
                 .withMaxCapacity(2)
                 .withPreloadedSparkVersion(DBR_VERSION)
                 .withIdleInstanceAutoTerminationMinutes(5)
-                .withAwsEbsVolume(EbsVolumeType.GENERAL_PURPOSE_SSD, 1, 100)
+                .withDiscSpec(EbsVolumeType.GENERAL_PURPOSE_SSD, 1, 100)
                 .create();
 
         Assert.assertEquals("InstancePool does NOT have expected MinIdleInstances",
