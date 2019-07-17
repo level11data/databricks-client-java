@@ -96,6 +96,31 @@ public class InstancePoolTest {
 
         Assert.assertNotNull("Default InstancePool ZoneId is NULL", instancePool.getAwsAttributes().ZoneId);
 
+        //modify InstancePool
+        InstancePool modifiedInstancePool = instancePool.edit()
+                .withIdleInstanceAutoTerminationMinutes(10)
+                .withMinIdleInstances(1)
+                .withMaxCapacity(2)
+                .withName(instancePool + " new name")
+                .modify();
+
+        Assert.assertEquals("Modified AutoTerminationMinutes does not equal modified value",
+                10, modifiedInstancePool.getIdleInstanceAutoTerminationMinutes().intValue());
+
+        Assert.assertEquals("Modified MinIdleInstances does not equal modified value",
+                1, modifiedInstancePool.getMinIdleInstances());
+
+        Assert.assertEquals("Modified MaxCapacity does not equal modified value",
+                2, modifiedInstancePool.getMaxCapacity().intValue());
+
+        Assert.assertEquals("Modified Name does not equal modified value",
+                instancePool + " new name", modifiedInstancePool.getName());
+
+        InstancePool retrievedInstancePool = _databricks.getFirstInstancePoolByName(instancePool + " new name");
+
+        Assert.assertEquals("Retrieved Instance Pool does not match Id",
+                instancePool.getId(), retrievedInstancePool.getId());
+
         //cleanup
         instancePool.delete();
     }

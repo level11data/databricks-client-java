@@ -2,6 +2,7 @@ package com.level11data.databricks.session;
 
 import com.level11data.databricks.client.*;
 import com.level11data.databricks.client.entities.dbfs.*;
+import com.level11data.databricks.client.entities.instancepools.InstancePoolGetResponseDTO;
 import com.level11data.databricks.client.entities.instancepools.InstancePoolListRequestDTO;
 import com.level11data.databricks.client.entities.instancepools.InstancePoolListResponseDTO;
 import com.level11data.databricks.client.entities.workspace.*;
@@ -14,7 +15,7 @@ import com.level11data.databricks.config.DatabricksClientConfigException;
 import com.level11data.databricks.dbfs.*;
 import com.level11data.databricks.instancepool.InstancePool;
 import com.level11data.databricks.instancepool.InstancePoolConfigException;
-import com.level11data.databricks.instancepool.builder.InstancePoolBuilder;
+import com.level11data.databricks.instancepool.builder.CreateInstancePoolBuilder;
 import com.level11data.databricks.job.*;
 import com.level11data.databricks.job.builder.*;
 import com.level11data.databricks.job.run.*;
@@ -610,13 +611,30 @@ public class WorkspaceSession {
         return new ScalaNotebookBuilder(getWorkspaceClient(), file);
     }
 
-    public InstancePoolBuilder createInstancePool() {
-        return new InstancePoolBuilder(getInstancePoolsClient());
+    public CreateInstancePoolBuilder createInstancePool() {
+        return new CreateInstancePoolBuilder(getInstancePoolsClient());
     }
 
     public InstancePool getInstancePool(String instancePoolId) throws InstancePoolConfigException {
         try{
             return new InstancePool(getInstancePoolsClient(),getInstancePoolsClient().getInstancePool(instancePoolId));
+        } catch(HttpException e) {
+            throw new InstancePoolConfigException(e);
+        }
+    }
+
+    public InstancePool getFirstInstancePoolByName(String instancePoolName) throws InstancePoolConfigException {
+        try{
+            InstancePoolListResponseDTO instancePoolListDTO = getInstancePoolsClient().listInstancePools();
+
+            for (InstancePoolGetResponseDTO pool : instancePoolListDTO.InstancePools) {
+                if(pool.InstancePoolName.equals(instancePoolName)){
+                    return new InstancePool(getInstancePoolsClient(),
+                            getInstancePoolsClient().getInstancePool(pool.InstancePoolId));
+                }
+            }
+            //no InstancePool matches name; return null
+            return null;
         } catch(HttpException e) {
             throw new InstancePoolConfigException(e);
         }

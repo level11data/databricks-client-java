@@ -13,6 +13,9 @@ import javax.ws.rs.core.MediaType;
 public class InstancePoolEditRequestDTO {
 
     //required, non-editable
+    @JsonProperty("instance_pool_id")
+    public String InstancePoolId;
+
     @JsonProperty("node_type_id")
     public String NodeTypeId;
 

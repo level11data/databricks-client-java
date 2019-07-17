@@ -14,14 +14,10 @@ import com.level11data.databricks.instancepool.InstancePoolConfigException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class InstancePoolBuilder {
+public class CreateInstancePoolBuilder extends AbstractInstancePoolBuilder {
 
     private final InstancePoolsClient _client;
-    private String _name;
     private String _nodeTypeId;
-    private Integer _minIdleInstances;
-    private Integer _maxCapacity;
-    private Integer _idleInstanceAutoterminationMinutes;
     private Map<String,String> _customTags;
     private ArrayList<String> _preloadedSparkVersions = new ArrayList<String>();
     private ArrayList<String> _preloadedDockerImages = new ArrayList<String>();
@@ -34,105 +30,93 @@ public class InstancePoolBuilder {
     private Integer _diskSize;
     private boolean _enableElasticDisk;
 
-    public InstancePoolBuilder(InstancePoolsClient client) {
+    public CreateInstancePoolBuilder(InstancePoolsClient client) {
+        super(client);
         _client = client;
     }
 
-
-    private void validate() throws InstancePoolConfigException {
-        if(_name == null ||  _name.isEmpty()) {
-            throw new InstancePoolConfigException("InstancePool requires Name");
-        }
-
-        if(_nodeTypeId == null ||  _nodeTypeId.isEmpty()) {
-            throw new InstancePoolConfigException("InstancePool requires NodeType");
-        }
-
+    public CreateInstancePoolBuilder withName(String instancePoolName) {
+        return (CreateInstancePoolBuilder)super.withName(instancePoolName);
     }
 
-    public InstancePoolBuilder withName(String instancePoolName) {
-        _name = instancePoolName;
-        return this;
+    public CreateInstancePoolBuilder withMinIdleInstances(int minIdleInstances) {
+        return (CreateInstancePoolBuilder) super.withMinIdleInstances(minIdleInstances);
     }
 
-    public InstancePoolBuilder withNodeTypeId(String nodeTypeId) {
+    public CreateInstancePoolBuilder withMaxCapacity(int maxCapacity) {
+        return (CreateInstancePoolBuilder) super.withMaxCapacity(maxCapacity);
+    }
+
+    public CreateInstancePoolBuilder withIdleInstanceAutoTerminationMinutes(int idleInstanceAutoTerminationMinutes) {
+        return (CreateInstancePoolBuilder) super.withIdleInstanceAutoTerminationMinutes(idleInstanceAutoTerminationMinutes);
+    }
+
+    public CreateInstancePoolBuilder withNodeTypeId(String nodeTypeId) {
         _nodeTypeId = nodeTypeId;
         return this;
     }
 
-    public InstancePoolBuilder withMinIdleInstances(int minIdleInstances) {
-        _minIdleInstances = minIdleInstances;
-        return this;
-    }
-
-    public InstancePoolBuilder withMaxCapacity(int maxCapacity) {
-        _maxCapacity = maxCapacity;
-        return this;
-    }
-
-    public InstancePoolBuilder withIdleInstanceAutoTerminationMinutes(int idleInstanceAutoTerminationMinutes) {
-        _idleInstanceAutoterminationMinutes = idleInstanceAutoTerminationMinutes;
-        return this;
-    }
-
-    public InstancePoolBuilder withCustomTags(Map<String,String> customTags) {
+    public CreateInstancePoolBuilder withCustomTags(Map<String,String> customTags) {
         _customTags = customTags;
         return this;
     }
 
-    public InstancePoolBuilder withPreloadedSparkVersion(String sparkVersion) {
+    public CreateInstancePoolBuilder withPreloadedSparkVersion(String sparkVersion) {
         _preloadedSparkVersions.add(sparkVersion);
         return this;
     }
 
-    public InstancePoolBuilder withPreloadedDockerImage(String dockerImage) {
+    public CreateInstancePoolBuilder withPreloadedDockerImage(String dockerImage) {
         _preloadedDockerImages.add(dockerImage);
         return this;
     }
 
-    public InstancePoolBuilder withElasticDisk() {
+    public CreateInstancePoolBuilder withElasticDisk() {
         _enableElasticDisk = true;
         return this;
     }
 
-    public InstancePoolBuilder withAwsAvailability(AwsAvailability availability) {
+    public CreateInstancePoolBuilder withAwsAvailability(AwsAvailability availability) {
         _awsAvailability = availability;
         return this;
     }
 
-    public InstancePoolBuilder withAwsZone(String zoneId) {
+    public CreateInstancePoolBuilder withAwsZone(String zoneId) {
         _awsZoneId = zoneId;
         return this;
     }
 
-    public InstancePoolBuilder withAwsInstanceProfileArn(String instanceProfileArn) {
+    public CreateInstancePoolBuilder withAwsInstanceProfileArn(String instanceProfileArn) {
         _awsInstanceProfileArn = instanceProfileArn;
         return this;
     }
 
-    public InstancePoolBuilder withAwsSpotBidPricePercent(Integer spotBidPricePercent) {
+    public CreateInstancePoolBuilder withAwsSpotBidPricePercent(Integer spotBidPricePercent) {
         _awsSpotBidPricePercent = spotBidPricePercent;
         return this;
     }
 
-    public InstancePoolBuilder withDiscSpec(EbsVolumeType type, int count, int size) {
+    public CreateInstancePoolBuilder withDiscSpec(EbsVolumeType type, int count, int size) {
         _awsEbsVolumeType = type;
         _diskCount = count;
         _diskSize = size;
         return this;
     }
 
+    private void validate() throws InstancePoolConfigException {
+        if(_nodeTypeId == null ||  _nodeTypeId.isEmpty()) {
+            throw new InstancePoolConfigException("InstancePool requires NodeType");
+        }
+    }
+
     public InstancePool create() throws InstancePoolConfigException {
-        //validate required fields are set
         validate();
 
         //create DTO
         InstancePoolInfoDTO infoDTO = new InstancePoolInfoDTO();
-        infoDTO.InstancePoolName = _name;
+        infoDTO = applySettings(infoDTO);
+
         infoDTO.NodeTypeId = _nodeTypeId;
-        infoDTO.MinIdleInstances = _minIdleInstances;
-        infoDTO.MaxCapacity = _maxCapacity;
-        infoDTO.IdleInstanceAutoTerminationMinutes = _idleInstanceAutoterminationMinutes;
         infoDTO.CustomTags = _customTags;
         infoDTO.PreloadedSparkVersions = _preloadedSparkVersions.toArray(new String[_preloadedSparkVersions.size()]);
         infoDTO.PreloadedDockerImages = _preloadedDockerImages.toArray(new String[_preloadedDockerImages.size()]);

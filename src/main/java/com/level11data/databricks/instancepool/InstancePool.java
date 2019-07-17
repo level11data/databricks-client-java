@@ -8,6 +8,8 @@ import com.level11data.databricks.client.entities.instancepools.InstancePoolInfo
 import com.level11data.databricks.cluster.*;
 import com.level11data.databricks.cluster.builder.AutomatedClusterBuilder;
 import com.level11data.databricks.cluster.builder.InteractiveClusterBuilder;
+import com.level11data.databricks.instancepool.builder.EditInstancePoolBuilder;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -185,5 +187,7 @@ public class InstancePool {
         }
     }
 
-    //TODO what to do about edit? return a builder?
+    public EditInstancePoolBuilder edit() throws InstancePoolConfigException {
+        return new EditInstancePoolBuilder(_client, this);
+    }
 }

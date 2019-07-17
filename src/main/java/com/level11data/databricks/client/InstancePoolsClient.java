@@ -56,10 +56,10 @@ public class InstancePoolsClient extends AbstractDatabricksClient {
         return response.readEntity(InstancePoolGetResponseDTO.class);
     }
 
-    public InstancePoolListResponseDTO listInstancePools(InstancePoolListRequestDTO instancePoolListRequestDTO) throws HttpException {
+    public InstancePoolListResponseDTO listInstancePools() throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/list";
 
-        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(instancePoolListRequestDTO));
+        Response response = Session.getRequestBuilder(pathSuffix).get();
 
         // check response status code
         checkResponse(response);
