@@ -7,17 +7,25 @@ import com.level11data.databricks.cluster.InteractiveCluster;
 import com.level11data.databricks.config.DatabricksClientConfiguration;
 import com.level11data.databricks.instancepool.AwsAvailability;
 import com.level11data.databricks.instancepool.InstancePool;
+import com.level11data.databricks.instancepool.InstancePoolConfigException;
 import com.level11data.databricks.job.AutomatedJarJob;
+import com.level11data.databricks.job.AutomatedNotebookJob;
+import com.level11data.databricks.job.Job;
+import com.level11data.databricks.job.JobConfigException;
 import com.level11data.databricks.job.run.AutomatedJarJobRun;
+import com.level11data.databricks.job.run.JobRun;
 import com.level11data.databricks.job.run.RunResultState;
 import com.level11data.databricks.library.JarLibrary;
 import com.level11data.databricks.session.WorkspaceSession;
+import com.level11data.databricks.workspace.Notebook;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class InstancePoolTest {
@@ -37,9 +45,58 @@ public class InstancePoolTest {
     }
 
     @Test
+    public void testModifyInstancePool() throws Exception {
+        //Set pool name to ClassName.MethodName TIMESTAMP
+        long now = System.currentTimeMillis();
+        String poolName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
+
+        //create pool with bare minimum properties
+        InstancePool instancePool = _databricks.createInstancePool()
+                .withName(poolName)
+                .withNodeTypeId(NODE_TYPE)
+                .create();
+
+        //modify pool (just min instances)
+        InstancePool modifiedInstancePool = instancePool.edit().withMinIdleInstances(1).modify();
+
+        Assert.assertEquals("Modified InstancePool MinIdleInstances does not match new value",
+                1, _databricks.getInstancePool(modifiedInstancePool.getId()).getMinIdleInstances());
+
+        //cleanup
+        modifiedInstancePool.delete();
+    }
+
+    @Test
+    public void testAwsModifyInstancePool() throws Exception {
+        //Set pool name to ClassName.MethodName TIMESTAMP
+        long now = System.currentTimeMillis();
+        String poolName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                " " +now;
+
+        //create pool with bare minimum properties
+        InstancePool instancePool = _databricks.createInstancePool()
+                .withName(poolName)
+                .withNodeTypeId("c4.2xlarge") //use instance type which requires EBS volume
+                .withDiscSpec(EbsVolumeType.GENERAL_PURPOSE_SSD, 1, 100)
+                .create();
+
+        //modify pool (just min instances)
+        InstancePool modifiedInstancePool = instancePool.edit().withMinIdleInstances(1).modify();
+
+        Assert.assertEquals("Modified InstancePool MinIdleInstances does not match new value",
+                1, _databricks.getInstancePool(modifiedInstancePool.getId()).getMinIdleInstances());
+
+        //cleanup
+        modifiedInstancePool.delete();
+    }
+
+
+    @Test
     public void testDefaultInstancePool() throws Exception {
         long now = System.currentTimeMillis();
-
 
         //Set pool name to ClassName.MethodName TIMESTAMP
         String poolName = this.getClass().getSimpleName() + "." +
@@ -76,13 +133,13 @@ public class InstancePoolTest {
                 NODE_TYPE, instancePool.getNodeType().InstanceTypeId);
 
         Assert.assertNull("Default InstancePool config EbsVolumeCount NOT null",
-                instancePool.getAwsAttributes().EbsVolumeCount);
+                instancePool.getDiskSpec());
 
         Assert.assertNull("Default InstancePool config EbsVolumeSize NOT null",
-                instancePool.getAwsAttributes().EbsVolumeSize);
+                instancePool.getDiskSpec());
 
         Assert.assertNull("Default InstancePool config EbsVolumeType NOT null",
-                instancePool.getAwsAttributes().EbsVolumeType);
+                instancePool.getDiskSpec());
 
         Assert.assertNull("Default InstancePool config InstanceProfileARN NOT null",
                 instancePool.getAwsAttributes().InstanceProfileARN);
@@ -116,10 +173,15 @@ public class InstancePoolTest {
         Assert.assertEquals("Modified Name does not equal modified value",
                 instancePool + " new name", modifiedInstancePool.getName());
 
-        InstancePool retrievedInstancePool = _databricks.getFirstInstancePoolByName(instancePool + " new name");
+        InstancePool retrievedInstancePoolByName = _databricks.getFirstInstancePoolByName(instancePool + " new name");
 
-        Assert.assertEquals("Retrieved Instance Pool does not match Id",
-                instancePool.getId(), retrievedInstancePool.getId());
+        Assert.assertEquals("Retrieved Instance Pool (by name) does not match Id",
+                instancePool.getId(), retrievedInstancePoolByName.getId());
+
+        InstancePool retrievedInstancePoolById = _databricks.getInstancePool(instancePool.getId());
+
+        Assert.assertEquals("Retrieved Instance Pool (by id) does not match Name",
+                instancePool + " new name", modifiedInstancePool.getName());
 
         //cleanup
         instancePool.delete();

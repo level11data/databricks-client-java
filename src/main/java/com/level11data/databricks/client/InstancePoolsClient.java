@@ -78,6 +78,23 @@ public class InstancePoolsClient extends AbstractDatabricksClient {
         return response.readEntity(InstancePoolListResponseDTO.class);
     }
 
+    public InstancePoolInfoDTO mapInstancePoolInfoDTO(InstancePoolGetResponseDTO getResponseDTO) {
+        InstancePoolInfoDTO infoDTO = new InstancePoolInfoDTO();
+
+        infoDTO.AwsAttributes = getResponseDTO.AwsAttributes;
+        infoDTO.CustomTags = getResponseDTO.CustomTags;
+        infoDTO.DiskSpec = getResponseDTO.DiskSpec;
+        infoDTO.EnableElasticDisk = getResponseDTO.EnableElasticDisk;
+        infoDTO.IdleInstanceAutoTerminationMinutes = getResponseDTO.IdleInstanceAutoTerminationMinutes;
+        infoDTO.InstancePoolName = getResponseDTO.InstancePoolName;
+        infoDTO.MaxCapacity = getResponseDTO.MaxCapacity;
+        infoDTO.MinIdleInstances = getResponseDTO.MinIdleInstances;
+        infoDTO.NodeTypeId = getResponseDTO.NodeTypeId;
+        infoDTO.PreloadedDockerImages = getResponseDTO.PreloadedDockerImages;
+        infoDTO.PreloadedSparkVersions = getResponseDTO.PreloadedSparkVersions;
+        return infoDTO;
+    }
+
     private void checkResponse(Response response, String message400) throws HttpException {
         // check response status code
         if (response.getStatus() == 400) {

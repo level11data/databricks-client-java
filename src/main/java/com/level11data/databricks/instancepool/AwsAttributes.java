@@ -1,16 +1,12 @@
 package com.level11data.databricks.instancepool;
 
-import com.level11data.databricks.client.entities.clusters.AwsAttributesDTO;
-import com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType;
+import com.level11data.databricks.client.entities.instancepools.AwsAttributesDTO;
 
 public class AwsAttributes {
     public final AwsAvailability Availability;
     public final String ZoneId;
     public final String InstanceProfileARN;
     public final Integer SpotBidPricePercent;
-    public final EbsVolumeType EbsVolumeType;
-    public final Integer EbsVolumeCount;
-    public final Integer EbsVolumeSize;
 
     public AwsAttributes(AwsAttributesDTO awsAttributesDTOInfo) {
         String awsAvailability = awsAttributesDTOInfo.Availability;
@@ -23,15 +19,5 @@ public class AwsAttributes {
         ZoneId = awsAttributesDTOInfo.ZoneId;
         InstanceProfileARN = awsAttributesDTOInfo.InstanceProfileARN;
         SpotBidPricePercent = awsAttributesDTOInfo.SpotBidPricePercent;
-
-        String ebsVolumeType = awsAttributesDTOInfo.EbsVolumeType;
-        if(ebsVolumeType != null) {
-            EbsVolumeType = com.level11data.databricks.cluster.AwsAttribute.EbsVolumeType.valueOf(ebsVolumeType);
-        } else {
-            EbsVolumeType = null;
-        }
-
-        EbsVolumeCount = awsAttributesDTOInfo.EbsVolumeCount;
-        EbsVolumeSize = awsAttributesDTOInfo.EbsVolumeSize;
     }
 }

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.level11data.databricks.client.entities.clusters.AwsAttributesDTO;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;

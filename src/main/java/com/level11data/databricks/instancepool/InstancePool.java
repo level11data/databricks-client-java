@@ -28,6 +28,7 @@ public class InstancePool {
     private ArrayList<String> _preloadedDockerImages = new ArrayList<String>();  //TODO create proper type for DockerImage
     private AwsAttributes _awsAttributes;
     private boolean _enableElasticDisk;
+    private DiskSpec _diskSpec;
 
     public InstancePool(InstancePoolsClient client,
                         InstancePoolInfoDTO instancePoolInfoDTO,
@@ -63,6 +64,10 @@ public class InstancePool {
             if(responseDTO.AwsAttributes != null) {
                 _awsAttributes = new AwsAttributes(responseDTO.AwsAttributes);
             }
+
+            if(responseDTO.DiskSpec != null) {
+                _diskSpec = new DiskSpec(responseDTO.DiskSpec);
+            }
         } catch(ClusterConfigException e) {
             throw new InstancePoolConfigException(e);
         } catch(HttpException e) {
@@ -72,37 +77,8 @@ public class InstancePool {
 
     public InstancePool(InstancePoolsClient client,
                         InstancePoolGetResponseDTO instancePoolGetResponseDTO) throws InstancePoolConfigException {
-
-        try{
-            _client = client;
-            _id = instancePoolGetResponseDTO.InstancePoolId;
-            _name = instancePoolGetResponseDTO.InstancePoolName;
-            _nodeType = _client.Session.getNodeTypeById(instancePoolGetResponseDTO.NodeTypeId);
-            _minIdleInstances = instancePoolGetResponseDTO.MinIdleInstances;
-            _maxCapacity = instancePoolGetResponseDTO.MaxCapacity;
-            _idleInstanceAutoTerminationMinutes = instancePoolGetResponseDTO.IdleInstanceAutoTerminationMinutes;
-            _customTags = instancePoolGetResponseDTO.CustomTags;
-
-            if(instancePoolGetResponseDTO.PreloadedSparkVersions != null) {
-                for (String sparkVersion : instancePoolGetResponseDTO.PreloadedSparkVersions) {
-                    _preloadedSparkVersions.add(_client.Session.getSparkVersionByKey(sparkVersion));
-                }
-            }
-
-            if(instancePoolGetResponseDTO.PreloadedDockerImages != null) {
-                for (String dockerImage : instancePoolGetResponseDTO.PreloadedDockerImages) {
-                    _preloadedDockerImages.add(dockerImage);  //TODO create proper type for DockerImage
-                }
-            }
-
-            if(instancePoolGetResponseDTO.AwsAttributes != null) {
-                _awsAttributes = new AwsAttributes(instancePoolGetResponseDTO.AwsAttributes);
-            }
-
-            _enableElasticDisk = instancePoolGetResponseDTO.EnableElasticDisk == null ? false : instancePoolGetResponseDTO.EnableElasticDisk;
-        } catch(ClusterConfigException e) {
-            throw new InstancePoolConfigException(e);
-        }
+        this(client, client.mapInstancePoolInfoDTO(instancePoolGetResponseDTO),
+                instancePoolGetResponseDTO.InstancePoolId);
     }
 
     public String getId() {
@@ -143,6 +119,10 @@ public class InstancePool {
 
     public AwsAttributes getAwsAttributes() {
         return _awsAttributes;
+    }
+
+    public DiskSpec getDiskSpec() {
+        return _diskSpec;
     }
 
     public boolean isElasticDiskEnabled() {
