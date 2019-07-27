@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class AutomatedNotebookJob extends AbstractAutomatedJob implements NotebookJob {
 
-    private JobsClient _client;
-    public final Notebook Notebook;
-    public final Map<String,String> BaseParameters;
+    private final JobsClient _client;
+    private final Notebook _notebook;
+    private final Map<String,String> _baseParameters;
 
     public AutomatedNotebookJob(JobsClient client,
                                 JobSettingsDTO jobSettingsDTO,
@@ -27,12 +27,12 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
         //Validate DTO for this AbstractJob Type
         JobValidation.validateAutomatedNotebookJob(jobSettingsDTO);
 
-        Notebook = notebook;
+        _notebook = notebook;
 
         if(jobSettingsDTO.NotebookTask.BaseParameters == null) {
-            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
+            _baseParameters = Collections.unmodifiableMap(new HashMap<>());
         } else {
-            BaseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
+            _baseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
         }
     }
 
@@ -45,16 +45,17 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
         JobValidation.validateAutomatedNotebookJob(jobDTO);
 
         try {
-            Notebook = _client.Session.getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
+            _notebook = _client.Session.getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
         } catch(WorkspaceConfigException e) {
-            throw new JobConfigException(e);
+            throw new JobConfigException("Notebook Path " + jobDTO.Settings.NotebookTask.NotebookPath +
+                    " does not exist for Job " + jobDTO.Settings.Name, e);
         }
 
 
         if(jobDTO.Settings.NotebookTask.BaseParameters != null) {
-            BaseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
+            _baseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
         } else {
-            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
+            _baseParameters = Collections.unmodifiableMap(new HashMap<>());
         }
     }
 
@@ -65,7 +66,7 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
     public AutomatedNotebookJobRun run(Map<String,String> overrideParameters) throws JobRunException {
         try {
             RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-            runRequestDTO.JobId = this.Id;
+            runRequestDTO.JobId = this.getId();
             runRequestDTO.NotebookParams = overrideParameters;
 
             RunNowResponseDTO response = _client.runJobNow(runRequestDTO);
@@ -76,4 +77,11 @@ public class AutomatedNotebookJob extends AbstractAutomatedJob implements Notebo
         }
     }
 
+    public Notebook getNotebook() {
+        return _notebook;
+    }
+
+    public Map<String,String> getBaseParameters() {
+        return _baseParameters;
+    }
 }

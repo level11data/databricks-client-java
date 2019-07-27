@@ -13,6 +13,7 @@ import org.quartz.Trigger;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -20,7 +21,7 @@ public class AutomatedJarJobBuilder extends AbstractAutomatedJobWithLibrariesBui
 
     private final JobsClient _client;
     private final String _mainClassName;
-    private final List<String> _baseParameters;
+    private List<String> _baseParameters;
 
     public AutomatedJarJobBuilder(JobsClient client,
                                   String mainClassName,
@@ -34,7 +35,7 @@ public class AutomatedJarJobBuilder extends AbstractAutomatedJobWithLibrariesBui
         if(parameters != null) {
             _baseParameters = parameters;
         } else {
-            _baseParameters = null;
+            _baseParameters = new ArrayList<String>();
         }
     }
 
@@ -181,6 +182,11 @@ public class AutomatedJarJobBuilder extends AbstractAutomatedJobWithLibrariesBui
     @Override
     protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         super.validate(jobSettingsDTO);
+    }
+
+    public AutomatedJarJobBuilder withBaseParameter(String parameter) {
+        _baseParameters.add(parameter);
+        return this;
     }
 
     public AutomatedJarJob create() throws JobConfigException {

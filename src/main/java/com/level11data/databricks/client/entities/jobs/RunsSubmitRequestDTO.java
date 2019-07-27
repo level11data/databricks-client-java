@@ -20,6 +20,9 @@ public class RunsSubmitRequestDTO {
     @JsonProperty("existing_cluster_id")
     public String ExistingClusterId;
 
+    @JsonProperty("instance_pool_id")
+    public String InstancePoolId;
+
     @JsonProperty("new_cluster")
     public ClusterInfoDTO NewCluster;
 

@@ -21,7 +21,7 @@ import java.util.TimeZone;
 public class AutomatedNotebookJobBuilder extends AbstractAutomatedJobWithLibrariesBuilder {
     private final Notebook _notebook;
     private final JobsClient _client;
-    private final Map<String,String> _baseParameters;
+    private Map<String,String> _baseParameters;
 
 
     public AutomatedNotebookJobBuilder(JobsClient client, Notebook notebook) {
@@ -182,8 +182,8 @@ public class AutomatedNotebookJobBuilder extends AbstractAutomatedJobWithLibrari
         }
     }
 
-
-
-
-
+    public AutomatedNotebookJobBuilder withBaseParameter(String key, String value) {
+        _baseParameters.put(key, value);
+        return this;
+    }
 }

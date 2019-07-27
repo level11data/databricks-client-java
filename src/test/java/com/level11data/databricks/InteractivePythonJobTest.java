@@ -15,10 +15,15 @@ import java.util.List;
 
 public class InteractivePythonJobTest {
     public static final String SIMPLE_PYTHON_RESOURCE_NAME = "simpleapp.py";
-    public static final String DBR_VERSION = "4.3.x-scala2.11";
 
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
+
+    public final String DBR_VERSION = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.sparkVersion");
+
+    public final String NODE_TYPE = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.nodeType");
 
     WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
@@ -53,7 +58,7 @@ public class InteractivePythonJobTest {
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion(DBR_VERSION)
-                .withNodeType("i3.xlarge")
+                .withNodeType(NODE_TYPE)
                 .create();
 
         List<String> baseParams = new ArrayList<String>();

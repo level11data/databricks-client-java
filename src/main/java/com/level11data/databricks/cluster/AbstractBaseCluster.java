@@ -4,6 +4,8 @@ package com.level11data.databricks.cluster;
 import com.level11data.databricks.client.ClustersClient;
 import com.level11data.databricks.client.HttpException;
 import com.level11data.databricks.client.entities.clusters.ClusterInfoDTO;
+import com.level11data.databricks.instancepool.InstancePool;
+import com.level11data.databricks.instancepool.InstancePoolConfigException;
 
 import java.util.*;
 
@@ -14,18 +16,18 @@ public abstract class AbstractBaseCluster {
     private String _clusterId;
     protected Boolean IsAutoScaling = false;
 
-    public final Integer NumWorkers;
-    public final AutoScale AutoScale;
+    private final Integer _numWorkers;
+    private final AutoScale _autoScale;
 
-    public final String Name;
-    public final AwsAttributes AwsAttributes;
-    public final Boolean ElasticDiskEnabled;
-    public final Map<String, String> SparkConf;
-    public final List<String> SshPublicKeys;
-    public final Map<String, String> DefaultTags;
-    public final Map<String, String> CustomTags;
-    public final ClusterLogConf ClusterLogConf;
-    public final Map<String, String> SparkEnvironmentVariables;
+    private final String _name;
+    private final AwsAttributes _awsAttributes;
+    private final Boolean _elasticDiskEnabled;
+    private final Map<String, String> _sparkConf;
+    private final List<String> _sshPublicKeys;
+    private final Map<String, String> _defaultTags;
+    private final Map<String, String> _customTags;
+    private final ClusterLogConf _clusterLogConf;
+    private final Map<String, String> _sparkEnvironmentVariables;
 
     //This signature is used by ClusterSpec
     protected AbstractBaseCluster(ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
@@ -35,47 +37,45 @@ public abstract class AbstractBaseCluster {
         _clusterInfoDTO = clusterInfoDTO;
         _clusterId = clusterInfoDTO.ClusterId;  //should this ALWAYS be null??
 
-        Name = clusterInfoDTO.ClusterName; //could be null
-        NumWorkers = clusterInfoDTO.NumWorkers;  //could be null
-        AutoScale = initAutoScale(clusterInfoDTO);  //could be null
+        _name = clusterInfoDTO.ClusterName; //could be null
+        _numWorkers = clusterInfoDTO.NumWorkers;  //could be null
+        _autoScale = initAutoScale(clusterInfoDTO);  //could be null
 
-        AwsAttributes = clusterInfoDTO.AwsAttributes == null ? null : new AwsAttributes(clusterInfoDTO.AwsAttributes);
-        ElasticDiskEnabled = clusterInfoDTO.EnableElasticDisk;
+        _awsAttributes = clusterInfoDTO.AwsAttributes == null ? null : new AwsAttributes(clusterInfoDTO.AwsAttributes);
+        _elasticDiskEnabled = clusterInfoDTO.EnableElasticDisk;
 
         HashMap<String,String> sparkConfMap = new HashMap<>();
         if(clusterInfoDTO.SparkConf != null) {
             sparkConfMap.putAll(clusterInfoDTO.SparkConf);
         }
-        SparkConf = Collections.unmodifiableMap(sparkConfMap);
+        _sparkConf = Collections.unmodifiableMap(sparkConfMap);
 
         ArrayList<String> sshKeyList = new ArrayList<>();
         if(clusterInfoDTO.SshPublicKeys != null) {
-            for (String sshPublicKey : clusterInfoDTO.SshPublicKeys) {
-                sshKeyList.add(sshPublicKey);
-            }
+            Collections.addAll(sshKeyList, clusterInfoDTO.SshPublicKeys);
         }
-        SshPublicKeys = Collections.unmodifiableList(sshKeyList);
+        _sshPublicKeys = Collections.unmodifiableList(sshKeyList);
 
         HashMap<String,String> defaultTagsMap = new HashMap<>();
         if(clusterInfoDTO.DefaultTags != null) {
             defaultTagsMap.putAll(clusterInfoDTO.DefaultTags);
         }
-        DefaultTags = Collections.unmodifiableMap(defaultTagsMap);
+        _defaultTags = Collections.unmodifiableMap(defaultTagsMap);
 
         HashMap<String,String> customTagsMap = new HashMap<>();
         if(clusterInfoDTO.CustomTags != null) {
             customTagsMap.putAll(clusterInfoDTO.CustomTags);
         }
-        CustomTags = Collections.unmodifiableMap(customTagsMap);
+        _customTags = Collections.unmodifiableMap(customTagsMap);
 
-        ClusterLogConf = clusterInfoDTO.ClusterLogConf == null
+        _clusterLogConf = clusterInfoDTO.ClusterLogConf == null
                 ? null : new ClusterLogConf(clusterInfoDTO.ClusterLogConf);
 
         HashMap<String,String> sparkEnvVarMap = new HashMap<>();
         if(clusterInfoDTO.SparkEnvironmentVariables != null) {
             sparkEnvVarMap.putAll(clusterInfoDTO.SparkEnvironmentVariables);
         }
-        SparkEnvironmentVariables = Collections.unmodifiableMap(sparkEnvVarMap);
+        _sparkEnvironmentVariables = Collections.unmodifiableMap(sparkEnvVarMap);
     }
 
     protected AbstractBaseCluster(ClustersClient client, ClusterInfoDTO clusterInfoDTO) throws ClusterConfigException {
@@ -89,18 +89,19 @@ public abstract class AbstractBaseCluster {
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
         // therefore they may need to be initialized with an API call to get the ClusterInfo
-        Name = initClusterName();
-        NumWorkers = clusterInfoDTO.NumWorkers;  //could be null
-        AutoScale = initAutoScale(clusterInfoDTO);  //could be null
+        _name = initClusterName();
+        _numWorkers = clusterInfoDTO.NumWorkers;  //could be null
+        _autoScale = initAutoScale(clusterInfoDTO);  //could be null
 
-        AwsAttributes = initAwsAttributes();
-        ElasticDiskEnabled = initElasticDiskEnabled();
-        SparkConf = Collections.unmodifiableMap(initSparkConf());
-        SshPublicKeys = Collections.unmodifiableList(initSshPublicKeys());
-        DefaultTags = Collections.unmodifiableMap(initDefaultTags());
-        CustomTags = Collections.unmodifiableMap(initCustomTags());
-        SparkEnvironmentVariables = Collections.unmodifiableMap(initSparkEnvironmentVariables());
-        ClusterLogConf = initLogConf();
+        _awsAttributes = initAwsAttributes();
+        _elasticDiskEnabled = initElasticDiskEnabled();
+        _sparkConf = Collections.unmodifiableMap(initSparkConf());
+        _sshPublicKeys = Collections.unmodifiableList(initSshPublicKeys());
+        _defaultTags = Collections.unmodifiableMap(initDefaultTags());
+        _customTags = Collections.unmodifiableMap(initCustomTags());
+        _sparkEnvironmentVariables = Collections.unmodifiableMap(initSparkEnvironmentVariables());
+        _clusterLogConf = initLogConf();
+
     }
 
     private AutoScale initAutoScale(ClusterInfoDTO clusterInfoDTO) {
@@ -161,7 +162,7 @@ public abstract class AbstractBaseCluster {
 
     private Map<String, String> initSparkConf() throws ClusterConfigException {
         if(getClusterInfo().SparkConf == null) {
-            return new HashMap<String,String>();
+            return new HashMap<>();
         } else {
             return getClusterInfo().SparkConf;
         }
@@ -172,9 +173,7 @@ public abstract class AbstractBaseCluster {
             return new ArrayList<>();
         } else {
             List<String> sshPublicKeysList = new ArrayList<>();
-            for (String ssh : getClusterInfo().SshPublicKeys) {
-                sshPublicKeysList.add(ssh);
-            }
+            Collections.addAll(sshPublicKeysList, getClusterInfo().SshPublicKeys);
             return sshPublicKeysList;
         }
     }
@@ -211,6 +210,47 @@ public abstract class AbstractBaseCluster {
         }
     }
 
+    public int getNumWorkers(){
+        return _numWorkers;
+    }
 
+    public AutoScale getAutoScale(){
+        return _autoScale;
+    };
 
+    public String getName() {
+        return _name;
+    };
+
+    public AwsAttributes getAwsAttributes() {
+        return _awsAttributes;
+    };
+
+    public boolean getElasticDiskEnabled() {
+        return _elasticDiskEnabled;
+    };
+
+    public Map<String, String> getSparkConf() {
+        return _sparkConf;
+    };
+
+    public List<String> getSshPublicKeys() {
+        return _sshPublicKeys;
+    };
+
+    public Map<String, String> getDefaultTags() {
+        return _defaultTags;
+    };
+
+    public Map<String, String> getCustomTags() {
+        return _customTags;
+    };
+
+    public ClusterLogConf getClusterLogConf() {
+        return _clusterLogConf;
+    };
+
+    public Map<String, String> getSparkEnvironmentVariables() {
+        return _sparkEnvironmentVariables;
+    };
 }

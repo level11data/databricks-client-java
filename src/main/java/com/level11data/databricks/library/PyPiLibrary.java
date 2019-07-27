@@ -29,7 +29,7 @@ public class PyPiLibrary extends AbstractPublishedLibrary {
 
     public LibraryStatus getClusterStatus(InteractiveCluster cluster) throws LibraryConfigException {
         try {
-            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.Id);
+            ClusterLibraryStatusesDTO libStatuses = _client.getClusterStatus(cluster.getId());
 
             //find library status for this library
             for (LibraryFullStatusDTO libStat : libStatuses.LibraryStatuses) {
@@ -42,8 +42,8 @@ public class PyPiLibrary extends AbstractPublishedLibrary {
         } catch (HttpException e) {
             throw new LibraryConfigException(e);
         }
-        throw new LibraryConfigException("PyPi AbstractLibrary " + this.PackageName +
-                " Not Associated With AbstractCluster Id " + cluster.Id);
+        throw new LibraryConfigException("PyPiLibrary " + this.PackageName +
+                " Not Associated With Cluster Id " + cluster.getId());
     }
 
     public ClusterLibrary install(InteractiveCluster cluster) throws LibraryConfigException {

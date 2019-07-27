@@ -16,6 +16,7 @@ import org.quartz.Trigger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -24,7 +25,7 @@ public class AutomatedPythonJobBuilder extends AbstractAutomatedJobWithLibraries
     private final JobsClient _client;
     private final PythonScript _pythonScript;
     private final File _pythonFile;
-    private final List<String> _baseParameters;
+    private  List<String> _baseParameters;
 
     //everything
     public AutomatedPythonJobBuilder(JobsClient client,
@@ -35,7 +36,12 @@ public class AutomatedPythonJobBuilder extends AbstractAutomatedJobWithLibraries
         _client = client;
         _pythonScript = pythonScript;
         _pythonFile = pythonFile;      //could be null
-        _baseParameters = parameters;  //could be null
+
+        if(parameters != null) {
+            _baseParameters = parameters;
+        } else {
+            _baseParameters = new ArrayList<String>();
+        }
     }
 
     //no parameters
@@ -181,6 +187,11 @@ public class AutomatedPythonJobBuilder extends AbstractAutomatedJobWithLibraries
     @Override
     protected void validate(JobSettingsDTO jobSettingsDTO) throws JobConfigException {
         super.validate(jobSettingsDTO);
+    }
+
+    public AutomatedPythonJobBuilder withBaseParameter(String parameter) {
+        _baseParameters.add(parameter);
+        return this;
     }
 
     public AutomatedPythonJob create() throws JobConfigException {

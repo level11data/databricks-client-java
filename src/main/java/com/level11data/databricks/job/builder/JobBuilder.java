@@ -6,6 +6,7 @@ import org.quartz.Trigger;
 import java.util.TimeZone;
 
 public interface JobBuilder {
+
     JobBuilder withName(String name);
 
     JobBuilder withEmailNotificationOnStart(String email);

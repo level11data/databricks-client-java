@@ -26,7 +26,7 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
     private ArrayList<ClusterLibrary> _libraries = new ArrayList<>();
 
 
-    public final Integer AutoTerminationMinutes;
+    private final Integer _autoTerminationMinutes;
 
 
     /**
@@ -50,7 +50,7 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
 
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
-        AutoTerminationMinutes = initAutoTerminationMinutes();
+        _autoTerminationMinutes = initAutoTerminationMinutes();
     }
 
     private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
@@ -65,19 +65,19 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
 
     public void start() throws HttpException {
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
-        clusterInfoDTO.ClusterId = Id;
+        clusterInfoDTO.ClusterId = getId();
         _client.start(clusterInfoDTO);
     }
 
     public void restart() throws HttpException {
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
-        clusterInfoDTO.ClusterId = Id;
+        clusterInfoDTO.ClusterId = getId();
         _client.reStart(clusterInfoDTO);
     }
 
     public void terminate() throws HttpException {
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
-        clusterInfoDTO.ClusterId = Id;
+        clusterInfoDTO.ClusterId = getId();
         _client.delete(clusterInfoDTO);
     }
 
@@ -87,7 +87,7 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
         }
 
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
-        clusterInfoDTO.ClusterId = Id;
+        clusterInfoDTO.ClusterId = getId();
         clusterInfoDTO.NumWorkers = numWorkers;
 
         _client.resize(clusterInfoDTO);
@@ -103,7 +103,7 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
         }
 
         ClusterInfoDTO clusterInfoDTO = new ClusterInfoDTO();
-        clusterInfoDTO.ClusterId = Id;
+        clusterInfoDTO.ClusterId = getId();
 
         AutoScaleDTO autoScaleDTOSettings = new AutoScaleDTO();
         autoScaleDTOSettings.MinWorkers = minWorkers;
@@ -193,11 +193,11 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
 
     public List<ClusterLibrary> getLibraries() throws LibraryConfigException, HttpException, URISyntaxException {
         //add remote libraries to cached list (if NOT already in list)
-        ClusterLibraryStatusesDTO remoteLibStatuses = getLibrariesClient().getClusterStatus(this.Id);
+        ClusterLibraryStatusesDTO remoteLibStatuses = getLibrariesClient().getClusterStatus(getId());
 
         if(remoteLibStatuses.LibraryStatuses == null) {
             //reset list of libraries
-            _libraries = new ArrayList<ClusterLibrary>();
+            _libraries = new ArrayList<>();
         } else {
             for (LibraryFullStatusDTO libStat : remoteLibStatuses.LibraryStatuses) {
                 AbstractLibrary library = LibraryHelper.createLibrary(getLibrariesClient(), libStat.Library);
@@ -237,5 +237,9 @@ public class InteractiveCluster extends AbstractCluster implements Cluster {
         }
         //AbstractLibrary could not be found in DTO
         return null;
+    }
+
+    public int getAutoTerminationMinutes() {
+        return _autoTerminationMinutes;
     }
 }

@@ -9,10 +9,16 @@ import org.junit.Test;
 import org.junit.Assert;
 
 public class InteractiveClusterTest {
-    public static final String DBR_VERSION = "4.3.x-scala2.11";
+
 
     //load config from default resource databricks-client.properties (in test/resources)
     DatabricksClientConfiguration _databricksConfig = new DatabricksClientConfiguration();
+
+    public final String DBR_VERSION = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.sparkVersion");
+
+    public final String NODE_TYPE = _databricksConfig
+            .getString("com.level11data.databricks.client.default.cluster.nodeType");
 
     WorkspaceSession _databricks = new WorkspaceSession(_databricksConfig);
 
@@ -38,13 +44,13 @@ public class InteractiveClusterTest {
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, 1)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion(DBR_VERSION)
-                .withNodeType("i3.xlarge")
+                .withNodeType(NODE_TYPE)
                 .create();
 
         Assert.assertEquals("Simple Fixed Size InteractiveCluster Name does NOT match expected Name",
-                clusterName, cluster.Name);
+                clusterName, cluster.getName());
 
-        String clusterId = cluster.Id;
+        String clusterId = cluster.getId();
 
         Assert.assertNotNull("Simple Fixed Size InteractiveCluster Id IS NULL", clusterId);
 
@@ -62,18 +68,6 @@ public class InteractiveClusterTest {
 
         Assert.assertEquals("Simple Fixed Size InteractiveCluster was NOT created with expected number of executors",
                 1, cluster.getExecutors().size());
-
-        //TODO Change the Default Spark Version from "Spark 1.6.2 (Hadoop 1)"
-        //Assert.assertEquals("Simple Fixed Size InteractiveCluster Spark Version does NOT match default",
-        //        _databricks.getDefaultSparkVersion(), cluster.SparkVersion);
-
-        //TODO Change the Default Node Type from "Memory Optimized"
-        //Assert.assertEquals("Simple Fixed Size InteractiveCluster Node Type does NOT match default",
-        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
-
-        //TODO Change the Default Node Type from "Memory Optimized"
-        //Assert.assertEquals("Simple Fixed Size InteractiveCluster Driver Node Type does NOT match default",
-        //        _databricks.getDefaultNodeType(), cluster.DefaultNodeType);
 
         cluster.restart();
 
@@ -132,13 +126,13 @@ public class InteractiveClusterTest {
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, minWorkers, maxWorkers)
                 .withAutoTerminationMinutes(20)
                 .withSparkVersion(DBR_VERSION)
-                .withNodeType("i3.xlarge")
+                .withNodeType(NODE_TYPE)
                 .create();
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster Name does NOT match expected NAME",
-                clusterName, cluster.Name);
+                clusterName, cluster.getName());
 
-        String clusterId = cluster.Id;
+        String clusterId = cluster.getId();
 
         Assert.assertNotNull("Simple Autoscaling InteractiveCluster Id is NULL", clusterId);
 
@@ -155,10 +149,10 @@ public class InteractiveClusterTest {
                 ClusterState.RUNNING, cluster.getState());
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT created with expected MINIMUM number of workers",
-                minWorkers, cluster.AutoScale.MinWorkers);
+                minWorkers, cluster.getAutoScale().MinWorkers);
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT created with expected MAXIMUM number of workers",
-                maxWorkers, cluster.AutoScale.MaxWorkers);
+                maxWorkers, cluster.getAutoScale().MaxWorkers);
 
         //TODO allow default cluster config overrides in Databricks Config File
         cluster.restart();
@@ -188,10 +182,10 @@ public class InteractiveClusterTest {
                 ClusterState.RUNNING, cluster.getState());
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT resized with expected MINIMUM number of workers",
-                cluster.AutoScale.MinWorkers, minWorkers);
+                cluster.getAutoScale().MinWorkers, minWorkers);
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT resized with expected MAXIMUM number of workers",
-                cluster.AutoScale.MaxWorkers, maxWorkers);
+                cluster.getAutoScale().MaxWorkers, maxWorkers);
 
         cluster.terminate();
 

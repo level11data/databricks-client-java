@@ -1,5 +1,6 @@
 package com.level11data.databricks.client;
 
+import com.level11data.databricks.client.entities.HttpErrorDTO;
 import com.level11data.databricks.session.WorkspaceSession;
 
 import javax.ws.rs.core.Response;
@@ -14,13 +15,14 @@ public abstract class AbstractDatabricksClient {
 
     protected void checkResponse(Response response) throws HttpException {
         //This will print the entire response body; useful for debugging code
-        //String debugBody = response.readEntity(String.class);
-        //System.out.println(debugBody);
+//        String debugBody = response.readEntity(String.class);
+//        System.out.println(debugBody);
 
         // check response status code
         if (response.getStatus() == 400) {
-            String body = response.readEntity(String.class);
-            throw new HttpException("HTTP 400 Bad Request: " + body);
+            //bad request
+            HttpErrorDTO httpErrorDTO = response.readEntity(HttpErrorDTO.class);
+            throw new HttpException(httpErrorDTO.ErrorCode + " : " + httpErrorDTO.ErrorMessage);
         } else if (response.getStatus() == 401) {
             String body = response.readEntity(String.class);
             System.out.println("HTTP "+ response.getStatus() + ":" + body);

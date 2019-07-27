@@ -16,6 +16,7 @@ import org.quartz.Trigger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -23,7 +24,7 @@ public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
     private final JobsClient _client;
     private final PythonScript _pythonScript;
     private final File _pythonFile;
-    private final List<String> _baseParameters;
+    private List<String> _baseParameters;
 
     public InteractivePythonJobBuilder(JobsClient client,
                                        InteractiveCluster cluster,
@@ -34,7 +35,12 @@ public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
         _client = client;
         _pythonScript = pythonScript;
         _pythonFile = pythonFile;          //could be null
-        _baseParameters = baseParameters;  //could be null
+
+        if(baseParameters != null) {
+            _baseParameters = baseParameters;
+        } else {
+            _baseParameters = new ArrayList<String>();
+        }
     }
 
     public InteractivePythonJobBuilder(JobsClient client,
@@ -170,6 +176,11 @@ public class InteractivePythonJobBuilder extends AbstractInteractiveJobBuilder {
     @Override
     public InteractivePythonJobBuilder withCranLibrary(String packageName, String repo) {
         return (InteractivePythonJobBuilder)super.withCranLibrary(packageName, repo);
+    }
+
+    public InteractivePythonJobBuilder withBaseParameter(String parameter) {
+        _baseParameters.add(parameter);
+        return this;
     }
 
     @Override

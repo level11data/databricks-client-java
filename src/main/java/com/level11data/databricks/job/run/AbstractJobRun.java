@@ -18,28 +18,26 @@ abstract public class AbstractJobRun implements JobRun {
     private RunState _runState;
     private final JobsClient _client;
     private final RunDTO _runDTO;
-
-
-    public final long JobId;
-    public final long RunId;
-    public final String CreatorUserName;
-    public final long NumberInJob;
-    public final long OriginalAttemptRunId; //TODO convert this to a FK to the ParentJobRun
-    //public final CronScheduleDTO Schedule;
-    public final TriggerType Trigger;
-    public final Date StartTime;
-    public final List<AbstractLibrary> Libraries;
+    private final long _jobId;
+    private final long _runId;
+    private final String _creatorUserName;
+    private final long _numberInJob;
+    private final long _originalAttemptRunId; //TODO convert this to a FK to the ParentJobRun
+    //private final CronScheduleDTO _schedule;
+    private final TriggerType _trigger;
+    private final Date _startTime;
+    private final List<AbstractLibrary> _libraries;
 
     protected AbstractJobRun(JobsClient client, RunDTO runDTO) throws JobRunException {
         _client = client;
         _runDTO = runDTO;
-        JobId = runDTO.JobId;
-        RunId = runDTO.RunId;
-        CreatorUserName = runDTO.CreatorUserName;
-        NumberInJob = runDTO.NumberInJob;
-        OriginalAttemptRunId = runDTO.OriginalAttemptRunId;
-        Trigger = TriggerType.valueOf(runDTO.TriggerType);
-        StartTime = new Date(runDTO.StartTime);
+        _jobId = runDTO.JobId;
+        _runId = runDTO.RunId;
+        _creatorUserName = runDTO.CreatorUserName;
+        _numberInJob = runDTO.NumberInJob;
+        _originalAttemptRunId = runDTO.OriginalAttemptRunId;
+        _trigger = TriggerType.valueOf(runDTO.TriggerType);
+        _startTime = new Date(runDTO.StartTime);
 
         if(runDTO.ClusterSpec.Libraries != null) {
             ArrayList<AbstractLibrary> libraries = new ArrayList<>();
@@ -50,22 +48,21 @@ abstract public class AbstractJobRun implements JobRun {
                     throw new JobRunException(e);
                 }
             }
-            Libraries = Collections.unmodifiableList(libraries);
+            _libraries = Collections.unmodifiableList(libraries);
         } else {
-            Libraries = Collections.unmodifiableList(new ArrayList<>());
+            _libraries = Collections.unmodifiableList(new ArrayList<>());
         }
-
     }
 
     public RunState getRunState() throws JobRunException {
         try{
             if(_runState == null) {
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this._runId);
                 _runState = new RunState(run.State);
             } else if(_runState.LifeCycleState.isFinal()){
                 return _runState;
             } else {
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this._runId);
                 _runState = new RunState(run.State);
             }
             return _runState;
@@ -77,7 +74,7 @@ abstract public class AbstractJobRun implements JobRun {
     public String getSparkContextId() throws JobRunException {
         if(_sparkContextId == null) {
             try{
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this._runId);
                 if(run.ClusterInstance == null) {
                     return null;
                 } else {
@@ -93,7 +90,7 @@ abstract public class AbstractJobRun implements JobRun {
     public Long getSetupDuration() throws JobRunException {
         if(_setupDuration == null) {
             try{
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this._runId);
                 _setupDuration = run.SetupDuration;
             }catch(HttpException e) {
                 throw new JobRunException(e);
@@ -105,7 +102,7 @@ abstract public class AbstractJobRun implements JobRun {
     public Long getExecutionDuration() throws JobRunException {
         if(_executionDuration == null) {
             try{
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this._runId);
                 _executionDuration = run.ExecutionDuration;
             }catch(HttpException e) {
                 throw new JobRunException(e);
@@ -117,7 +114,7 @@ abstract public class AbstractJobRun implements JobRun {
     public Long getCleanupDuration() throws JobRunException {
         if(_cleanupDuration == null) {
             try{
-                RunDTO run = _client.getRun(this.RunId);
+                RunDTO run = _client.getRun(this._runId);
                 _cleanupDuration = run.CleanupDuration;
             }catch(HttpException e) {
                 throw new JobRunException(e);
@@ -128,7 +125,7 @@ abstract public class AbstractJobRun implements JobRun {
 
     public void cancel() throws JobRunException {
         RunDTO runDTO = new RunDTO();
-        runDTO.RunId = this.RunId;
+        runDTO.RunId = this._runId;
 
         try{
             _client.cancelRun(runDTO);
@@ -224,4 +221,40 @@ abstract public class AbstractJobRun implements JobRun {
             return Collections.unmodifiableMap(new HashMap<>());
         }
     }
+
+    public long getJobId() {
+        return _jobId;
+    }
+
+    public long getRunId() {
+        return _runId;
+    }
+
+    public String getCreatorUserName() {
+        return _creatorUserName;
+    }
+
+    public long getNumberInJob() {
+        return _numberInJob;
+    }
+
+    //TODO convert this to a FK to the ParentJobRun
+    public long getOriginalAttemptRunId() {
+        return getOriginalAttemptRunId();
+    }
+
+    //public CronScheduleDTO getSchedule() { return _schedule }
+
+    public TriggerType getTrigger() {
+        return _trigger;
+    }
+
+    public Date getStartTime() {
+        return _startTime;
+    }
+
+    public List<AbstractLibrary> getLibraries() {
+        return _libraries;
+    }
+
 }

@@ -16,9 +16,9 @@ import java.util.Map;
 
 public class InteractiveNotebookJob extends AbstractInteractiveJob implements NotebookJob {
 
-    private JobsClient _client;
-    public final Notebook Notebook;
-    public final Map<String,String> BaseParameters;
+    private final JobsClient _client;
+    private final Notebook _notebook;
+    private final Map<String,String> _baseParameters;
 
     public InteractiveNotebookJob(JobsClient client,
                                   InteractiveCluster cluster,
@@ -39,11 +39,11 @@ public class InteractiveNotebookJob extends AbstractInteractiveJob implements No
         //Validate DTO for this Job Type
         JobValidation.validateInteractiveNotebookJob(jobSettingsDTO);
 
-        Notebook = notebook;
+        _notebook = notebook;
         if(jobSettingsDTO.NotebookTask.BaseParameters == null) {
-            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
+            _baseParameters = Collections.unmodifiableMap(new HashMap<>());
         } else {
-            BaseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
+            _baseParameters = Collections.unmodifiableMap(jobSettingsDTO.NotebookTask.BaseParameters);
         }
     }
 
@@ -66,11 +66,11 @@ public class InteractiveNotebookJob extends AbstractInteractiveJob implements No
         //Validate DTO for this Job Type
         JobValidation.validateInteractiveNotebookJob(jobDTO);
 
-        Notebook = notebook;
+        _notebook = notebook;
         if(jobDTO.Settings.NotebookTask.BaseParameters == null) {
-            BaseParameters = Collections.unmodifiableMap(new HashMap<>());
+            _baseParameters = Collections.unmodifiableMap(new HashMap<>());
         } else {
-            BaseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
+            _baseParameters = Collections.unmodifiableMap(jobDTO.Settings.NotebookTask.BaseParameters);
         }
     }
 
@@ -81,7 +81,7 @@ public class InteractiveNotebookJob extends AbstractInteractiveJob implements No
     public InteractiveNotebookJobRun run(Map<String,String> overrideParameters) throws JobRunException {
         try {
             RunNowRequestDTO runRequestDTO = new RunNowRequestDTO();
-            runRequestDTO.JobId = this.Id;
+            runRequestDTO.JobId = this.getId();
 
             if(overrideParameters != null) {
                 runRequestDTO.NotebookParams = overrideParameters;
@@ -92,5 +92,13 @@ public class InteractiveNotebookJob extends AbstractInteractiveJob implements No
         } catch(HttpException e) {
             throw new JobRunException(e);
         }
+    }
+
+    public Notebook getNotebook() {
+        return _notebook;
+    }
+
+    public Map<String,String> getBaseParameters() {
+        return _baseParameters;
     }
 }

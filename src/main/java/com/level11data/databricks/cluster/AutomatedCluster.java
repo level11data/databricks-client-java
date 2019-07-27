@@ -8,15 +8,11 @@ public class AutomatedCluster extends AbstractCluster implements Cluster {
 
     public AutomatedCluster(ClustersClient client, ClusterInfoDTO info) throws ClusterConfigException, HttpException {
         super(client, info);
-
-        //Validate that required fields are populated in the ClusterInfoDTO
-        validateClusterInfo(info);
     }
 
-    private void validateClusterInfo(ClusterInfoDTO info) throws ClusterConfigException {
-        if(info.AutoTerminationMinutes != null) {
-            throw new ClusterConfigException("AutomatedCluster ClusterInfoDTO Cannot Have AutoTerminationMinutes set");
-        }
+    public int getAutoTerminationMinutes() {
+        //Automated Clusters cannot be configured with auto-termination minutes
+        return 0;
     }
 
 }
