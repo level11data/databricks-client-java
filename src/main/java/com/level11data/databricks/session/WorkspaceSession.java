@@ -627,10 +627,12 @@ public class WorkspaceSession {
         try{
             InstancePoolListResponseDTO instancePoolListDTO = getInstancePoolsClient().listInstancePools();
 
-            for (InstancePoolGetResponseDTO pool : instancePoolListDTO.InstancePools) {
-                if(pool.InstancePoolName.equals(instancePoolName)){
-                    return new InstancePool(getInstancePoolsClient(),
-                            getInstancePoolsClient().getInstancePool(pool.InstancePoolId));
+            if(instancePoolListDTO != null) {
+                for (InstancePoolGetResponseDTO pool : instancePoolListDTO.InstancePools) {
+                    if(pool.InstancePoolName.equals(instancePoolName)){
+                        return new InstancePool(getInstancePoolsClient(),
+                                getInstancePoolsClient().getInstancePool(pool.InstancePoolId));
+                    }
                 }
             }
             //no InstancePool matches name; return null

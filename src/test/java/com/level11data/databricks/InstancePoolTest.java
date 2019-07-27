@@ -341,4 +341,64 @@ public class InstancePoolTest {
         //cleanup
         instancePool.delete();
     }
+
+    @Test
+    public void testResizeInstancePool() throws Exception {
+        long now = System.currentTimeMillis();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+
+        //Set pool name to ClassName.MethodName TIMESTAMP
+        String uniqueName = this.getClass().getSimpleName() + "." +
+                Thread.currentThread().getStackTrace()[1].getMethodName() +
+                "-" + now;
+
+        InstancePool instancePool = _databricks.createInstancePool()
+                .withName(uniqueName)
+                .withNodeTypeId(NODE_TYPE)
+                .withIdleInstanceAutoTerminationMinutes(5)
+                .create();
+
+        Assert.assertEquals("InstancePool does NOT have expected MinIdleInstances",
+                0, instancePool.getMinIdleInstances());
+
+        //modify instance pool to increase min number of instances
+        InstancePool modifiedInstancePool = instancePool.edit()
+                .withMinIdleInstances(2)
+                .modify();
+
+        boolean instancesActive = false;
+        long secondsWaited = 0;
+        while(instancesActive == false) {
+            int idleCount = modifiedInstancePool.getStats().IdleCount;
+            int usedCount = modifiedInstancePool.getStats().UsedCount;
+            int pendingIdleCount = modifiedInstancePool.getStats().PendingIdleCount;
+            int pendingUsedCount = modifiedInstancePool.getStats().PendingUsedCount;
+
+            System.out.println("Time (sec)="+secondsWaited +
+              ", IdleCount=" + idleCount +
+              ", UsedCount=" + usedCount +
+              ", PendingIdleCount=" + pendingIdleCount +
+              ", PendingUsedCount=" + pendingUsedCount);
+
+            long millisecondsToWait = 10000; //10 seconds
+
+            if(idleCount > 0) {
+                instancesActive = true;
+            }
+
+            Thread.sleep(millisecondsToWait);
+
+            secondsWaited = secondsWaited + (millisecondsToWait / 1000);
+        }
+
+// InstancePool needs to wait 30 seconds before PendingIdleCount changes
+//   waiting on STATUS field to be finalized
+//        Assert.assertEquals("Modified Instance Pool does not have any pending instances",
+//                2, modifiedInstancePool.getStats().PendingIdleCount);
+
+
+
+        //cleanup
+        modifiedInstancePool.delete();
+    }
 }

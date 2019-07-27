@@ -50,6 +50,11 @@ public class InstancePoolsClient extends AbstractDatabricksClient {
 
         Response response = Session.getRequestBuilder(pathSuffix, "instance_pool_id", instancePoolId).get();
 
+        //debug
+//        String debugBody = response.readEntity(String.class);
+//        System.out.println(debugBody);
+
+
         // check response status code
         checkResponse(response);
 
