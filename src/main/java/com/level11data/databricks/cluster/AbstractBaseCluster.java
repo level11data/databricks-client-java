@@ -35,12 +35,12 @@ public abstract class AbstractBaseCluster {
         validateClusterInfo(clusterInfoDTO);
 
         _clusterInfoDTO = clusterInfoDTO;
-        _clusterId = clusterInfoDTO.ClusterId;  //should this ALWAYS be null??
+        _clusterId = clusterInfoDTO.ClusterId;  //could be null if object represents ClusterSpec
 
         _name = clusterInfoDTO.ClusterName; //could be null
-        _numWorkers = clusterInfoDTO.NumWorkers;  //could be null
         _autoScale = initAutoScale(clusterInfoDTO);  //could be null
 
+        _numWorkers = initNumWorkers(clusterInfoDTO);
         _awsAttributes = clusterInfoDTO.AwsAttributes == null ? null : new AwsAttributes(clusterInfoDTO.AwsAttributes);
         _elasticDiskEnabled = clusterInfoDTO.EnableElasticDisk;
 
@@ -84,13 +84,13 @@ public abstract class AbstractBaseCluster {
 
         _client = client;
         _clusterInfoDTO = clusterInfoDTO;
-        _clusterId = clusterInfoDTO.ClusterId;  //TODO should this ALWAYS be populated?
+        _clusterId = clusterInfoDTO.ClusterId;
 
         //Set fields that do not change throughout the lifespan of a cluster configuration
         // these fields may not have been set in the DTO if object was instantiated from InteractiveClusterBuilder.create()
         // therefore they may need to be initialized with an API call to get the ClusterInfo
         _name = initClusterName();
-        _numWorkers = clusterInfoDTO.NumWorkers;  //could be null
+        _numWorkers = initNumWorkers(clusterInfoDTO);
         _autoScale = initAutoScale(clusterInfoDTO);  //could be null
 
         _awsAttributes = initAwsAttributes();
@@ -110,6 +110,16 @@ public abstract class AbstractBaseCluster {
             return new AutoScale(clusterInfoDTO.AutoScale);
         } else {
             return null;
+        }
+    }
+
+    private int initNumWorkers(ClusterInfoDTO clusterInfoDTO) {
+        if(clusterInfoDTO.AutoScale != null){
+            //if object constructed with ClusterInfo only, then use MinWorkers
+            return clusterInfoDTO.AutoScale.MinWorkers;
+        } else {
+            //cluster size is fixed
+            return clusterInfoDTO.NumWorkers;
         }
     }
 
@@ -210,8 +220,23 @@ public abstract class AbstractBaseCluster {
         }
     }
 
-    public int getNumWorkers(){
-        return _numWorkers;
+    public int getNumWorkers() throws ClusterConfigException {
+        try{
+            if(IsAutoScaling && _client != null) {
+                //get the number of active executors
+                ClusterInfoDTO clusterInfoDTO = _client.getCluster(_clusterId);
+                if(clusterInfoDTO.Executors == null) {
+                    return 0;
+                } else {
+                    return clusterInfoDTO.Executors.length;
+                }
+            } else {
+                //either cluster is fixed (not auto-scaling) or there is no client to check
+                return _numWorkers;
+            }
+        }catch(HttpException e) {
+            throw new ClusterConfigException(e);
+        }
     }
 
     public AutoScale getAutoScale(){

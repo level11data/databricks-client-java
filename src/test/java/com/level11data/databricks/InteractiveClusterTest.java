@@ -120,8 +120,8 @@ public class InteractiveClusterTest {
                 " " +now;
 
         //Create Interactive Cluster
-        Integer minWorkers = 0;
-        Integer maxWorkers = 1;
+        int minWorkers = 0;
+        int maxWorkers = 1;
 
         InteractiveCluster cluster = _databricks.createInteractiveCluster(clusterName, minWorkers, maxWorkers)
                 .withAutoTerminationMinutes(20)
@@ -153,6 +153,10 @@ public class InteractiveClusterTest {
 
         Assert.assertEquals("Simple Autoscaling InteractiveCluster was NOT created with expected MAXIMUM number of workers",
                 maxWorkers, cluster.getAutoScale().MaxWorkers);
+
+        Assert.assertEquals("Simple Autoscaling InteractiveCluster Number of Workers does NOT match MINIMUM number of workers",
+                minWorkers, cluster.getNumWorkers());
+
 
         //TODO allow default cluster config overrides in Databricks Config File
         cluster.restart();

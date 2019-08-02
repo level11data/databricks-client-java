@@ -56,7 +56,7 @@ public interface Cluster {
 
     Date getStartTime();
 
-    int getNumWorkers();
+    int getNumWorkers() throws ClusterConfigException;
 
     AutoScale getAutoScale();
 
