@@ -8,174 +8,155 @@ import java.io.*;
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
 public class DatabricksClientConfiguration extends PropertiesConfiguration {
-
     public static final String DEFAULT_RESOURCE_NAME = "databricks-client.properties";
-
-    //private static final Logger log = Logger.getLogger(DatabricksClientConfiguration.class);
-
     public static final String LEVEL11DATA_PREFIX = "com.level11data";
-    private static final String CLIENT_PREFIX = LEVEL11DATA_PREFIX + ".databricks.client";
-    private static final String WORKSPACE_PREFIX = CLIENT_PREFIX + ".workspace";
-    public static final String WORKSPACE_URL      = WORKSPACE_PREFIX + ".url";
-    public static final String WORKSPACE_TOKEN    = WORKSPACE_PREFIX + ".token";
-    public static final String WORKSPACE_USERNAME = WORKSPACE_PREFIX + ".username";
-    public static final String WORKSPACE_PASSWORD = WORKSPACE_PREFIX + ".password";
+    private static final String CLIENT_PREFIX = "com.level11data.databricks.client";
+    private static final String WORKSPACE_PREFIX = "com.level11data.databricks.client.workspace";
+    public static final String WORKSPACE_URL = "com.level11data.databricks.client.workspace.url";
+    public static final String WORKSPACE_TOKEN = "com.level11data.databricks.client.workspace.token";
+    public static final String WORKSPACE_USERNAME = "com.level11data.databricks.client.workspace.username";
+    public static final String WORKSPACE_PASSWORD = "com.level11data.databricks.client.workspace.password";
+    public String userAgent = "infoworks.io";
 
     public DatabricksClientConfiguration() throws DatabricksClientConfigException {
-        super();
-
-        //attempt to read config from default resource file
-        initConfigFromDefaultResource();
-
-        //validate that config includes minimum required properties
-        validateRequiredClientProps();
+        this.initConfigFromDefaultResource();
+        this.validateRequiredClientProps();
     }
 
     public DatabricksClientConfiguration(URI databricksURL, String token) throws DatabricksClientConfigException {
-        super();
-
-        this.addProperty(WORKSPACE_URL, databricksURL.toString());
-        this.addProperty(WORKSPACE_TOKEN, token);
-
-        //validate that config includes minimum required properties
-        validateRequiredClientProps();
+        this.addProperty("com.level11data.databricks.client.workspace.url", databricksURL.toString());
+        this.addProperty("com.level11data.databricks.client.workspace.token", token);
+        this.validateRequiredClientProps();
     }
 
-
     public DatabricksClientConfiguration(File propertiesFile) throws DatabricksClientConfigException {
-        super();
         FileInputStream inputStream;
-        try{
+        try {
             inputStream = new FileInputStream(propertiesFile);
-        } catch(FileNotFoundException e) {
-            throw new DatabricksClientConfigException("File Not Found: "+propertiesFile.getAbsolutePath(), e);
+        } catch (FileNotFoundException var5) {
+            throw new DatabricksClientConfigException("File Not Found: " + propertiesFile.getAbsolutePath(), var5);
         }
 
-        readConfigFromStream(inputStream);
+        this.readConfigFromStream(inputStream);
 
-        try{
+        try {
             inputStream.close();
-        } catch(IOException e) {
-            throw new DatabricksClientConfigException(e);
+        } catch (IOException var4) {
+            throw new DatabricksClientConfigException(var4);
         }
 
-        //validate that config includes minimum required properties
-        validateRequiredClientProps();
+        this.validateRequiredClientProps();
     }
 
     public DatabricksClientConfiguration(InputStream inputStream) throws DatabricksClientConfigException {
-        super();
-        readConfigFromStream(inputStream);
-
-        //validate that config includes minimum required properties
-        validateRequiredClientProps();
+        this.readConfigFromStream(inputStream);
+        this.validateRequiredClientProps();
     }
 
     private void initConfigFromDefaultResource() throws DatabricksClientConfigException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream resourceStream = loader.getResourceAsStream(DEFAULT_RESOURCE_NAME);
-
+        InputStream resourceStream = loader.getResourceAsStream("databricks-client.properties");
         if (resourceStream == null) {
-            throw new DatabricksClientConfigException("Default Resource Not Found: " + DEFAULT_RESOURCE_NAME);
-        }
-        readConfigFromStream(resourceStream);
-        try{
-            resourceStream.close();
-        } catch(IOException e) {
-            throw new DatabricksClientConfigException(e);
+            throw new DatabricksClientConfigException("Default Resource Not Found: databricks-client.properties");
+        } else {
+            this.readConfigFromStream(resourceStream);
+
+            try {
+                resourceStream.close();
+            } catch (IOException var4) {
+                throw new DatabricksClientConfigException(var4);
+            }
         }
     }
 
     private void readConfigFromStream(InputStream inputStream) throws DatabricksClientConfigException {
         try {
             this.read(new InputStreamReader(inputStream));
-        } catch(IOException e) {
-            throw new DatabricksClientConfigException(e);
-        } catch (ConfigurationException e) {
-            throw new DatabricksClientConfigException(e);
+        } catch (IOException var3) {
+            throw new DatabricksClientConfigException(var3);
+        } catch (ConfigurationException var4) {
+            throw new DatabricksClientConfigException(var4);
         }
     }
 
     public URI getWorkspaceUrl() {
-        return UriBuilder.fromUri(getNonEmptyString(WORKSPACE_URL)).build();
+        return UriBuilder.fromUri(this.getNonEmptyString("com.level11data.databricks.client.workspace.url")).build(new Object[0]);
     }
 
     public String getWorkspaceUsername() {
-        return getNonEmptyString(WORKSPACE_USERNAME);
+        return this.getNonEmptyString("com.level11data.databricks.client.workspace.username");
     }
 
     public String getWorkspacePassword() {
-        return getNonEmptyString(WORKSPACE_PASSWORD);
+        return this.getNonEmptyString("com.level11data.databricks.client.workspace.password");
     }
 
     public String getWorkspaceToken() {
-        return getNonEmptyString(WORKSPACE_TOKEN);
+        return this.getNonEmptyString("com.level11data.databricks.client.workspace.token");
     }
 
     public boolean hasClientToken() {
         try {
-            getWorkspaceToken();
+            this.getWorkspaceToken();
             return true;
-        } catch(NullPointerException e) {
+        } catch (NullPointerException var2) {
             return false;
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException var3) {
             return false;
         }
     }
 
     public boolean hasClientUsername() {
         try {
-            getWorkspaceUsername();
+            this.getWorkspaceUsername();
             return true;
-        } catch(NullPointerException e) {
+        } catch (NullPointerException var2) {
             return false;
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException var3) {
             return false;
         }
     }
 
     public boolean hasClientPassword() {
         try {
-            getWorkspacePassword();
+            this.getWorkspacePassword();
             return true;
-        } catch(NullPointerException e) {
+        } catch (NullPointerException var2) {
             return false;
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException var3) {
             return false;
         }
     }
 
-    private void validateRequiredClientProps() throws DatabricksClientConfigException{
+    public void setUserAgent(String userAgentVal) {
+        this.userAgent = userAgentVal;
+    }
+
+    public String getUserAgent() {
+        return this.userAgent;
+    }
+
+    private void validateRequiredClientProps() throws DatabricksClientConfigException {
         boolean valid = true;
-        valid &= verifyStringPropSet(WORKSPACE_URL);
-
-        if(!verifyStringPropSet(WORKSPACE_URL)) {
-            throw new DatabricksClientConfigException("Databricks Client Config missing " + WORKSPACE_URL);
-        }
-
-
-        if(verifyStringPropSet(WORKSPACE_TOKEN) || verifyStringPropSet(WORKSPACE_USERNAME)) {
-            if(verifyStringPropSet(WORKSPACE_TOKEN)){
-                //valid config
-            } else if(verifyStringPropSet(WORKSPACE_USERNAME) && !verifyStringPropSet(WORKSPACE_PASSWORD)) {
-                throw new DatabricksClientConfigException("Databricks Client Config missing " + WORKSPACE_PASSWORD);
-            }
-
-        } else {
-            throw new DatabricksClientConfigException("Databricks Client Config missing either " +
-                    WORKSPACE_TOKEN + " or " + WORKSPACE_USERNAME);
+        boolean var10000 = valid & this.verifyStringPropSet("com.level11data.databricks.client.workspace.url");
+        if (!this.verifyStringPropSet("com.level11data.databricks.client.workspace.url")) {
+            throw new DatabricksClientConfigException("Databricks Client Config missing com.level11data.databricks.client.workspace.url");
+        } else if (!this.verifyStringPropSet("com.level11data.databricks.client.workspace.token") && !this.verifyStringPropSet("com.level11data.databricks.client.workspace.username")) {
+            throw new DatabricksClientConfigException("Databricks Client Config missing either com.level11data.databricks.client.workspace.token or com.level11data.databricks.client.workspace.username");
+        } else if (!this.verifyStringPropSet("com.level11data.databricks.client.workspace.token") && this.verifyStringPropSet("com.level11data.databricks.client.workspace.username") && !this.verifyStringPropSet("com.level11data.databricks.client.workspace.password")) {
+            throw new DatabricksClientConfigException("Databricks Client Config missing com.level11data.databricks.client.workspace.password");
         }
     }
 
     private String getNonEmptyString(String property, String defaultValue) {
-        String value = getString(property, defaultValue);
+        String value = this.getString(property, defaultValue);
         Preconditions.checkNotNull(value, property + " cannot be null");
         Preconditions.checkArgument(!value.isEmpty(), property + " cannot be empty");
         return value;
     }
 
     private String getNonEmptyString(String property) {
-        String value = getString(property);
+        String value = this.getString(property);
         Preconditions.checkNotNull(value, property + " cannot be null");
         Preconditions.checkArgument(!value.isEmpty(), property + " cannot be empty");
         return value;
@@ -187,18 +168,10 @@ public class DatabricksClientConfiguration extends PropertiesConfiguration {
     }
 
     private boolean verifyStringPropSet(String key) {
-        if (containsKey(key) && !getString(key).isEmpty()) {
-            return true;
-        }
-        //log.info(key + " is not set");
-        return false;
+        return this.containsKey(key) && !this.getString(key).isEmpty();
     }
 
     private boolean verifyStringPropNotSet(String key) {
-        if (containsKey(key) && !getString(key).isEmpty()) {
-            //log.info(key + " should not be set");
-            return false;
-        }
-        return true;
+        return !this.containsKey(key) || this.getString(key).isEmpty();
     }
 }
