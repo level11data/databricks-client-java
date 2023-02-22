@@ -111,13 +111,13 @@ public class WorkspaceSession
     private WorkspaceHelper _workspaceHelper;
     private final String SECURITY_PROTOCOL = "TLSv1.2";
 
-    public WorkspaceSession(final DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
-        this._databricksClientConfig = databricksClientConfig;
-        this.Endpoint = databricksClientConfig.getWorkspaceUrl();
-        this.createEncryptedHttpSession();
+    public WorkspaceSession(DatabricksClientConfiguration databricksClientConfig) throws DatabricksClientConfigException {
+        _databricksClientConfig = databricksClientConfig;
+        Endpoint = databricksClientConfig.getWorkspaceUrl();
+        createEncryptedHttpSession();
     }
 
-    public WorkspaceSession(final URI workspaceUrl, final String token) throws DatabricksClientConfigException {
+    public WorkspaceSession(URI workspaceUrl, String token) throws DatabricksClientConfigException {
         this(new DatabricksClientConfiguration(workspaceUrl, token));
     }
 
@@ -126,147 +126,147 @@ public class WorkspaceSession
     }
 
     private void createEncryptedHttpSession() {
-        final ClientConfig clientConfig = new ClientConfig();
+        ClientConfig clientConfig = new ClientConfig();
         clientConfig.register((Object)new JacksonFeature());
         clientConfig.connectorProvider((ConnectorProvider)new HttpUrlConnectorProvider());
-        final SSLContext sslContext = SslConfigurator.newInstance().securityProtocol("TLSv1.2").createSSLContext();
+        SSLContext sslContext = SslConfigurator.newInstance().securityProtocol("TLSv1.2").createSSLContext();
         System.setProperty("https.protocols", "TLSv1.2");
         System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
-        this._httpClient = ClientBuilder.newBuilder().sslContext(sslContext).withConfig((Configuration)clientConfig).build();
+        _httpClient = ClientBuilder.newBuilder().sslContext(sslContext).withConfig((Configuration)clientConfig).build();
     }
 
-    public Invocation.Builder getRequestBuilder(final String path) {
-        return this.getRequestBuilder(path, null);
+    public Invocation.Builder getRequestBuilder(String path) {
+        return getRequestBuilder(path, null);
     }
 
-    public Invocation.Builder getRequestBuilder(final String path, final String queryParamKey, final Object queryParamValue) {
-        final Map<String, Object> queryMap = new HashMap<String, Object>();
+    public Invocation.Builder getRequestBuilder(String path, String queryParamKey, Object queryParamValue) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put(queryParamKey, queryParamValue);
         return this.getRequestBuilder(path, queryMap);
     }
 
-    public Invocation.Builder getRequestBuilder(final String path, final Map<String, Object> queryParams) {
-        if (this._databricksClientConfig.hasClientToken()) {
+    public Invocation.Builder getRequestBuilder(String path, Map<String, Object> queryParams) {
+        if (_databricksClientConfig.hasClientToken()) {
             if (queryParams != null) {
-                WebTarget target = this._httpClient.target(this.Endpoint).path(path);
-                target = this.applyQueryParameters(target, queryParams);
-                return target.request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + this._databricksClientConfig.getWorkspaceToken()).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept("application/json");
+                WebTarget target = _httpClient.target(this.Endpoint).path(path);
+                target = applyQueryParameters(target, queryParams);
+                return target.request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + this._databricksClientConfig.getWorkspaceToken()).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
             }
-            return this._httpClient.target(this.Endpoint).path(path).request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + this._databricksClientConfig.getWorkspaceToken()).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept("application/json");
+            return _httpClient.target(this.Endpoint).path(path).request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + this._databricksClientConfig.getWorkspaceToken()).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
         }
         else {
             if (queryParams != null) {
                 WebTarget target = this._httpClient.target(this.Endpoint).path(path);
                 target = this.applyQueryParameters(target, queryParams);
-                return target.request(MediaType.APPLICATION_JSON_TYPE).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept("application/json");
+                return target.request(MediaType.APPLICATION_JSON_TYPE).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
             }
-            return this._httpClient.target(this.Endpoint).path(path).register(this.getUserPassAuth()).request(MediaType.APPLICATION_JSON_TYPE).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept("application/json");
+            return _httpClient.target(this.Endpoint).path(path).register(this.getUserPassAuth()).request(MediaType.APPLICATION_JSON_TYPE).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
         }
     }
 
     private WebTarget applyQueryParameters(WebTarget target, final Map<String, Object> queryParams) {
-        for (final Map.Entry<String, Object> queryParam : queryParams.entrySet()) {
+        for (Map.Entry<String, Object> queryParam : queryParams.entrySet()) {
             target = target.queryParam(queryParam.getKey(), queryParam.getValue());
         }
         return target;
     }
 
     private HttpAuthenticationFeature getUserPassAuth() {
-        if (this._userPassAuth == null) {
-            this._userPassAuth = HttpAuthenticationFeature.basicBuilder().credentials(this._databricksClientConfig.getWorkspaceUsername(), this._databricksClientConfig.getWorkspacePassword()).build();
+        if (_userPassAuth == null) {
+            _userPassAuth = HttpAuthenticationFeature.basicBuilder().credentials(_databricksClientConfig.getWorkspaceUsername(), _databricksClientConfig.getWorkspacePassword()).build();
         }
-        return this._userPassAuth;
+        return _userPassAuth;
     }
 
     public ClustersClient getClustersClient() {
-        if (this._clustersClient == null) {
-            this._clustersClient = new ClustersClient(this);
+        if (_clustersClient == null) {
+            _clustersClient = new ClustersClient(this);
         }
-        return this._clustersClient;
+        return _clustersClient;
     }
 
     public LibrariesClient getLibrariesClient() {
-        if (this._librariesClient == null) {
-            this._librariesClient = new LibrariesClient(this);
+        if (_librariesClient == null) {
+            _librariesClient = new LibrariesClient(this);
         }
-        return this._librariesClient;
+        return _librariesClient;
     }
 
     public JobsClient getJobsClient() {
-        if (this._jobsClient == null) {
-            this._jobsClient = new JobsClient(this);
+        if (_jobsClient == null) {
+            _jobsClient = new JobsClient(this);
         }
-        return this._jobsClient;
+        return _jobsClient;
     }
 
     public DbfsClient getDbfsClient() {
-        if (this._dbfsClient == null) {
-            this._dbfsClient = new DbfsClient(this);
+        if (_dbfsClient == null) {
+            _dbfsClient = new DbfsClient(this);
         }
-        return this._dbfsClient;
+        return _dbfsClient;
     }
 
     public WorkspaceClient getWorkspaceClient() {
-        if (this._workspaceClient == null) {
-            this._workspaceClient = new WorkspaceClient(this);
+        if (_workspaceClient == null) {
+            _workspaceClient = new WorkspaceClient(this);
         }
-        return this._workspaceClient;
+        return _workspaceClient;
     }
 
     public InstancePoolsClient getInstancePoolsClient() {
-        if (this._instancePoolsClient == null) {
-            this._instancePoolsClient = new InstancePoolsClient(this);
+        if (_instancePoolsClient == null) {
+            _instancePoolsClient = new InstancePoolsClient(this);
         }
-        return this._instancePoolsClient;
+        return _instancePoolsClient;
     }
 
-    public InteractiveClusterBuilder createInteractiveCluster(final String name, final Integer numWorkers) {
-        return new InteractiveClusterBuilder(this.getClustersClient(), name, numWorkers);
+    public InteractiveClusterBuilder createInteractiveCluster(String name, Integer numWorkers) {
+        return new InteractiveClusterBuilder(getClustersClient(), name, numWorkers);
     }
 
-    public InteractiveClusterBuilder createInteractiveCluster(final String name, final Integer minWorkers, final Integer maxWorkers) {
-        return new InteractiveClusterBuilder(this.getClustersClient(), name, minWorkers, maxWorkers);
+    public InteractiveClusterBuilder createInteractiveCluster(String name, Integer minWorkers, Integer maxWorkers) {
+        return new InteractiveClusterBuilder(getClustersClient(), name, minWorkers, maxWorkers);
     }
 
-    public AutomatedClusterBuilder createClusterSpec(final Integer numWorkers) {
-        return new AutomatedClusterBuilder(this.getClustersClient(), numWorkers);
+    public AutomatedClusterBuilder createClusterSpec(Integer numWorkers) {
+        return new AutomatedClusterBuilder(getClustersClient(), numWorkers);
     }
 
-    public AutomatedClusterBuilder createClusterSpec(final Integer minWorkers, final Integer maxWorkers) {
-        return new AutomatedClusterBuilder(this.getClustersClient(), minWorkers, maxWorkers);
+    public AutomatedClusterBuilder createClusterSpec(Integer minWorkers, Integer maxWorkers) {
+        return new AutomatedClusterBuilder(getClustersClient(), minWorkers, maxWorkers);
     }
 
     private void refreshSparkVersionsDTO() throws HttpException {
-        this._sparkVersionsDTO = this.getClustersClient().getSparkVersions();
+        _sparkVersionsDTO = getClustersClient().getSparkVersions();
     }
 
     private SparkVersionsDTO getOrRequestSparkVersionsDTO() throws HttpException {
-        if (this._sparkVersionsDTO == null) {
-            this.refreshSparkVersionsDTO();
+        if (_sparkVersionsDTO == null) {
+            refreshSparkVersionsDTO();
         }
-        return this._sparkVersionsDTO;
+        return _sparkVersionsDTO;
     }
 
     private void initSparkVersions() throws HttpException {
-        final List<SparkVersionDTO> sparkVersionsDTO = this.getOrRequestSparkVersionsDTO().Versions;
-        final ArrayList<SparkVersion> sparkVersions = new ArrayList<SparkVersion>();
-        for (final SparkVersionDTO svDTO : sparkVersionsDTO) {
+        List<SparkVersionDTO> sparkVersionsDTO = this.getOrRequestSparkVersionsDTO().Versions;
+        ArrayList<SparkVersion> sparkVersions = new ArrayList<SparkVersion>();
+        for (SparkVersionDTO svDTO : sparkVersionsDTO) {
             sparkVersions.add(new SparkVersion(svDTO.Key, svDTO.Name));
         }
-        this._sparkVersions = sparkVersions;
+        _sparkVersions = sparkVersions;
     }
 
     public List<SparkVersion> getSparkVersions() throws HttpException {
-        if (this._sparkVersions == null) {
-            this.initSparkVersions();
+        if (_sparkVersions == null) {
+            initSparkVersions();
         }
-        return this._sparkVersions;
+        return _sparkVersions;
     }
 
-    public SparkVersion getSparkVersionByKey(final String key) throws ClusterConfigException {
+    public SparkVersion getSparkVersionByKey(String key) throws ClusterConfigException {
         try {
-            final List<SparkVersion> sparkVersions = this.getSparkVersions();
-            for (final SparkVersion sv : sparkVersions) {
+            List<SparkVersion> sparkVersions = this.getSparkVersions();
+            for (SparkVersion sv : sparkVersions) {
                 if (sv.Key.equals(key)) {
                     return sv;
                 }
@@ -280,12 +280,12 @@ public class WorkspaceSession
 
     private void initNodeTypes() throws ClusterConfigException {
         try {
-            final List<NodeTypeDTO> nodeTypesInfoListDTO = this.getClustersClient().getNodeTypes().NodeTypes;
-            final ArrayList<NodeType> nodeTypesList = new ArrayList<NodeType>();
-            for (final NodeTypeDTO nt : nodeTypesInfoListDTO) {
+            List<NodeTypeDTO> nodeTypesInfoListDTO = this.getClustersClient().getNodeTypes().NodeTypes;
+            ArrayList<NodeType> nodeTypesList = new ArrayList<NodeType>();
+            for (NodeTypeDTO nt : nodeTypesInfoListDTO) {
                 nodeTypesList.add(new NodeType(nt));
             }
-            this._nodeTypes = nodeTypesList;
+            _nodeTypes = nodeTypesList;
         }
         catch (HttpException e) {
             throw new ClusterConfigException(e);
@@ -293,22 +293,22 @@ public class WorkspaceSession
     }
 
     public List<NodeType> getNodeTypes() throws ClusterConfigException {
-        if (this._nodeTypes == null) {
-            this.initNodeTypes();
+        if (_nodeTypes == null) {
+            initNodeTypes();
         }
-        return this._nodeTypes;
+        return _nodeTypes;
     }
 
     private WorkspaceHelper getWorkspaceHelper() {
-        if (this._workspaceHelper == null) {
-            this._workspaceHelper = new WorkspaceHelper(this.getWorkspaceClient());
+        if (_workspaceHelper == null) {
+            _workspaceHelper = new WorkspaceHelper(getWorkspaceClient());
         }
-        return this._workspaceHelper;
+        return _workspaceHelper;
     }
 
     public NodeType getNodeTypeById(final String id) throws ClusterConfigException {
-        final List<NodeType> nodeTypes = this.getNodeTypes();
-        for (final NodeType nt : nodeTypes) {
+        List<NodeType> nodeTypes = getNodeTypes();
+        for (NodeType nt : nodeTypes) {
             if (nt.Id.equals(id)) {
                 return nt;
             }
@@ -317,11 +317,11 @@ public class WorkspaceSession
     }
 
     public String getDefaultZone() throws HttpException {
-        return this.getClustersClient().getZones().DefaultZone;
+        return getClustersClient().getZones().DefaultZone;
     }
 
     public String[] getZones() throws HttpException {
-        return this.getClustersClient().getZones().Zones;
+        return getClustersClient().getZones().Zones;
     }
 
     public Iterator<InteractiveCluster> listClusters() throws HttpException {
@@ -332,8 +332,8 @@ public class WorkspaceSession
 
     public InteractiveCluster getCluster(final String id) throws ClusterConfigException {
         try {
-            final ClustersClient client = this.getClustersClient();
-            final ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
+            ClustersClient client = this.getClustersClient();
+            ClusterInfoDTO clusterInfoDTO = client.getCluster(id);
             return new InteractiveCluster(client, clusterInfoDTO);
         }
         catch (HttpException e) {
@@ -344,29 +344,29 @@ public class WorkspaceSession
     public Job getJob(final long jobId) throws JobConfigException {
         final JobsClient client = this.getJobsClient();
         try {
-            final JobDTO jobDTO = client.getJob(jobId);
+            JobDTO jobDTO = client.getJob(jobId);
             if (jobDTO.isInteractive() && jobDTO.isNotebookJob()) {
-                final InteractiveCluster cluster = this.getCluster(jobDTO.Settings.ExistingClusterId);
-                final Notebook notebook = this.getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
+                InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
+                Notebook notebook = getNotebook(jobDTO.Settings.NotebookTask.NotebookPath);
                 return new InteractiveNotebookJob(client, cluster, jobDTO, notebook);
             }
             if (jobDTO.isAutomated() && jobDTO.isNotebookJob()) {
                 return new AutomatedNotebookJob(client, jobDTO);
             }
             if (jobDTO.isInteractive() && jobDTO.isJarJob()) {
-                final InteractiveCluster cluster = this.getCluster(jobDTO.Settings.ExistingClusterId);
+                InteractiveCluster cluster = this.getCluster(jobDTO.Settings.ExistingClusterId);
                 return new InteractiveJarJob(client, cluster, jobDTO);
             }
             if (jobDTO.isAutomated() && jobDTO.isJarJob()) {
                 return new AutomatedJarJob(client, jobDTO);
             }
             if (jobDTO.isInteractive() && jobDTO.isPythonJob()) {
-                final InteractiveCluster cluster = this.getCluster(jobDTO.Settings.ExistingClusterId);
-                final PythonScript pythonScript = this.getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
+                InteractiveCluster cluster = getCluster(jobDTO.Settings.ExistingClusterId);
+                PythonScript pythonScript = getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
                 return new InteractivePythonJob(client, cluster, pythonScript, jobDTO);
             }
             if (jobDTO.isAutomated() && jobDTO.isPythonJob()) {
-                final PythonScript pythonScript2 = this.getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
+                PythonScript pythonScript2 = this.getPythonScript(new URI(jobDTO.Settings.SparkPythonTask.PythonFile));
                 return new AutomatedPythonJob(client, pythonScript2, jobDTO);
             }
             if (jobDTO.isAutomated() && jobDTO.isSparkSubmitJob()) {
@@ -387,7 +387,7 @@ public class WorkspaceSession
         }
         catch (WorkspaceConfigException e5) {
             try {
-                final JobDTO jobDTO2 = client.getJob(jobId);
+                JobDTO jobDTO2 = client.getJob(jobId);
                 throw new JobConfigException("Notebook Path " + jobDTO2.Settings.NotebookTask.NotebookPath + " does not exist for Job " + jobDTO2.Settings.Name, e5);
             }
             catch (HttpException he) {
@@ -400,11 +400,11 @@ public class WorkspaceSession
     public Job getFirstJobByName(final String jobName) throws JobConfigException {
         final JobsClient client = this.getJobsClient();
         try {
-            final JobDTO[] jobs;
-            final JobDTO[] jobsDTO = jobs = client.listJobs().Jobs;
+            JobDTO[] jobs;
+            JobDTO[] jobsDTO = jobs = client.listJobs().Jobs;
             for (final JobDTO jobDTO : jobs) {
                 if (jobDTO.Settings.Name.equals(jobName)) {
-                    return this.getJob(jobDTO.JobId);
+                    return getJob(jobDTO.JobId);
                 }
             }
             return null;
@@ -414,10 +414,10 @@ public class WorkspaceSession
         }
     }
 
-    public JobRun getRun(final long runId) throws JobRunException {
+    public JobRun getRun(long runId) throws JobRunException {
         try {
-            final JobsClient client = this.getJobsClient();
-            final RunDTO runDTO = client.getRun(runId);
+            JobsClient client = getJobsClient();
+            RunDTO runDTO = client.getRun(runId);
             if (runDTO.isInteractive() && runDTO.isNotebookJob()) {
                 return new InteractiveNotebookJobRun(client, runDTO);
             }
@@ -454,166 +454,166 @@ public class WorkspaceSession
         }
     }
 
-    public AutomatedNotebookJobBuilder createJob(final Notebook notebook) {
-        return new AutomatedNotebookJobBuilder(this.getJobsClient(), notebook);
+    public AutomatedNotebookJobBuilder createJob(Notebook notebook) {
+        return new AutomatedNotebookJobBuilder(getJobsClient(), notebook);
     }
 
-    public AutomatedNotebookJobBuilder createJob(final Notebook notebook, final Map<String, String> parameters) {
-        return new AutomatedNotebookJobBuilder(this.getJobsClient(), notebook, parameters);
+    public AutomatedNotebookJobBuilder createJob(Notebook notebook, final Map<String, String> parameters) {
+        return new AutomatedNotebookJobBuilder(getJobsClient(), notebook, parameters);
     }
 
-    public AutomatedJarJobBuilder createJob(final JarLibrary jarLibrary, final String mainClassName, final List<String> parameters) {
-        return new AutomatedJarJobBuilder(this.getJobsClient(), mainClassName, jarLibrary, parameters);
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName, List<String> parameters) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, parameters);
     }
 
-    public AutomatedJarJobBuilder createJob(final JarLibrary jarLibrary, final String mainClassName) {
-        return new AutomatedJarJobBuilder(this.getJobsClient(), mainClassName, jarLibrary);
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary);
     }
 
-    public AutomatedJarJobBuilder createJob(final JarLibrary jarLibrary, final String mainClassName, final File jarFile) {
-        return new AutomatedJarJobBuilder(this.getJobsClient(), mainClassName, jarLibrary, jarFile);
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName, File jarFile) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, jarFile);
     }
 
-    public AutomatedJarJobBuilder createJob(final JarLibrary jarLibrary, final String mainClassName, final File jarFile, final List<String> parameters) {
-        return new AutomatedJarJobBuilder(this.getJobsClient(), mainClassName, jarLibrary, jarFile, parameters);
+    public AutomatedJarJobBuilder createJob(JarLibrary jarLibrary, String mainClassName, File jarFile, List<String> parameters) {
+        return new AutomatedJarJobBuilder(getJobsClient(), mainClassName, jarLibrary, jarFile, parameters);
     }
 
-    public AutomatedPythonJobBuilder createJob(final PythonScript pythonScript, final File pythonFile, final List<String> parameters) {
-        return new AutomatedPythonJobBuilder(this.getJobsClient(), pythonScript, pythonFile, parameters);
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, File pythonFile, List<String> parameters) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, pythonFile, parameters);
     }
 
-    public AutomatedPythonJobBuilder createJob(final PythonScript pythonScript, final File pythonFile) {
-        return new AutomatedPythonJobBuilder(this.getJobsClient(), pythonScript, pythonFile);
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, File pythonFile) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, pythonFile);
     }
 
-    public AutomatedPythonJobBuilder createJob(final PythonScript pythonScript) {
-        return new AutomatedPythonJobBuilder(this.getJobsClient(), pythonScript);
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript);
     }
 
-    public AutomatedPythonJobBuilder createJob(final PythonScript pythonScript, final List<String> parameters) {
-        return new AutomatedPythonJobBuilder(this.getJobsClient(), pythonScript, parameters);
+    public AutomatedPythonJobBuilder createJob(PythonScript pythonScript, List<String> parameters) {
+        return new AutomatedPythonJobBuilder(getJobsClient(), pythonScript, parameters);
     }
 
-    public AutomatedSparkSubmitJobBuilder createJob(final List<String> parameters) {
-        return new AutomatedSparkSubmitJobBuilder(this.getJobsClient(), parameters);
+    public AutomatedSparkSubmitJobBuilder createJob(List<String> parameters) {
+        return new AutomatedSparkSubmitJobBuilder(getJobsClient(), parameters);
     }
 
-    public void putDbfsFile(final File file, final String dbfsPath, final boolean overwrite) throws DbfsException {
-        DbfsHelper.putFile(this.getDbfsClient(), file, dbfsPath, overwrite);
+    public void putDbfsFile(File file, String dbfsPath, boolean overwrite) throws DbfsException {
+        DbfsHelper.putFile(getDbfsClient(), file, dbfsPath, overwrite);
     }
 
-    public void putDbfsFile(final File file, final String dbfsPath) throws DbfsException {
-        DbfsHelper.putFile(this.getDbfsClient(), file, dbfsPath);
+    public void putDbfsFile(File file, String dbfsPath) throws DbfsException {
+        DbfsHelper.putFile(getDbfsClient(), file, dbfsPath);
     }
 
-    public byte[] getDbfsObject(final String dbfsPath) throws DbfsException {
-        return DbfsHelper.getObject(this.getDbfsClient(), dbfsPath);
+    public byte[] getDbfsObject(String dbfsPath) throws DbfsException {
+        return DbfsHelper.getObject(getDbfsClient(), dbfsPath);
     }
 
-    public DbfsFileInfo getDbfsObjectStatus(final String dbfsPath) throws HttpException {
-        return new DbfsFileInfo(this.getDbfsClient().getStatus(dbfsPath));
+    public DbfsFileInfo getDbfsObjectStatus(String dbfsPath) throws HttpException {
+        return new DbfsFileInfo(getDbfsClient().getStatus(dbfsPath));
     }
 
-    public void deleteDbfsObject(final String dbfsPath, final boolean recursive) throws HttpException {
+    public void deleteDbfsObject(String dbfsPath, boolean recursive) throws HttpException {
         final DbfsDeleteRequestDTO dbfsDeleteRequestDTO = new DbfsDeleteRequestDTO();
         dbfsDeleteRequestDTO.Path = dbfsPath;
         dbfsDeleteRequestDTO.Recursive = recursive;
-        this.getDbfsClient().delete(dbfsDeleteRequestDTO);
+        getDbfsClient().delete(dbfsDeleteRequestDTO);
     }
 
-    public void moveDbfsObject(final String fromPath, final String toPath) throws HttpException {
-        this.getDbfsClient().move(fromPath, toPath);
+    public void moveDbfsObject(String fromPath, String toPath) throws HttpException {
+        getDbfsClient().move(fromPath, toPath);
     }
 
-    public void mkdirsDbfs(final String path) throws HttpException {
-        this.getDbfsClient().mkdirs(path);
+    public void mkdirsDbfs(String path) throws HttpException {
+        getDbfsClient().mkdirs(path);
     }
 
-    public ArrayList<DbfsFileInfo> listDbfs(final String path) throws HttpException {
-        final DbfsListResponseDTO dbfsListResponseDTO = this.getDbfsClient().list(path);
-        final ArrayList<DbfsFileInfo> fileList = new ArrayList<DbfsFileInfo>();
+    public ArrayList<DbfsFileInfo> listDbfs(String path) throws HttpException {
+        DbfsListResponseDTO dbfsListResponseDTO = getDbfsClient().list(path);
+        ArrayList<DbfsFileInfo> fileList = new ArrayList<DbfsFileInfo>();
         for (final FileInfoDTO fileInfo : dbfsListResponseDTO.Files) {
             fileList.add(new DbfsFileInfo(fileInfo));
         }
         return fileList;
     }
 
-    public JarLibrary getJarLibrary(final URI uri) throws LibraryConfigException {
+    public JarLibrary getJarLibrary(URI uri) throws LibraryConfigException {
         return new JarLibrary(this.getLibrariesClient(), uri);
     }
 
-    public EggLibrary getEggLibrary(final URI uri) throws LibraryConfigException {
+    public EggLibrary getEggLibrary(URI uri) throws LibraryConfigException {
         return new EggLibrary(this.getLibrariesClient(), uri);
     }
 
-    public MavenLibrary getMavenLibrary(final String coordinates) throws LibraryConfigException {
+    public MavenLibrary getMavenLibrary(String coordinates) throws LibraryConfigException {
         return new MavenLibrary(this.getLibrariesClient(), coordinates);
     }
 
-    public MavenLibrary getMavenLibrary(final String coordinates, final String repo) throws LibraryConfigException {
-        return new MavenLibrary(this.getLibrariesClient(), coordinates, repo);
+    public MavenLibrary getMavenLibrary(String coordinates, String repo) throws LibraryConfigException {
+        return new MavenLibrary(getLibrariesClient(), coordinates, repo);
     }
 
-    public MavenLibrary getMavenLibrary(final String coordinates, final String repo, final String[] exclusions) throws LibraryConfigException {
-        return new MavenLibrary(this.getLibrariesClient(), coordinates, repo, exclusions);
+    public MavenLibrary getMavenLibrary(String coordinates, String repo, String[] exclusions) throws LibraryConfigException {
+        return new MavenLibrary(getLibrariesClient(), coordinates, repo, exclusions);
     }
 
-    public MavenLibrary getMavenLibrary(final String coordinates, final String[] exclusions) throws LibraryConfigException {
-        return new MavenLibrary(this.getLibrariesClient(), coordinates, exclusions);
+    public MavenLibrary getMavenLibrary(String coordinates, String[] exclusions) throws LibraryConfigException {
+        return new MavenLibrary(getLibrariesClient(), coordinates, exclusions);
     }
 
-    public PyPiLibrary getPyPiLibrary(final String packageName) throws LibraryConfigException {
-        return new PyPiLibrary(this.getLibrariesClient(), packageName);
+    public PyPiLibrary getPyPiLibrary(String packageName) throws LibraryConfigException {
+        return new PyPiLibrary(getLibrariesClient(), packageName);
     }
 
-    public PyPiLibrary getPyPiLibrary(final String packageName, final String repo) throws LibraryConfigException {
-        return new PyPiLibrary(this.getLibrariesClient(), packageName, repo);
+    public PyPiLibrary getPyPiLibrary(String packageName, String repo) throws LibraryConfigException {
+        return new PyPiLibrary(getLibrariesClient(), packageName, repo);
     }
 
-    public CranLibrary getCranLibrary(final String packageName) throws LibraryConfigException {
-        return new CranLibrary(this.getLibrariesClient(), packageName);
+    public CranLibrary getCranLibrary(String packageName) throws LibraryConfigException {
+        return new CranLibrary(getLibrariesClient(), packageName);
     }
 
-    public CranLibrary getCranLibrary(final String packageName, final String repo) throws LibraryConfigException {
-        return new CranLibrary(this.getLibrariesClient(), packageName, repo);
+    public CranLibrary getCranLibrary(String packageName, final String repo) throws LibraryConfigException {
+        return new CranLibrary(getLibrariesClient(), packageName, repo);
     }
 
-    public PythonScript getPythonScript(final URI uri) throws ResourceConfigException {
+    public PythonScript getPythonScript(URI uri) throws ResourceConfigException {
         return new PythonScript(this, uri);
     }
 
-    public void mkdirsWorkspace(final String workspacePath) throws WorkspaceConfigException {
+    public void mkdirsWorkspace(String workspacePath) throws WorkspaceConfigException {
         try {
-            final WorkspaceMkdirsRequestDTO workspaceMkdirsRequestDTO = new WorkspaceMkdirsRequestDTO();
+            WorkspaceMkdirsRequestDTO workspaceMkdirsRequestDTO = new WorkspaceMkdirsRequestDTO();
             workspaceMkdirsRequestDTO.Path = workspacePath;
-            this.getWorkspaceClient().mkdirs(workspaceMkdirsRequestDTO);
+            getWorkspaceClient().mkdirs(workspaceMkdirsRequestDTO);
         }
         catch (HttpException e) {
             throw new WorkspaceConfigException(e);
         }
     }
 
-    public void deleteWorkspaceObject(final String workspacePath, final boolean recursive) throws WorkspaceConfigException {
+    public void deleteWorkspaceObject(String workspacePath, boolean recursive) throws WorkspaceConfigException {
         try {
-            final WorkspaceDeleteRequestDTO workspaceDeleteRequestDTO = new WorkspaceDeleteRequestDTO();
+            WorkspaceDeleteRequestDTO workspaceDeleteRequestDTO = new WorkspaceDeleteRequestDTO();
             workspaceDeleteRequestDTO.Path = workspacePath;
             workspaceDeleteRequestDTO.Recursive = recursive;
-            this.getWorkspaceClient().delete(workspaceDeleteRequestDTO);
+            getWorkspaceClient().delete(workspaceDeleteRequestDTO);
         }
         catch (HttpException e) {
             throw new WorkspaceConfigException(e);
         }
     }
 
-    public Notebook getNotebook(final String workspacePath) throws WorkspaceConfigException {
-        return this.getWorkspaceHelper().getNotebook(workspacePath);
+    public Notebook getNotebook(String workspacePath) throws WorkspaceConfigException {
+        return getWorkspaceHelper().getNotebook(workspacePath);
     }
 
     public ScalaNotebookBuilder createScalaNotebook() throws WorkspaceConfigException {
         return new ScalaNotebookBuilder(this.getWorkspaceClient());
     }
 
-    public ScalaNotebookBuilder createScalaNotebook(final File file) throws WorkspaceConfigException {
+    public ScalaNotebookBuilder createScalaNotebook(File file) throws WorkspaceConfigException {
         return new ScalaNotebookBuilder(this.getWorkspaceClient(), file);
     }
 
@@ -621,7 +621,7 @@ public class WorkspaceSession
         return new CreateInstancePoolBuilder(this.getInstancePoolsClient());
     }
 
-    public InstancePool getInstancePool(final String instancePoolId) throws InstancePoolConfigException {
+    public InstancePool getInstancePool(String instancePoolId) throws InstancePoolConfigException {
         try {
             return new InstancePool(this.getInstancePoolsClient(), this.getInstancePoolsClient().getInstancePool(instancePoolId));
         }
@@ -630,11 +630,11 @@ public class WorkspaceSession
         }
     }
 
-    public InstancePool getFirstInstancePoolByName(final String instancePoolName) throws InstancePoolConfigException {
+    public InstancePool getFirstInstancePoolByName(String instancePoolName) throws InstancePoolConfigException {
         try {
-            final InstancePoolListResponseDTO instancePoolListDTO = this.getInstancePoolsClient().listInstancePools();
+            InstancePoolListResponseDTO instancePoolListDTO = this.getInstancePoolsClient().listInstancePools();
             if (instancePoolListDTO != null) {
-                for (final InstancePoolGetResponseDTO pool : instancePoolListDTO.InstancePools) {
+                for (InstancePoolGetResponseDTO pool : instancePoolListDTO.InstancePools) {
                     if (pool.InstancePoolName.equals(instancePoolName)) {
                         return new InstancePool(this.getInstancePoolsClient(), this.getInstancePoolsClient().getInstancePool(pool.InstancePoolId));
                     }
@@ -648,14 +648,14 @@ public class WorkspaceSession
     }
 
     public URI getEndpoint() {
-        return this.Endpoint;
+        return Endpoint;
     }
 
     public String getToken() {
-        return this._databricksClientConfig.getWorkspaceToken();
+        return _databricksClientConfig.getWorkspaceToken();
     }
 
     public String getUserAgent() {
-        return this._databricksClientConfig.getUserAgent();
+        return _databricksClientConfig.getUserAgent();
     }
 }
