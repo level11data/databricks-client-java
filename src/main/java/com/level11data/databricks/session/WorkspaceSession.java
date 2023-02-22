@@ -28,15 +28,14 @@ import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.client.spi.ConnectorProvider;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.net.URI;
@@ -84,50 +83,81 @@ public class WorkspaceSession {
     }
 
     private void createEncryptedHttpSession() {
+        //create secure https client session
         ClientConfig clientConfig = new ClientConfig();
-        clientConfig.register((Object)new JacksonFeature());
-        clientConfig.connectorProvider((ConnectorProvider)new HttpUrlConnectorProvider());
-        SSLContext sslContext = SslConfigurator.newInstance().securityProtocol("TLSv1.2").createSSLContext();
-        System.setProperty("https.protocols", "TLSv1.2");
-        System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
-        _httpClient = ClientBuilder.newBuilder().sslContext(sslContext).withConfig((Configuration)clientConfig).build();
+        clientConfig.register(new JacksonFeature());
+        clientConfig.connectorProvider(new HttpUrlConnectorProvider());
+        SSLContext sslContext = SslConfigurator.newInstance().securityProtocol(SECURITY_PROTOCOL).createSSLContext();
+        System.setProperty("https.protocols", SECURITY_PROTOCOL);
+        System.setProperty("jdk.tls.client.protocols", SECURITY_PROTOCOL);
+        _httpClient = ClientBuilder.newBuilder()
+                .sslContext(sslContext)
+                .withConfig(clientConfig)
+                .build();
     }
 
-    public Invocation.Builder getRequestBuilder(String path) {
+    public Builder getRequestBuilder(String path) {
         return getRequestBuilder(path, null);
     }
 
-    public Invocation.Builder getRequestBuilder(String path, String queryParamKey, Object queryParamValue) {
-        Map<String, Object> queryMap = new HashMap<String, Object>();
+    public Builder getRequestBuilder(String path, String queryParamKey, Object queryParamValue) {
+        Map<String, Object> queryMap = new HashMap<>();
         queryMap.put(queryParamKey, queryParamValue);
-        return this.getRequestBuilder(path, queryMap);
+        return getRequestBuilder(path, queryMap);
     }
 
-    public Invocation.Builder getRequestBuilder(String path, Map<String, Object> queryParams) {
-        if (_databricksClientConfig.hasClientToken()) {
+    public Builder getRequestBuilder(String path, Map<String,Object> queryParams) {
+        //TODO add DEBUG System.out.println(_httpClient.target(this.Endpoint).path(path).getUri().toString());
+//        if(queryParams != null) {
+//            System.out.println("Query Params:");
+//            queryParams.forEach((k,v) -> System.out.println("(" + k + "," + v + ")"));
+//        }
+
+        if(_databricksClientConfig.hasClientToken()) {
+            //authenticate with token as first priority
+            //System.out.println("Authenticating with TOKEN");
             if (queryParams != null) {
                 WebTarget target = _httpClient.target(this.Endpoint).path(path);
+
                 target = applyQueryParameters(target, queryParams);
-                return target.request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + this._databricksClientConfig.getWorkspaceToken()).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
+
+                return target
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getWorkspaceToken())
+                        .accept(MediaType.APPLICATION_JSON);
+            } else {
+                return _httpClient
+                        .target(this.Endpoint)
+                        .path(path)
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + _databricksClientConfig.getWorkspaceToken())
+                        .accept(MediaType.APPLICATION_JSON);
             }
-            return _httpClient.target(this.Endpoint).path(path).request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + this._databricksClientConfig.getWorkspaceToken()).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
-        }
-        else {
+        } else {
+            //otherwise, authenticate with username and password
+            //TODO add DEBUG System.out.println("Authenticating with USERNAME and PASSWORD");
             if(queryParams != null) {
                 WebTarget target = _httpClient.target(this.Endpoint).path(path);
+
                 target = applyQueryParameters(target, queryParams);
-                return target.request(MediaType.APPLICATION_JSON_TYPE).header("User-Agent", this._databricksClientConfig.getUserAgent()).accept(MediaType.APPLICATION_JSON);
+
+                return target
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept(MediaType.APPLICATION_JSON);
+            } else {
+                return _httpClient
+                        .target(this.Endpoint)
+                        .path(path)
+                        .register(getUserPassAuth())
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept(MediaType.APPLICATION_JSON);
             }
-            return _httpClient.target(this.Endpoint)
-                    .path(path)
-                    .register(getUserPassAuth())
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("User-Agent", this._databricksClientConfig.getUserAgent())
-                    .accept(MediaType.APPLICATION_JSON);
         }
     }
 
-    private WebTarget applyQueryParameters(WebTarget target, final Map<String, Object> queryParams) {
-        for (Map.Entry<String, Object> queryParam : queryParams.entrySet()) {
+    private WebTarget applyQueryParameters(WebTarget target, Map<String,Object> queryParams) {
+        for(Map.Entry<String,Object> queryParam : queryParams.entrySet()) {
+            //System.out.println("Applying Query Praram to HTTP Request: "+queryParam.getKey() + "," + queryParam.getValue());
             target = target.queryParam(queryParam.getKey(), queryParam.getValue());
         }
         return target;
@@ -379,6 +409,7 @@ public class WorkspaceSession {
         try{
             JobsClient client = getJobsClient();
             RunDTO runDTO = client.getRun(runId);
+
             if(runDTO.isInteractive() && runDTO.isNotebookJob()) {
                 return new InteractiveNotebookJobRun(client, runDTO);
             } else if(runDTO.isAutomated() && runDTO.isNotebookJob()) {
@@ -600,6 +631,7 @@ public class WorkspaceSession {
                     }
                 }
             }
+            //no InstancePool matches name; return null
             return null;
         } catch(HttpException e) {
             throw new InstancePoolConfigException(e);
