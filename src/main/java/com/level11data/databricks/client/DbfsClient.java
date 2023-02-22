@@ -1,34 +1,25 @@
 package com.level11data.databricks.client;
 
-import java.util.Map;
-import java.util.HashMap;
-import com.level11data.databricks.client.entities.dbfs.ReadResponseDTO;
-import com.level11data.databricks.client.entities.dbfs.MoveRequestDTO;
-import com.level11data.databricks.client.entities.dbfs.DbfsMkdirsRequestDTO;
-import com.level11data.databricks.client.entities.dbfs.DbfsListResponseDTO;
-import com.level11data.databricks.client.entities.dbfs.DbfsDeleteRequestDTO;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.client.Client;
+import com.level11data.databricks.client.entities.dbfs.*;
+import com.level11data.databricks.session.WorkspaceSession;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import javax.ws.rs.core.MediaType;
-import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import javax.ws.rs.client.ClientBuilder;
-import com.level11data.databricks.client.entities.dbfs.PutRequestDTO;
-import com.level11data.databricks.client.entities.dbfs.AddBlockRequestDTO;
-import com.level11data.databricks.client.entities.dbfs.CloseRequestDTO;
-import com.level11data.databricks.client.entities.dbfs.CreateResponseDTO;
-import javax.ws.rs.client.Entity;
-import com.level11data.databricks.client.entities.dbfs.CreateRequestDTO;
-import javax.ws.rs.core.Response;
-import com.level11data.databricks.client.entities.dbfs.FileInfoDTO;
-import com.level11data.databricks.session.WorkspaceSession;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
-public class DbfsClient extends AbstractDatabricksClient
-{
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+public class DbfsClient extends AbstractDatabricksClient {
+
     private final String ENDPOINT_TARGET = "api/2.0/dbfs";
 
     public DbfsClient(WorkspaceSession session) {
@@ -37,27 +28,35 @@ public class DbfsClient extends AbstractDatabricksClient
 
     public FileInfoDTO getStatus(String path) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/get-status";
-        Response response = Session.getRequestBuilder(pathSuffix, "path", path).get();
+
+        Response response = Session.getRequestBuilder(pathSuffix,"path",path).get();
+
         checkResponse(response);
         return response.readEntity(FileInfoDTO.class);
     }
 
     public long create(CreateRequestDTO createRequestDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/create";
+
         Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(createRequestDTO));
+
         checkResponse(response);
         return response.readEntity(CreateResponseDTO.class).Handle;
     }
 
     public void close(CloseRequestDTO closeRequestDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/close";
-        Response response = this.Session.getRequestBuilder(pathSuffix).post(Entity.json(closeRequestDTO));
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(closeRequestDTO));
+
         checkResponse(response);
     }
 
     public void addBlock(AddBlockRequestDTO addBlockRequestDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/add-block";
+
         Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(addBlockRequestDTO));
+
         checkResponse(response);
     }
 
@@ -78,48 +77,66 @@ public class DbfsClient extends AbstractDatabricksClient
 
     public void delete(DbfsDeleteRequestDTO dbfsDeleteRequestDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/delete";
+
         Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(dbfsDeleteRequestDTO));
+
         checkResponse(response);
     }
 
-    private void checkResponse(Response response, final String message400) throws HttpException {
+    //TODO remove this and fold into super() class; why the need for another Exception Type??
+    private void checkResponse(Response response, String message400) throws HttpException {
+        // check response status code
         if (response.getStatus() == 400) {
             throw new HttpServerSideException(message400);
+        } else {
+            super.checkResponse(response);
         }
-        super.checkResponse(response);
     }
 
     public DbfsListResponseDTO list(String path) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/list";
+
         Response response = Session.getRequestBuilder(pathSuffix, "path", path).get();
+
         checkResponse(response);
         return response.readEntity(DbfsListResponseDTO.class);
     }
 
+    //TODO - Refactor to accept DTO
     public void mkdirs(String path) throws HttpException {
         DbfsMkdirsRequestDTO requestDTO = new DbfsMkdirsRequestDTO();
         requestDTO.Path = path;
+
         String pathSuffix = ENDPOINT_TARGET + "/mkdirs";
+
         Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(requestDTO));
+
         checkResponse(response);
     }
 
+    //TODO - Refactor to accept DTO
     public void move(String sourcePath, String destinationPath) throws HttpException {
         MoveRequestDTO requestDTO = new MoveRequestDTO();
         requestDTO.SourcePath = sourcePath;
         requestDTO.DestinationPath = destinationPath;
+
         String pathSuffix = ENDPOINT_TARGET + "/move";
-        Response response = this.Session.getRequestBuilder(pathSuffix).post(Entity.json(requestDTO));
-        this.checkResponse(response);
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(requestDTO));
+
+        checkResponse(response);
     }
 
     public ReadResponseDTO read(String path, long offset, long length) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/read";
-        Map<String, Object> queryParams = new HashMap<String, Object>();
+
+        Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("path", path);
         queryParams.put("offset", offset);
-        queryParams.put("length", length);
+        queryParams.put("length",length);
+
         Response response = Session.getRequestBuilder(pathSuffix, queryParams).get();
+
         checkResponse(response);
         return response.readEntity(ReadResponseDTO.class);
     }

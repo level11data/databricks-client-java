@@ -15,13 +15,13 @@ import javax.ws.rs.core.MediaType;
 public class InitScriptDTO
 {
     @JsonProperty("dbfs")
-    public DbfsStorageInfoDTO DBFS;
+        public DbfsStorageInfoDTO DBFS;
     
     @Override
     public String toString() {
         final ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         try {
-            return ow.writeValueAsString((Object)this);
+            return ow.writeValueAsString(this);
         }
         catch (JsonProcessingException e) {
             return "Could Not Marshal Object to JSON";
