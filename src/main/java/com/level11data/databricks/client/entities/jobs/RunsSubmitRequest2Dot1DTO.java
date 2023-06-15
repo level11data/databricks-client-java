@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class RunsSubmitRequest2Dot1DTO {
 
   @JsonProperty("tasks")
-  public JobTaskSettings2Dot1DTO Tasks;
+  public JobTaskSettings2Dot1DTO[] Tasks;
   @JsonProperty("run_name")
   public String RunName;
   @JsonProperty("timeout_seconds")
