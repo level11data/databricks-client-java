@@ -32,7 +32,6 @@ public class JobsClient extends AbstractDatabricksClient {
         checkResponse(response);
         return response.readEntity(JobDTO.class);
     }
-
     public long createJob(JobSettingsDTO jobSettingsDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/create";
 
@@ -69,6 +68,15 @@ public class JobsClient extends AbstractDatabricksClient {
 
     public RunsSubmitResponseDTO submitRun(RunsSubmitRequestDTO runsSubmitRequestDTO) throws HttpException {
         String pathSuffix = ENDPOINT_TARGET + "/runs/submit";
+
+        Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(runsSubmitRequestDTO));
+
+        checkResponse(response);
+        return response.readEntity(RunsSubmitResponseDTO.class);
+    }
+
+    public RunsSubmitResponseDTO submitRun2Dot1(RunsSubmitRequest2Dot1DTO runsSubmitRequestDTO) throws HttpException {
+        String pathSuffix = "api/2.1/jobs" + "/runs/submit";
 
         Response response = Session.getRequestBuilder(pathSuffix).post(Entity.json(runsSubmitRequestDTO));
 
