@@ -15,7 +15,10 @@ import javax.ws.rs.core.MediaType;
 public class InitScriptDTO
 {
     @JsonProperty("dbfs")
-        public DbfsStorageInfoDTO DBFS;
+    public DbfsStorageInfoDTO DBFS;
+
+    @JsonProperty("workspace")
+    public DbfsStorageInfoDTO workspace;
     
     @Override
     public String toString() {
